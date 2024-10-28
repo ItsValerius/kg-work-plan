@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1730055248624,
+      "tag": "0000_safe_gideon",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1730058208630,
+      "tag": "0001_violet_penance",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1730111567817,
+      "tag": "0002_moaning_lady_deathstrike",
+      "breakpoints": true
+    }
+  ]
+}
