@@ -20,8 +20,8 @@ const EventsPage = async () => {
   const missingUsers = await getMissingUsersPerEvent();
   const user = (await auth())?.user;
   return (
-    <main className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
+    <main className="container mx-auto py-8 ">
+      <div className="md:flex-row flex-col flex justify-between md:items-center mb-6">
         <div>
           <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
             Bevorstehende Veranstaltungen
@@ -32,11 +32,11 @@ const EventsPage = async () => {
         </div>
         {isAdmin(user) && (
           <Button asChild>
-            <Link href={`/events/new`}>Add Event</Link>
+            <Link href={`/events/new`}>Event hinzufügen</Link>
           </Button>
         )}
       </div>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="md:grid md:grid-cols-3 gap-4 flex flex-col">
         {events.map((event) => {
           return (
             <Card key={event.id}>

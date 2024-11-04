@@ -9,9 +9,9 @@ export default async function EventsLayout({
   const user = (await auth())?.user;
 
   return (
-    <>
+    <div className="px-2">
       {!user && <SignInButton />}
       {children}
-    </>
+    </div>
   );
 }
