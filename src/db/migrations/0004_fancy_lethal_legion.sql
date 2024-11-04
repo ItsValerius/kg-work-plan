@@ -1,0 +1,1 @@
+ALTER TABLE "kg-work-plan_task" ALTER COLUMN "description" SET NOT NULL;

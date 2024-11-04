@@ -9,7 +9,7 @@ export const events = pgTable("event", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
-  description: text("description"),
+  description: text("description").notNull(),
   startDate: timestamp("start_date", { mode: "date" }).notNull(),
   endDate: timestamp("end_date", { mode: "date" }).notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),

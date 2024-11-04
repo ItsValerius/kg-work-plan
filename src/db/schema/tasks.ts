@@ -12,11 +12,11 @@ export const tasks = pgTable("task", {
     .notNull()
     .references(() => shifts.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
-  description: text("description"),
+  description: text("description").notNull(),
   // Number of people needed for this task
   requiredParticipants: integer("required_participants").notNull().default(1),
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
-  addedById: text("added_by_id")
+  createdById: text("created_by_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
 });
@@ -35,9 +35,9 @@ export const taskParticipants = pgTable("task_participants", {
   groupName: text("group_name"),
   // Number of people in this group (defaults to 1 for individual assignments)
   groupSize: integer("group_size").notNull().default(1),
-  addedAt: timestamp("added_at", { mode: "date" }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
   // Who added this participant/group
-  addedById: text("added_by_id")
+  createdById: text("created_by_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
 });

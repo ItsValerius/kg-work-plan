@@ -1,0 +1,1 @@
+ALTER TABLE "kg-work-plan_task_participants" RENAME COLUMN "added_at" TO "created_at";

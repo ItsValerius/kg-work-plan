@@ -1,18 +1,17 @@
-import NextAuth from "next-auth";
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import db from "@/db/index";
-import EmailProvider from "next-auth/providers/email";
-import GoogleProvider from "next-auth/providers/google";
-import AppleProvider from "next-auth/providers/apple";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import * as dotenv from "dotenv";
-import { type DefaultSession } from "next-auth";
+import NextAuth, { type DefaultSession } from "next-auth";
+import type { Provider } from "next-auth/providers";
+import Apple from "next-auth/providers/apple";
+import Google from "next-auth/providers/google";
+import Email from "next-auth/providers/nodemailer";
 import {
-  users,
   accounts,
   sessions,
+  users,
   verificationTokens,
 } from "./db/schema/index";
-import { randomBytes, randomUUID } from "crypto";
 
 dotenv.config();
 
@@ -29,6 +28,38 @@ declare module "next-auth" {
     role?: string;
   }
 }
+
+const providers: Provider[] = [
+  Email({
+    server: {
+      host: process.env.EMAIL_SERVER_HOST,
+      port: process.env.EMAIL_SERVER_PORT,
+      auth: {
+        user: process.env.EMAIL_SERVER_USER,
+        pass: process.env.EMAIL_SERVER_PASSWORD,
+      },
+    },
+    from: process.env.EMAIL_FROM,
+  }),
+
+  Google,
+  // Apple,
+];
+
+export const providerMap = providers
+  .map((provider) => {
+    if (typeof provider === "function") {
+      const providerData = provider();
+
+      return { id: providerData.id, name: providerData.name };
+    } else {
+      if (provider.id === "nodemailer")
+        return { id: provider.id, name: "Email" };
+      return { id: provider.id, name: provider.name };
+    }
+  })
+  .filter((provider) => provider.id !== "credentials");
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: DrizzleAdapter(db, {
     usersTable: users,
@@ -36,47 +67,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     sessionsTable: sessions,
     verificationTokensTable: verificationTokens,
   }),
-  providers: [
-    EmailProvider({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: process.env.EMAIL_SERVER_PORT,
-        auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
-        },
-      },
-      from: process.env.EMAIL_FROM,
-    }),
-    // GoogleProvider({
-    //   profile(profile) {
-    //     return {
-    //       id: profile.sub,
-    //       name: profile.name,
-    //       email: profile.email,
-    //       image: profile.picture,
-    //       role: "user",
-    //     };
-    //   },
-    //   clientId: process.env.AUTH_GOOGLE_ID as string,
-    //   clientSecret: process.env.AUTH_GOOGLE_SECRET as string,
-    // }),
-    // AppleProvider({
-    //   profile(profile) {
-    //     return {
-    //       id: profile.sub,
-    //       name: profile.name,
-    //       email: profile.email,
-    //       image: null,
-    //       role: "user",
-    //     };
-    //   },
-    //   clientId: process.env.AUTH_APPLE_ID as string,
-    //   clientSecret: process.env.AUTH_APPLE_SECRET as string,
-    // }),
-  ],
+  providers: providers,
   session: {
     strategy: "database",
+  },
+  pages: {
+    signIn: "/signin",
+    verifyRequest: "/verify-request",
   },
   callbacks: {
     session({ session, user }) {
