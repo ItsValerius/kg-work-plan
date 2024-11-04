@@ -3,7 +3,6 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import * as dotenv from "dotenv";
 import NextAuth, { type DefaultSession } from "next-auth";
 import type { Provider } from "next-auth/providers";
-import Apple from "next-auth/providers/apple";
 import Google from "next-auth/providers/google";
 import Email from "next-auth/providers/nodemailer";
 import {
@@ -43,7 +42,6 @@ const providers: Provider[] = [
   }),
 
   Google,
-  // Apple,
 ];
 
 export const providerMap = providers
