@@ -1,6 +1,5 @@
-import { redirect } from "next/navigation";
-import { signIn, auth, providerMap } from "@/auth";
-import { AuthError } from "next-auth";
+import { providerMap, signIn } from "@/auth";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,10 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AuthError } from "next-auth";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 
 export default async function SignInPage(props: {
   searchParams: Promise<{ callbackUrl: string | undefined }>;

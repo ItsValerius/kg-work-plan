@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { taskParticipants, tasks, users } from "@/db/schema";
+import { taskParticipants } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createInsertSchema } from "drizzle-zod";
 import { useForm } from "react-hook-form";

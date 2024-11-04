@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import db from "@/db/index";
-import { taskParticipants, tasks } from "@/db/schema";
+import { taskParticipants } from "@/db/schema";
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {

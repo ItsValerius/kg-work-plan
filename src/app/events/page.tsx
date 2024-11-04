@@ -14,7 +14,6 @@ import { isAdmin } from "@/lib/auth/utils";
 import { getMissingUsersPerEvent } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import React from "react";
 
 const EventsPage = async () => {
   const events = await db.query.events.findMany({});

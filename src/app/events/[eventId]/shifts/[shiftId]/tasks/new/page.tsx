@@ -1,10 +1,9 @@
-import React from "react";
-import { TaskForm } from "./TaskForm";
 import { auth } from "@/auth";
-import { notFound, redirect } from "next/navigation";
-import { events } from "@/db/schema";
 import db from "@/db";
+import { events } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { notFound, redirect } from "next/navigation";
+import { TaskForm } from "./TaskForm";
 
 const NewShiftPage = async (props: {
   params: Promise<{ eventId: string; shiftId: string }>;

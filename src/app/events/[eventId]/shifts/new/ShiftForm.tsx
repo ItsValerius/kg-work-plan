@@ -1,10 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { createInsertSchema } from "drizzle-zod";
-import { shifts } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,16 +11,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
 import { TimePicker } from "@/components/ui/time-picker";
+import { shifts } from "@/db/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createInsertSchema } from "drizzle-zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const formSchema = createInsertSchema(shifts);
 

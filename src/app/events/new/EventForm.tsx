@@ -1,11 +1,7 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { createInsertSchema } from "drizzle-zod";
-import { events } from "@/db/schema";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -21,12 +17,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { events } from "@/db/schema";
 import { cn } from "@/lib/utils";
-import { CalendarIcon } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
-import { redirect } from "next/navigation";
 import { de } from "date-fns/locale";
+import { createInsertSchema } from "drizzle-zod";
+import { CalendarIcon } from "lucide-react";
+import { redirect } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const formSchema = createInsertSchema(events);
 

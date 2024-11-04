@@ -1,21 +1,19 @@
-import React from "react";
-import { UserForm } from "./UserForm";
 import { auth } from "@/auth";
-import { notFound, redirect } from "next/navigation";
-import db from "@/db";
-import { eq } from "drizzle-orm";
-import { events, tasks } from "@/db/schema";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import db from "@/db";
+import { events, tasks } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { UserForm } from "./UserForm";
 
 const TaskDetailsPage = async (props: {
   params: Promise<{ eventId: string; shiftId: string; taskId: string }>;

@@ -1,7 +1,6 @@
-import React from "react";
-import { EventForm } from "./EventForm";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { EventForm } from "./EventForm";
 
 const NewEventPage = async () => {
   const session = await auth();
