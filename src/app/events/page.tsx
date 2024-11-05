@@ -9,16 +9,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import db from "@/db";
+import { events } from "@/db/schema";
 import { isAdmin } from "@/lib/auth/utils";
 import { getMissingUsersPerEvent } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 
 const EventsPage = async () => {
   const events = await db.query.events.findMany({});
-  const missingUsers = await getMissingUsersPerEvent();
-  console.log(missingUsers);
 
   const user = (await auth())?.user;
   return (
@@ -41,69 +42,124 @@ const EventsPage = async () => {
       <div className="md:grid md:grid-cols-3 gap-4 flex flex-col">
         {events.map((event) => {
           return (
-            <Card key={event.id}>
-              <CardHeader>
-                <CardTitle>{event.name}</CardTitle>
-                <CardDescription>{event.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-2">
-                <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-                  Übersicht
-                </h2>
-                <div>
-                  <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-                    Datum:
-                  </h3>
-                  <small className="text-sm font-medium leading-none">
-                    {event.startDate.toLocaleDateString("DE-de") +
-                      " - " +
-                      event.endDate.toLocaleDateString("DE-de")}
-                  </small>
-                </div>
-                <div>
-                  <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-                    Aufgaben:
-                  </h3>
-                  <Progress
-                    className=""
-                    value={
-                      (Number(
-                        missingUsers.find(
-                          (missingUser) => missingUser.eventId === event.id
-                        )?.totalAssigned
-                      ) /
-                        Number(
-                          missingUsers.find(
-                            (missingUser) => missingUser.eventId === event.id
-                          )?.totalRequired
-                        )) *
-                      100
-                    }
-                  />
-                  <small className="text-sm font-medium leading-none">
-                    {(missingUsers.find(
-                      (missingUser) => missingUser.eventId === event.id
-                    )?.totalAssigned || 0) +
-                      " von " +
-                      (missingUsers.find(
-                        (missingUser) => missingUser.eventId === event.id
-                      )?.totalRequired || 0) +
-                      " Personen"}
-                  </small>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button asChild variant={"outline"}>
-                  <Link href={`/events/${event.id}`}>
-                    Aufgabenübersicht <ArrowRight />
-                  </Link>
-                </Button>
-              </CardFooter>
-            </Card>
+            <Suspense key={event.id} fallback={<EventSkeletonCard />}>
+              <EventCard {...event} />
+            </Suspense>
           );
         })}
       </div>
     </main>
+  );
+};
+
+function EventSkeletonCard() {
+  return (
+    <Card className="h-[377px]">
+      <CardHeader>
+        <CardTitle>
+          <Skeleton className="h-6 w-40" />
+        </CardTitle>
+        <CardDescription>
+          <Skeleton className="h-5 w-32" />
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-2">
+        <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+          Übersicht
+        </h2>
+        <div>
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+            Datum:
+          </h3>
+          <small className="text-sm font-medium leading-none flex gap-2">
+            <Skeleton className="h-5 w-20" /> -
+            <Skeleton className="h-5 w-20" />
+          </small>
+        </div>
+        <div>
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+            Aufgaben:
+          </h3>
+          <Progress value={null} />
+          <small className="text-sm font-medium leading-none flex mt-2">
+            <Skeleton className="h-5 w-32" />
+          </small>
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Button asChild variant={"outline"}>
+          <Link href="#">
+            Aufgabenübersicht <ArrowRight />
+          </Link>
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
+
+const EventCard = async (event: typeof events.$inferSelect) => {
+  const missingUsers = await getMissingUsersPerEvent();
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{event.name}</CardTitle>
+        <CardDescription>{event.description}</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-2">
+        <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+          Übersicht
+        </h2>
+        <div>
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+            Datum:
+          </h3>
+          <small className="text-sm font-medium leading-none">
+            {event.startDate.toLocaleDateString("DE-de") +
+              " - " +
+              event.endDate.toLocaleDateString("DE-de")}
+          </small>
+        </div>
+        <div>
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+            Aufgaben:
+          </h3>
+          <Progress
+            className=""
+            value={
+              (Number(
+                missingUsers.find(
+                  (missingUser) => missingUser.eventId === event.id
+                )?.totalAssigned
+              ) /
+                Number(
+                  missingUsers.find(
+                    (missingUser) => missingUser.eventId === event.id
+                  )?.totalRequired
+                )) *
+              100
+            }
+          />
+          <small className="text-sm font-medium leading-none">
+            {(missingUsers.find(
+              (missingUser) => missingUser.eventId === event.id
+            )?.totalAssigned || 0) +
+              " von " +
+              (missingUsers.find(
+                (missingUser) => missingUser.eventId === event.id
+              )?.totalRequired || 0) +
+              " Personen"}
+          </small>
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Button asChild variant={"outline"}>
+          <Link href={`/events/${event.id}`}>
+            Aufgabenübersicht <ArrowRight />
+          </Link>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 
