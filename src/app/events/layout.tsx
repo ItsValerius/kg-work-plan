@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import Footer from "@/components/Footer";
+import ProfileButton from "@/components/ProfileButton";
 import SignInButton from "@/components/SignInButton";
 
 export default async function EventsLayout({
@@ -11,7 +12,7 @@ export default async function EventsLayout({
 
   return (
     <div className="px-2 flex flex-col justify-between min-h-screen">
-      {!user && <SignInButton />}
+      {!user ? <SignInButton /> : <ProfileButton />}
       {children}
       <Footer />
     </div>

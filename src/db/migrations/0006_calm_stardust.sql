@@ -1,0 +1,1 @@
+ALTER TABLE "kg-work-plan_task_participants" ADD CONSTRAINT "kg-work-plan_task_participants_task_id_user_id_unique" UNIQUE("task_id","user_id");

@@ -1,13 +1,7 @@
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import React from "react";
+import LinkButton from "./LinkButton";
 
 const SignInButton = () => {
-  return (
-    <Button asChild variant="link" className="absolute right-0">
-      <Link href={"/signin"}>Anmelden</Link>
-    </Button>
-  );
+  return <LinkButton url="signin" text="Anmelden" />;
 };
 
 export default SignInButton;

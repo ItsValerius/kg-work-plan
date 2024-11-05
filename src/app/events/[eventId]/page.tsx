@@ -42,15 +42,15 @@ export default async function EventPage(props: {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between mb-6 flex-col">
+        <Button asChild variant="outline" className="w-fit">
+          <Link href="/events">
+            {" "}
+            <ArrowLeft />
+            Zurück
+          </Link>
+        </Button>
         <div>
-          <Button asChild variant="outline">
-            <Link href="/events">
-              {" "}
-              <ArrowLeft />
-              Zurück
-            </Link>
-          </Button>
           <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
             {event.name}
           </h1>
@@ -62,7 +62,7 @@ export default async function EventPage(props: {
           <p className="text-sm text-muted-foreground">{event.description}</p>
         </div>
         {isAdmin(user) && (
-          <Button asChild>
+          <Button asChild className="w-fit self-end">
             <Link href={`/events/${event.id}/shifts/new`}>
               Schicht hinzufügen
             </Link>
@@ -198,9 +198,21 @@ async function TaskCard({
           ))}
       </CardContent>
       <CardFooter>
-        <Button asChild className="text-wrap">
-          <Link href={`/events/${eventId}/shifts/${shiftId}/tasks/${task.id}`}>
-            Zur Aufgabe anmelden
+        <Button
+          asChild={task.requiredParticipants > participantsAmount}
+          disabled={participantsAmount >= task.requiredParticipants}
+          className="text-wrap disabled:cursor-not-allowed"
+        >
+          <Link
+            href={
+              participantsAmount >= task.requiredParticipants
+                ? "#"
+                : `/events/${eventId}/shifts/${shiftId}/tasks/${task.id}`
+            }
+          >
+            {participantsAmount >= task.requiredParticipants
+              ? "Vollständig besetzt"
+              : "Zur Aufgabe anmelden"}{" "}
           </Link>
         </Button>
       </CardFooter>

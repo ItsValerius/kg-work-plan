@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import db from "@/db/index";
-import { taskParticipants } from "@/db/schema";
+import { taskParticipants, tasks } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -11,6 +12,34 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+
+    if (
+      await db.query.taskParticipants.findFirst({
+        where: and(
+          eq(taskParticipants.userId, session.user.id),
+          eq(taskParticipants.taskId, body.taskId)
+        ),
+      })
+    ) {
+      return Response.json(
+        { error: "Benutzer bereits zur Aufgabe eingetragen." },
+        { status: 422 }
+      );
+    }
+
+    const task = await db.query.tasks.findFirst({
+      where: eq(tasks.id, body.taskId),
+    });
+
+    if (task && body.groupSize > task?.requiredParticipants) {
+      return Response.json(
+        {
+          error:
+            "Die Mitgliederanzahl der Gruppe ist zu groß für diese Aufgabe.",
+        },
+        { status: 422 }
+      );
+    }
 
     const newTaskParticipant = await db
       .insert(taskParticipants)

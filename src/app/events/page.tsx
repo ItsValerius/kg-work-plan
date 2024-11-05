@@ -18,6 +18,8 @@ import Link from "next/link";
 const EventsPage = async () => {
   const events = await db.query.events.findMany({});
   const missingUsers = await getMissingUsersPerEvent();
+  console.log(missingUsers);
+
   const user = (await auth())?.user;
   return (
     <main className="container mx-auto py-8 ">

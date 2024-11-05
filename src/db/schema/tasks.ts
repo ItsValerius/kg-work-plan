@@ -1,4 +1,4 @@
-import { timestamp, text, integer } from "drizzle-orm/pg-core";
+import { timestamp, text, integer, unique } from "drizzle-orm/pg-core";
 import { pgTable } from "../util";
 import { users } from "./users";
 import { shifts } from "./shifts";
@@ -22,25 +22,31 @@ export const tasks = pgTable("task", {
 });
 
 // Table for task participants (can be registered users or unnamed group members)
-export const taskParticipants = pgTable("task_participants", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  taskId: text("task_id")
-    .notNull()
-    .references(() => tasks.id, { onDelete: "cascade" }),
-  // Optional reference to a registered user
-  userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
-  // Used when adding unnamed participants (e.g., "Bob's friends")
-  groupName: text("group_name"),
-  // Number of people in this group (defaults to 1 for individual assignments)
-  groupSize: integer("group_size").notNull().default(1),
-  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
-  // Who added this participant/group
-  createdById: text("created_by_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-});
+export const taskParticipants = pgTable(
+  "task_participants",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    taskId: text("task_id")
+      .notNull()
+      .references(() => tasks.id, { onDelete: "cascade" }),
+    // Optional reference to a registered user
+    userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
+    // Used when adding unnamed participants (e.g., "Bob's friends")
+    groupName: text("group_name"),
+    // Number of people in this group (defaults to 1 for individual assignments)
+    groupSize: integer("group_size").notNull().default(1),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+    // Who added this participant/group
+    createdById: text("created_by_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (table) => ({
+    unique_task_user: unique().on(table.taskId, table.userId),
+  })
+);
 
 export const tasksRelations = relations(tasks, ({ one, many }) => ({
   shift: one(shifts, {

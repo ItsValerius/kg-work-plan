@@ -1,5 +1,6 @@
 "use client";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { taskParticipants } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createInsertSchema } from "drizzle-zod";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -47,7 +49,7 @@ export function UserForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    await fetch(
+    const res = await fetch(
       `/api/events/${eventId}/shifts/${shiftId}/tasks/${taskId}/users`,
       {
         method: "POST",
@@ -57,9 +59,27 @@ export function UserForm({
         },
       }
     );
+    const json = await res.json();
+    console.log(json);
+    if (json.error) {
+      if (res.status === 422) {
+        form.setError("root", { type: "422", message: json.error });
+      } else {
+        form.setError("root", { type: "500" });
+      }
+    }
   }
   return (
     <Form {...form}>
+      {form.formState.errors.root && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Fehler</AlertTitle>
+          <AlertDescription>
+            {form.formState.errors.root.message}
+          </AlertDescription>
+        </Alert>
+      )}
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
@@ -98,7 +118,10 @@ export function UserForm({
           )}
         />
 
-        <Button type="submit">Anmelden</Button>
+        <Button type="submit">
+          {form.formState.isSubmitting && <Loader2 className="animate-spin" />}
+          Anmelden
+        </Button>
       </form>
     </Form>
   );

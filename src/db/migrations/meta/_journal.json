@@ -43,6 +43,13 @@
       "when": 1730122278450,
       "tag": "0005_great_unus",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1730799816722,
+      "tag": "0006_calm_stardust",
+      "breakpoints": true
     }
   ]
 }
