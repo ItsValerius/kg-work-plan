@@ -30,9 +30,24 @@ export async function POST(request: NextRequest) {
 
     const task = await db.query.tasks.findFirst({
       where: eq(tasks.id, body.taskId),
+      with: { participants: true },
     });
+    if (!task) {
+      return Response.json(
+        { error: "Aufgabe existiert nicht." },
+        { status: 404 }
+      );
+    }
 
-    if (task && body.groupSize > task?.requiredParticipants) {
+    const currentParticipantsCount = task.participants.reduce(
+      (accumulator, participant) => accumulator + participant.groupSize,
+      0
+    );
+
+    if (
+      body.groupSize > task.requiredParticipants ||
+      body.groupSize + currentParticipantsCount > task.requiredParticipants
+    ) {
       return Response.json(
         {
           error:

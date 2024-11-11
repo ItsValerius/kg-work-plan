@@ -1,5 +1,4 @@
 // app/events/[eventId]/page.tsx
-import { auth } from "@/auth";
 import DeleteButton from "@/components/DeleteButton";
 import EditButton from "@/components/EditButton";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import db from "@/db/index";
@@ -26,8 +32,8 @@ import { deleteShift, deleteTask } from "./actions";
 export default async function EventPage(props: {
   params: Promise<{ eventId: string }>;
 }) {
-  const user = (await auth())?.user;
   const params = await props.params;
+  const userIsAdmin = await isAdmin();
   const event = await db.query.events.findFirst({
     where: eq(events.id, params.eventId),
     with: {
@@ -64,7 +70,7 @@ export default async function EventPage(props: {
           </small>
           <p className="text-sm text-muted-foreground">{event.description}</p>
         </div>
-        {isAdmin(user) && (
+        {userIsAdmin && (
           <Button asChild className="w-fit self-end">
             <Link href={`/events/${event.id}/shifts/new`}>
               Schicht hinzufügen
@@ -90,7 +96,7 @@ export default async function EventPage(props: {
                     minute: "numeric",
                   })}
               </CardDescription>
-              {isAdmin(user) && (
+              {userIsAdmin && (
                 <>
                   <div className="absolute self-end flex gap-2">
                     <DeleteButton
@@ -102,11 +108,7 @@ export default async function EventPage(props: {
                       <EditButton className={"w-fit"} />
                     </Link>
                   </div>
-                  <Button
-                    asChild
-                    variant={"secondary"}
-                    className="w-fit self-end"
-                  >
+                  <Button asChild className="w-fit self-end">
                     <Link
                       href={`/events/${event.id}/shifts/${shift.id}/tasks/new`}
                     >
@@ -124,7 +126,7 @@ export default async function EventPage(props: {
                     eventId={event.id}
                     shiftId={shift.id}
                     task={task}
-                    isAdmin={isAdmin(user)}
+                    isAdmin={userIsAdmin}
                   />
                 </Suspense>
               ))}
@@ -211,21 +213,28 @@ async function TaskCard({
       </CardContent>
 
       <CardContent>
-        {isAdmin &&
-          participants.map((participant) => (
-            <ul
-              className="my-6 ml-6 list-disc [&>li]:mt-2"
-              key={participant.id}
-            >
-              <li> Email: {participant.user?.email}</li>
+        <Dialog>
+          <DialogTrigger>Übersicht</DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="border-b">
+                Bereits eingetragen
+              </DialogTitle>
 
-              {participant.groupName && (
-                <li className="ml-4">
-                  Gruppenname: {participant.groupName} ({participant.groupSize})
-                </li>
-              )}
-            </ul>
-          ))}
+              {participants.map((participant) => {
+                return (
+                  <span key={participant.id}>
+                    {participant.groupName
+                      ? participant.groupName
+                      : participant.user?.name || "-"}
+                    {participant.groupSize > 1 &&
+                      "(" + participant.groupSize + ")"}
+                  </span>
+                );
+              })}
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
       </CardContent>
       <CardFooter>
         <Button

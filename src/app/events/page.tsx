@@ -1,4 +1,3 @@
-import { auth } from "@/auth";
 import DeleteButton from "@/components/DeleteButton";
 import EditButton from "@/components/EditButton";
 import { Button } from "@/components/ui/button";
@@ -24,8 +23,7 @@ import { deleteEvent } from "./actions";
 const EventsPage = async () => {
   const events = await db.query.events.findMany({});
 
-  const user = (await auth())?.user;
-  const userIsAdmin = isAdmin(user);
+  const userIsAdmin = await isAdmin();
   return (
     <main className="container mx-auto py-8 ">
       <div className="md:flex-row flex-col flex justify-between md:items-center mb-6">

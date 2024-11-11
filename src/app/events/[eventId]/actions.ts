@@ -1,6 +1,5 @@
 "use server";
 
-import { auth } from "@/auth";
 import db from "@/db";
 import { shifts, tasks } from "@/db/schema";
 import { isAdmin } from "@/lib/auth/utils";
@@ -9,8 +8,7 @@ import { revalidatePath } from "next/cache";
 
 export const deleteTask = async (taskId: string) => {
   try {
-    const session = await auth();
-    if (!isAdmin(session?.user)) {
+    if (!(await isAdmin())) {
       throw new Error("Unauthorized");
     }
 
@@ -27,8 +25,7 @@ export const deleteTask = async (taskId: string) => {
 
 export const deleteShift = async (shiftId: string) => {
   try {
-    const session = await auth();
-    if (!isAdmin(session?.user)) {
+    if (!(await isAdmin())) {
       throw new Error("Unauthorized");
     }
 

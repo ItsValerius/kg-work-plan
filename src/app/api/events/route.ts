@@ -7,7 +7,7 @@ import { isAdmin } from "@/lib/auth/utils";
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user?.id || !isAdmin(session.user)) {
+    if (!session?.user?.id || !(await isAdmin())) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 

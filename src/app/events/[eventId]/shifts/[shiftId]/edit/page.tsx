@@ -14,7 +14,7 @@ const EditShiftPapge = async (props: {
   params: Promise<{ eventId: string; shiftId: string }>;
 }) => {
   const session = await auth();
-  if (!session?.user?.id || !isAdmin(session.user)) return redirect("/");
+  if (!session?.user?.id || !(await isAdmin())) return redirect("/");
   const params = await props.params;
   const event = await db.query.events.findFirst({
     where: eq(events.id, params.eventId),

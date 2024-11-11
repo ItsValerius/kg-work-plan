@@ -26,7 +26,7 @@ const EditEventPage = async (props: {
     },
   });
 
-  if (!event || !user?.id || !isAdmin(user)) {
+  if (!event || !user?.id || !(await isAdmin())) {
     notFound();
   }
   return (

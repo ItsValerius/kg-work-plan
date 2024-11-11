@@ -1,6 +1,5 @@
 "use server";
 
-import { auth } from "@/auth";
 import db from "@/db";
 import { events } from "@/db/schema";
 import { isAdmin } from "@/lib/auth/utils";
@@ -9,8 +8,7 @@ import { revalidatePath } from "next/cache";
 
 export const deleteEvent = async (eventId: string) => {
   try {
-    const session = await auth();
-    if (!isAdmin(session?.user)) {
+    if (!(await isAdmin())) {
       throw new Error("Unauthorized");
     }
 

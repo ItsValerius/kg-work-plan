@@ -1,5 +1,11 @@
-import { User } from "next-auth";
+import { auth } from "@/auth";
 
-export const isAdmin = (user: User | undefined) => {
-  return typeof user !== "undefined" && user.role === "admin";
+export const isAdmin = async () => {
+  const session = await auth();
+  return typeof session?.user !== "undefined" && session.user.role === "admin";
+};
+
+export const isLoggedIn = async () => {
+  const session = await auth();
+  return !!session?.user;
 };
