@@ -4,11 +4,12 @@ import db from "@/db/index";
 import { NextRequest } from "next/server";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
+import { isAdmin } from "@/lib/auth/utils";
 
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user?.id) {
+    if (!session?.user?.id || !isAdmin(session.user)) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -39,11 +40,20 @@ export async function POST(request: NextRequest) {
     const newShift = await db
       .insert(shifts)
       .values({
+        id: body.id,
         name: body.name,
         startTime: shiftStartTime,
         endTime: shiftEndTime,
         eventId: body.eventId,
         createdById: session.user.id,
+      })
+      .onConflictDoUpdate({
+        target: shifts.id,
+        set: {
+          name: body.name,
+          startTime: shiftStartTime,
+          endTime: shiftEndTime,
+        },
       })
       .returning();
 

@@ -15,6 +15,7 @@ import { TimePicker } from "@/components/ui/time-picker";
 import { shifts } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createInsertSchema } from "drizzle-zod";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -23,17 +24,20 @@ const formSchema = createInsertSchema(shifts);
 export function ShiftForm({
   userId,
   eventId,
+  shift,
 }: {
   userId: string;
   eventId: string;
+  shift: typeof shifts.$inferSelect | null | undefined;
 }) {
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      startTime: new Date(),
-      endTime: new Date(),
+      id: shift?.id,
+      name: shift?.name || "",
+      startTime: shift?.startTime || new Date(),
+      endTime: shift?.endTime || new Date(),
       createdById: userId,
       eventId: eventId,
     },
@@ -53,6 +57,7 @@ export function ShiftForm({
     const json = await res.json();
     console.log(values);
     console.log(json);
+    redirect(`/events/${eventId}`);
   }
   return (
     <Form {...form}>
@@ -97,7 +102,7 @@ export function ShiftForm({
           )}
         />
 
-        <Button type="submit">Erstellen</Button>
+        <Button type="submit">{shift ? "Bearbeiten" : "Erstellen"}</Button>
       </form>
     </Form>
   );

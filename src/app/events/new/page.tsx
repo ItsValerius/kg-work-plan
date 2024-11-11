@@ -7,7 +7,7 @@ const NewEventPage = async () => {
   if (!session?.user?.id) return redirect("/");
   return (
     <div>
-      <EventForm userId={session.user.id} />
+      <EventForm userId={session.user.id} event={null} />
     </div>
   );
 };

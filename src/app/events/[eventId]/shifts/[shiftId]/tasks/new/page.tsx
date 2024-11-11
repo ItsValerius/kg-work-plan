@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import db from "@/db";
-import { events } from "@/db/schema";
+import { events, shifts } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
 import { TaskForm } from "./TaskForm";
@@ -14,7 +14,10 @@ const NewShiftPage = async (props: {
   const event = await db.query.events.findFirst({
     where: eq(events.id, params.eventId),
   });
-  if (!event) return notFound();
+  const shift = await db.query.shifts.findFirst({
+    where: eq(shifts.id, params.shiftId),
+  });
+  if (!event || !shift) return notFound();
 
   return (
     <div>
@@ -22,6 +25,7 @@ const NewShiftPage = async (props: {
         userId={session.user.id}
         eventId={params.eventId}
         shiftId={params.shiftId}
+        task={null}
       />
     </div>
   );

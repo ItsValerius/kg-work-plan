@@ -30,15 +30,22 @@ import { z } from "zod";
 
 const formSchema = createInsertSchema(events);
 
-export function EventForm({ userId }: { userId: string }) {
+export function EventForm({
+  userId,
+  event,
+}: {
+  userId: string;
+  event: typeof events.$inferSelect | null | undefined;
+}) {
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      startDate: new Date(),
-      endDate: new Date(),
-      description: "",
+      id: event?.id,
+      name: event?.name || "",
+      startDate: event?.startDate || new Date(),
+      endDate: event?.endDate || new Date(),
+      description: event?.description || "",
       createdById: userId,
     },
   });
@@ -177,7 +184,7 @@ export function EventForm({ userId }: { userId: string }) {
           )}
         />
 
-        <Button type="submit">Erstellen</Button>
+        <Button type="submit">{event ? "Bearbeiten" : "Erstellen"}</Button>
       </form>
     </Form>
   );

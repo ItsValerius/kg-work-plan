@@ -1,5 +1,7 @@
 // app/events/[eventId]/page.tsx
 import { auth } from "@/auth";
+import DeleteButton from "@/components/DeleteButton";
+import EditButton from "@/components/EditButton";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,6 +21,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { deleteShift, deleteTask } from "./actions";
 
 export default async function EventPage(props: {
   params: Promise<{ eventId: string }>;
@@ -73,31 +76,44 @@ export default async function EventPage(props: {
       <div className="space-y-6">
         {event.shifts.map((shift) => (
           <Card key={shift.id} className=" p-4">
-            <CardHeader className="flex justify-between items-center flex-row">
-              <div>
-                <h2 className="scroll-m-20  text-3xl font-semibold tracking-tight first:mt-0">
-                  {shift.name}
-                </h2>
-                <small>
-                  {shift.startTime.toLocaleTimeString("de-DE", {
+            <CardHeader>
+              <CardTitle>{shift.name}</CardTitle>
+
+              <CardDescription>
+                {shift.startTime.toLocaleTimeString("de-DE", {
+                  hour: "numeric",
+                  minute: "numeric",
+                }) +
+                  " - " +
+                  shift.endTime.toLocaleTimeString("de-DE", {
                     hour: "numeric",
                     minute: "numeric",
-                  }) +
-                    " - " +
-                    shift.endTime.toLocaleTimeString("de-DE", {
-                      hour: "numeric",
-                      minute: "numeric",
-                    })}
-                </small>
-              </div>
+                  })}
+              </CardDescription>
               {isAdmin(user) && (
-                <Button asChild variant={"secondary"}>
-                  <Link
-                    href={`/events/${event.id}/shifts/${shift.id}/tasks/new`}
+                <>
+                  <div className="absolute self-end flex gap-2">
+                    <DeleteButton
+                      id={shift.id}
+                      deleteAction={deleteShift}
+                      className="w-fit "
+                    />
+                    <Link href={`/events/${event.id}/shifts/${shift.id}/edit`}>
+                      <EditButton className={"w-fit"} />
+                    </Link>
+                  </div>
+                  <Button
+                    asChild
+                    variant={"secondary"}
+                    className="w-fit self-end"
                   >
-                    Aufgabe Hinzufügen
-                  </Link>
-                </Button>
+                    <Link
+                      href={`/events/${event.id}/shifts/${shift.id}/tasks/new`}
+                    >
+                      Aufgabe Hinzufügen
+                    </Link>
+                  </Button>
+                </>
               )}
             </CardHeader>
 
@@ -167,6 +183,20 @@ async function TaskCard({
     <Card>
       <CardHeader>
         <CardTitle className="font-medium">{task.name}</CardTitle>
+        {isAdmin && (
+          <div className="self-end absolute flex gap-2">
+            <DeleteButton
+              className="w-fit "
+              id={task.id}
+              deleteAction={deleteTask}
+            />
+            <Link
+              href={`/events/${eventId}/shifts/${shiftId}/tasks/${task.id}/edit`}
+            >
+              <EditButton className="w-fit" />
+            </Link>
+          </div>
+        )}
         <CardDescription className="text-sm text-gray-500">
           {task.description}
         </CardDescription>

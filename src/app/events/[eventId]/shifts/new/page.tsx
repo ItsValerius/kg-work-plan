@@ -11,7 +11,11 @@ const NewShiftPage = async (props: {
 
   return (
     <div>
-      <ShiftForm userId={session.user.id} eventId={params.eventId} />
+      <ShiftForm
+        userId={session.user.id}
+        eventId={params.eventId}
+        shift={null}
+      />
     </div>
   );
 };

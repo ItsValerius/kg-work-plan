@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { tasks } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createInsertSchema } from "drizzle-zod";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -23,20 +24,23 @@ export function TaskForm({
   userId,
   shiftId,
   eventId,
+  task,
 }: {
   userId: string;
   shiftId: string;
   eventId: string;
+  task: typeof tasks.$inferSelect | null | undefined;
 }) {
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      description: "",
+      id: task?.id,
+      name: task?.name || "",
+      description: task?.description || "",
       createdById: userId,
       shiftId: shiftId,
-      requiredParticipants: 1,
+      requiredParticipants: task?.requiredParticipants || 1,
     },
   });
 
@@ -54,6 +58,7 @@ export function TaskForm({
     const json = await res.json();
     console.log(values);
     console.log(json);
+    redirect(`/events/${eventId}`);
   }
   return (
     <Form {...form}>
@@ -112,7 +117,7 @@ export function TaskForm({
           )}
         />
 
-        <Button type="submit">Erstellen</Button>
+        <Button type="submit">{task ? "Bearbeiten" : "Erstellen"}</Button>
       </form>
     </Form>
   );

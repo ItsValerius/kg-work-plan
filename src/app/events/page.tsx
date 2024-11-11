@@ -1,4 +1,6 @@
 import { auth } from "@/auth";
+import DeleteButton from "@/components/DeleteButton";
+import EditButton from "@/components/EditButton";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,11 +19,13 @@ import { getMissingUsersPerEvent } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { deleteEvent } from "./actions";
 
 const EventsPage = async () => {
   const events = await db.query.events.findMany({});
 
   const user = (await auth())?.user;
+  const userIsAdmin = isAdmin(user);
   return (
     <main className="container mx-auto py-8 ">
       <div className="md:flex-row flex-col flex justify-between md:items-center mb-6">
@@ -33,7 +37,7 @@ const EventsPage = async () => {
             Hier findest du alle Bevorstehenden Veranstaltungen
           </small>
         </div>
-        {isAdmin(user) && (
+        {userIsAdmin && (
           <Button asChild>
             <Link href={`/events/new`}>Event hinzufügen</Link>
           </Button>
@@ -43,7 +47,7 @@ const EventsPage = async () => {
         {events.map((event) => {
           return (
             <Suspense key={event.id} fallback={<EventSkeletonCard />}>
-              <EventCard {...event} />
+              <EventCard event={event} userIsAdmin />
             </Suspense>
           );
         })}
@@ -97,13 +101,31 @@ function EventSkeletonCard() {
   );
 }
 
-const EventCard = async (event: typeof events.$inferSelect) => {
+const EventCard = async ({
+  event,
+  userIsAdmin,
+}: {
+  event: typeof events.$inferSelect;
+  userIsAdmin: boolean;
+}) => {
   const missingUsers = await getMissingUsersPerEvent();
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>{event.name}</CardTitle>
+        {userIsAdmin && (
+          <div className="self-end absolute flex gap-2">
+            <DeleteButton
+              deleteAction={deleteEvent}
+              id={event.id}
+              className="w-fit "
+            />
+            <Link href={`events/${event.id}/edit`}>
+              <EditButton className="w-fit" />
+            </Link>
+          </div>
+        )}
         <CardDescription>{event.description}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
