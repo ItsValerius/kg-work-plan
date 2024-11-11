@@ -108,7 +108,8 @@ const EventCard = async ({
   event: typeof events.$inferSelect;
   userIsAdmin: boolean;
 }) => {
-  const missingUsers = await getMissingUsersPerEvent();
+  const { currentParticipantsCount, requiredParticipantsCount } =
+    await getMissingUsersPerEvent(event.id);
 
   return (
     <Card>
@@ -148,28 +149,12 @@ const EventCard = async ({
           </h3>
           <Progress
             className=""
-            value={
-              (Number(
-                missingUsers.find(
-                  (missingUser) => missingUser.eventId === event.id
-                )?.totalAssigned
-              ) /
-                Number(
-                  missingUsers.find(
-                    (missingUser) => missingUser.eventId === event.id
-                  )?.totalRequired
-                )) *
-              100
-            }
+            value={(currentParticipantsCount / requiredParticipantsCount) * 100}
           />
           <small className="text-sm font-medium leading-none">
-            {(missingUsers.find(
-              (missingUser) => missingUser.eventId === event.id
-            )?.totalAssigned || 0) +
+            {currentParticipantsCount +
               " von " +
-              (missingUsers.find(
-                (missingUser) => missingUser.eventId === event.id
-              )?.totalRequired || 0) +
+              requiredParticipantsCount +
               " Personen"}
           </small>
         </div>

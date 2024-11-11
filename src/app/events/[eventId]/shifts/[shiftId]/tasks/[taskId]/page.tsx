@@ -30,9 +30,10 @@ const TaskDetailsPage = async (props: {
   const task = await db.query.tasks.findFirst({
     where: eq(tasks.id, params.taskId),
   });
+
   if (!event || !task) return notFound();
   return (
-    <div className="flex h-screen w-full items-center justify-center px-4 flex-col gap-4">
+    <div className="flex my-auto w-full items-center justify-center px-4 flex-col gap-4">
       <Card className="w-full max-w-xl mx-auto">
         <CardHeader>
           <CardTitle>
@@ -50,6 +51,7 @@ const TaskDetailsPage = async (props: {
             taskId={params.taskId}
             userId={session.user.id}
             eventId={params.eventId}
+            taskName={task.name}
           />
         </CardContent>
       </Card>

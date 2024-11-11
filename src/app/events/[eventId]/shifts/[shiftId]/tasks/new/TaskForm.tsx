@@ -56,8 +56,6 @@ export function TaskForm({
       },
     });
     const json = await res.json();
-    console.log(values);
-    console.log(json);
     redirect(`/events/${eventId}`);
   }
   return (

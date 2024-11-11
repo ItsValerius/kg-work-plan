@@ -16,7 +16,9 @@ import { taskParticipants } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createInsertSchema } from "drizzle-zod";
 import { AlertCircle, Loader2 } from "lucide-react";
+import { redirect, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = createInsertSchema(taskParticipants).extend({
@@ -28,11 +30,13 @@ export function UserForm({
   taskId,
   shiftId,
   eventId,
+  taskName,
 }: {
   userId: string;
   taskId: string;
   shiftId: string;
   eventId: string;
+  taskName: string;
 }) {
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -44,6 +48,8 @@ export function UserForm({
       taskId: taskId,
     },
   });
+
+  const router = useRouter();
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -60,14 +66,21 @@ export function UserForm({
       }
     );
     const json = await res.json();
-    console.log(json);
     if (json.error) {
       if (res.status === 422) {
         form.setError("root", { type: "422", message: json.error });
       } else {
         form.setError("root", { type: "500" });
       }
+      return;
     }
+    toast(`Du hast dich erfolgreich für ${taskName} angemeldet.`, {
+      action: {
+        label: "Übersicht",
+        onClick: () => router.push("/profile"),
+      },
+    });
+    redirect(`/events/${eventId}`);
   }
   return (
     <Form {...form}>

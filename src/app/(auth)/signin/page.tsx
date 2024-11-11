@@ -1,4 +1,5 @@
 import { providerMap, signIn } from "@/auth";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,8 +20,8 @@ export default async function SignInPage(props: {
   const callbackUrl = (await props.searchParams).callbackUrl;
 
   return (
-    <main className="flex h-screen w-full items-center justify-center px-4">
-      <Card className="w-full max-w-md mx-auto">
+    <main className="flex h-screen w-full items-center justify-center px-4 flex-col">
+      <Card className="w-full max-w-md mx-auto my-auto">
         <CardHeader>
           <CardTitle className="text-2xl">Anmeldung</CardTitle>
           <CardDescription>
@@ -106,6 +107,7 @@ export default async function SignInPage(props: {
           </div>
         </CardContent>
       </Card>
+      <Footer />
     </main>
   );
 }

@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 
 const Footer = () => {
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex justify-center items-center flex-wrap border-t w-full">
       <Button asChild variant="link">
         <Link href="/datenschutz">Datenschutz</Link>
       </Button>

@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import db from "@/db/index";
 import { taskParticipants, tasks } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
         createdById: session.user.id,
       })
       .returning();
-
+    revalidatePath("/events");
     return Response.json(newTaskParticipant[0]);
   } catch (error) {
     console.log(error);

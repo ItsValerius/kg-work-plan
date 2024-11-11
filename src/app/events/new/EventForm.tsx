@@ -62,8 +62,6 @@ export function EventForm({
       },
     });
     const json = await res.json();
-    console.log(values);
-    console.log(json);
     redirect("/events");
   }
   return (
