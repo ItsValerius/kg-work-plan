@@ -41,7 +41,7 @@ const EventsPage = async () => {
           </Button>
         )}
       </div>
-      <div className="md:grid md:grid-cols-3 gap-4 flex flex-col">
+      <div className="lg:grid lg:grid-cols-3 gap-4 flex flex-col">
         {events.map((event) => {
           return (
             <Suspense key={event.id} fallback={<EventSkeletonCard />}>

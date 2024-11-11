@@ -3,6 +3,7 @@ import { events } from "@/db/schema";
 import db from "@/db/index";
 import { NextRequest } from "next/server";
 import { isAdmin } from "@/lib/auth/utils";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
         },
       })
       .returning();
-
+    revalidatePath("/events");
     return Response.json(newEvent[0]);
   } catch (error) {
     console.log(error);

@@ -120,7 +120,7 @@ export default async function EventPage(props: {
               )}
             </CardHeader>
 
-            <CardContent className="grid gap-4 md:grid-cols-4">
+            <CardContent className="grid gap-4 lg:grid-cols-4">
               {shift.tasks.map((task) => (
                 <Suspense key={task.id} fallback={<SkeletonCard />}>
                   <TaskCard
@@ -186,7 +186,7 @@ async function TaskCard({
   );
 
   return (
-    <Card>
+    <Card className="flex flex-col ">
       <CardHeader>
         <CardTitle className="font-medium">{task.name}</CardTitle>
         {isAdmin && (
@@ -216,7 +216,7 @@ async function TaskCard({
         </small>
       </CardContent>
 
-      <CardContent>
+      <CardContent className="mt-auto">
         <Dialog>
           <DialogTrigger>Bereits eingetragen</DialogTrigger>
           <DialogContent>
