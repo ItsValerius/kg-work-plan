@@ -47,7 +47,7 @@ const EventsPage = async () => {
         {events.map((event) => {
           return (
             <Suspense key={event.id} fallback={<EventSkeletonCard />}>
-              <EventCard event={event} userIsAdmin />
+              <EventCard event={event} userIsAdmin={userIsAdmin} />
             </Suspense>
           );
         })}
