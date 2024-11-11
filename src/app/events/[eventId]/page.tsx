@@ -21,7 +21,7 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import db from "@/db/index";
 import { events, taskParticipants, tasks } from "@/db/schema/index";
-import { isAdmin } from "@/lib/auth/utils";
+import { isAdmin, isLoggedIn } from "@/lib/auth/utils";
 import { eq } from "drizzle-orm";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -34,6 +34,7 @@ export default async function EventPage(props: {
 }) {
   const params = await props.params;
   const userIsAdmin = await isAdmin();
+  const userIsLoggedIn = await isLoggedIn();
   const event = await db.query.events.findFirst({
     where: eq(events.id, params.eventId),
     with: {
@@ -127,6 +128,7 @@ export default async function EventPage(props: {
                     shiftId={shift.id}
                     task={task}
                     isAdmin={userIsAdmin}
+                    isLoggedIn={userIsLoggedIn}
                   />
                 </Suspense>
               ))}
@@ -164,11 +166,13 @@ async function TaskCard({
   shiftId,
   task,
   isAdmin,
+  isLoggedIn,
 }: {
   eventId: string;
   shiftId: string;
   task: typeof tasks.$inferSelect;
   isAdmin: boolean;
+  isLoggedIn: boolean;
 }) {
   const participants = await db.query.taskParticipants.findMany({
     where: eq(taskParticipants.taskId, task.id),
@@ -214,24 +218,24 @@ async function TaskCard({
 
       <CardContent>
         <Dialog>
-          <DialogTrigger>Übersicht</DialogTrigger>
+          <DialogTrigger>Bereits eingetragen</DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle className="border-b">
-                Bereits eingetragen
-              </DialogTitle>
+              <DialogTitle className="border-b">Übersicht</DialogTitle>
 
-              {participants.map((participant) => {
-                return (
-                  <span key={participant.id}>
-                    {participant.groupName
-                      ? participant.groupName
-                      : participant.user?.name || "-"}
-                    {participant.groupSize > 1 &&
-                      "(" + participant.groupSize + ")"}
-                  </span>
-                );
-              })}
+              {isLoggedIn
+                ? participants.map((participant) => {
+                    return (
+                      <span key={participant.id}>
+                        {participant.groupName
+                          ? participant.groupName
+                          : participant.user?.name || "-"}
+                        {participant.groupSize > 1 &&
+                          "(" + participant.groupSize + ")"}
+                      </span>
+                    );
+                  })
+                : "Melde dich an um andere Teilnehmer zu sehen."}
             </DialogHeader>
           </DialogContent>
         </Dialog>
