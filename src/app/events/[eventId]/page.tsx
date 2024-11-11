@@ -27,7 +27,10 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { format } from "date-fns";
+
 import { deleteShift, deleteTask } from "./actions";
+import { de } from "date-fns/locale";
 
 export default async function EventPage(props: {
   params: Promise<{ eventId: string }>;
@@ -87,15 +90,9 @@ export default async function EventPage(props: {
               <CardTitle>{shift.name}</CardTitle>
 
               <CardDescription>
-                {shift.startTime.toLocaleTimeString("de-DE", {
-                  hour: "numeric",
-                  minute: "numeric",
-                }) +
+                {format(shift.startTime, "H:mm", { locale: de }) +
                   " - " +
-                  shift.endTime.toLocaleTimeString("de-DE", {
-                    hour: "numeric",
-                    minute: "numeric",
-                  })}
+                  format(shift.endTime, "H:mm", { locale: de })}
               </CardDescription>
               {userIsAdmin && (
                 <>
