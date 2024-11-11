@@ -48,14 +48,13 @@ export function TaskForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    const res = await fetch(`/api/events/${eventId}/shifts/${shiftId}/tasks`, {
+    await fetch(`/api/events/${eventId}/shifts/${shiftId}/tasks`, {
       method: "POST",
       body: JSON.stringify(values),
       headers: {
         "Content-Type": "application/json",
       },
     });
-    const json = await res.json();
     redirect(`/events/${eventId}`);
   }
   return (

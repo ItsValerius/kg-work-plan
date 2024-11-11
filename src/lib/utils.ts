@@ -1,7 +1,7 @@
 import db from "@/db";
-import { events, tasks, taskParticipants, shifts, users } from "@/db/schema";
+import { events, shifts, taskParticipants, tasks } from "@/db/schema";
 import { clsx, type ClassValue } from "clsx";
-import { sql, eq, sum, inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
