@@ -31,10 +31,9 @@ export default async function SignInPage(props: {
       <TooltipProvider>
         <Card className="w-full max-w-md mx-auto my-auto">
           <CardHeader>
-            <CardTitle className="text-2xl">Anmeldung</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl">
               <span className="flex">
-                Gib deine Email an um dich anzumelden.
+                Anmeldung
                 <Tooltip>
                   <TooltipTrigger className="self-start">
                     <Info size={16} className="stroke-popover-foreground" />
@@ -47,6 +46,9 @@ export default async function SignInPage(props: {
                   </TooltipContent>
                 </Tooltip>
               </span>
+            </CardTitle>
+            <CardDescription>
+              Gib deine Email an um dich anzumelden.
             </CardDescription>
           </CardHeader>
 
