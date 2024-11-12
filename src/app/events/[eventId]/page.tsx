@@ -90,9 +90,17 @@ export default async function EventPage(props: {
               <CardTitle>{shift.name}</CardTitle>
 
               <CardDescription>
-                {format(shift.startTime, "H:mm", { locale: de }) +
+                {new Date(shift.startTime).toLocaleTimeString("de-DE", {
+                  timeZone: "Europe/Berlin",
+                  hour: "numeric",
+                  minute: "numeric",
+                }) +
                   " - " +
-                  format(shift.endTime, "H:mm", { locale: de })}
+                  new Date(shift.startTime).toLocaleTimeString("de-DE", {
+                    timeZone: "Europe/Berlin",
+                    hour: "numeric",
+                    minute: "numeric",
+                  })}
               </CardDescription>
               {userIsAdmin && (
                 <>
