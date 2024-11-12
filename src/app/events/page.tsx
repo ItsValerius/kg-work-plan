@@ -136,9 +136,13 @@ const EventCard = async ({
             Datum:
           </h3>
           <small className="text-sm font-medium leading-none">
-            {event.startDate.toLocaleDateString("DE-de") +
+            {event.startDate.toLocaleDateString("DE-de", {
+              timeZone: "Europe/Berlin",
+            }) +
               " - " +
-              event.endDate.toLocaleDateString("DE-de")}
+              event.endDate.toLocaleDateString("DE-de", {
+                timeZone: "Europe/Berlin",
+              })}
           </small>
         </div>
         <div>

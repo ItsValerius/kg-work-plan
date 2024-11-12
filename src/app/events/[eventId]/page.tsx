@@ -66,9 +66,13 @@ export default async function EventPage(props: {
             {event.name}
           </h1>
           <small className="text-sm font-medium leading-none">
-            {event.startDate.toLocaleDateString("de-DE") +
+            {event.startDate.toLocaleDateString("de-DE", {
+              timeZone: "Europe/Berlin",
+            }) +
               " - " +
-              event.endDate.toLocaleDateString("de-DE")}
+              event.endDate.toLocaleDateString("de-DE", {
+                timeZone: "Europe/Berlin",
+              })}
           </small>
           <p className="text-sm text-muted-foreground">{event.description}</p>
         </div>
