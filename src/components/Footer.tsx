@@ -9,9 +9,6 @@ const Footer = () => {
         <Link href="/datenschutz">Datenschutz</Link>
       </Button>
       <Button asChild variant="link">
-        <Link href="/impressum">Impressum</Link>
-      </Button>{" "}
-      <Button asChild variant="link">
         <Link href="/nutzungsbedingungen">Nutzungsbedingungen</Link>
       </Button>
     </div>
