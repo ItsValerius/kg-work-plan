@@ -94,7 +94,7 @@ export default async function EventPage(props: {
                   minute: "numeric",
                 }) +
                   " - " +
-                  new Date(shift.startTime).toLocaleTimeString("de-DE", {
+                  new Date(shift.endTime).toLocaleTimeString("de-DE", {
                     timeZone: "Europe/Berlin",
                     hour: "numeric",
                     minute: "numeric",
