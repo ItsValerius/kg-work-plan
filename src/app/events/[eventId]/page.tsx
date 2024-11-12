@@ -27,10 +27,8 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { format } from "date-fns";
 
 import { deleteShift, deleteTask } from "./actions";
-import { de } from "date-fns/locale";
 
 export default async function EventPage(props: {
   params: Promise<{ eventId: string }>;
