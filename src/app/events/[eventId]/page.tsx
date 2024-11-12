@@ -20,7 +20,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import db from "@/db/index";
-import { events, shifts, taskParticipants, tasks } from "@/db/schema/index";
+import { events, taskParticipants, tasks } from "@/db/schema/index";
 import { isAdmin, isLoggedIn } from "@/lib/auth/utils";
 import { eq } from "drizzle-orm";
 import { ArrowLeft } from "lucide-react";
