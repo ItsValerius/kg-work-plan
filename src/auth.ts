@@ -11,7 +11,6 @@ import {
   users,
   verificationTokens,
 } from "./db/schema/index";
-import { createTransport } from "nodemailer";
 
 dotenv.config();
 
