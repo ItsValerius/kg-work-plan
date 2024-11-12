@@ -1,0 +1,1 @@
+ALTER TABLE "kg-work-plan_task" ADD COLUMN "start_time" timestamp;

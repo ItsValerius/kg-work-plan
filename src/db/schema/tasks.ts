@@ -12,6 +12,7 @@ export const tasks = pgTable("task", {
     .notNull()
     .references(() => shifts.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
+  startTime: timestamp("start_time", { mode: "date" }).defaultNow().notNull(),
   description: text("description").notNull(),
   // Number of people needed for this task
   requiredParticipants: integer("required_participants").notNull().default(1),

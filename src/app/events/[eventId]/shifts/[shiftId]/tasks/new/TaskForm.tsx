@@ -11,6 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { TimePicker } from "@/components/ui/time-picker";
 import { tasks } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createInsertSchema } from "drizzle-zod";
@@ -41,6 +42,7 @@ export function TaskForm({
       createdById: userId,
       shiftId: shiftId,
       requiredParticipants: task?.requiredParticipants || 1,
+      startTime: task?.startTime || new Date(),
     },
   });
 
@@ -88,6 +90,18 @@ export function TaskForm({
                 Eine kurze Beschreibung der Aufgabe.{" "}
               </FormDescription>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="startTime"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel className="text-left">Startzeit</FormLabel>
+              <FormControl>
+                <TimePicker setDate={field.onChange} date={field.value} />
+              </FormControl>
             </FormItem>
           )}
         />
