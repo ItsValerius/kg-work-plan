@@ -2,13 +2,11 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { z } from "zod";
-import { ArrowUpDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { DataTableColumnHeader } from "./data-table-column-header";
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
-const UserTaskSchema = z.object({
+export const UserTaskSchema = z.object({
   id: z.string(),
   userId: z.string().nullable(),
   createdAt: z.date(),

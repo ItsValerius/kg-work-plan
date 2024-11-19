@@ -2,7 +2,6 @@ import { providerMap, signIn } from "@/auth";
 import BackButton from "@/components/BackButton";
 import Footer from "@/components/Footer";
 import SubmitButton from "@/components/SubmitButton";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,

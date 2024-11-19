@@ -1,13 +1,11 @@
-import { auth } from "@/auth";
-import { isAdmin } from "@/lib/auth/utils";
-import { redirect } from "next/navigation";
-import React from "react";
-import { DataTable } from "./DataTable";
-import db from "@/db";
-import { columns } from "./columns";
 import BackButton from "@/components/BackButton";
-import { gt } from "drizzle-orm";
+import db from "@/db";
 import { events } from "@/db/schema";
+import { isAdmin } from "@/lib/auth/utils";
+import { gt } from "drizzle-orm";
+import { redirect } from "next/navigation";
+import { columns } from "./columns";
+import { DataTable } from "./DataTable";
 
 const DashboardPage = async () => {
   const userIsAdmin = await isAdmin();
