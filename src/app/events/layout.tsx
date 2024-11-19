@@ -11,7 +11,7 @@ export default async function EventsLayout({
 
   return (
     <div className="px-2 flex flex-col justify-between min-h-screen">
-      {!user ? <SignInButton /> : <UserMenu />}
+      {!user ? <SignInButton /> : <UserMenu isAdmin={user.role === "admin"} />}
       {children}
       <Footer />
     </div>

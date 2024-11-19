@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function BackButton({ className }: { className: string }) {
+export default function BackButton({ className }: { className?: string }) {
   const router = useRouter();
   const handleBackNavigation = () => {
     if (

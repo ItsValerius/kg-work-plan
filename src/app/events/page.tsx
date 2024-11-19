@@ -19,9 +19,13 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { deleteEvent } from "./actions";
+import { asc, gt } from "drizzle-orm";
 
 const EventsPage = async () => {
-  const events = await db.query.events.findMany({});
+  const futureEvents = await db.query.events.findMany({
+    orderBy: [asc(events.startDate)],
+    where: gt(events.endDate, new Date()),
+  });
 
   const userIsAdmin = await isAdmin();
   return (
@@ -42,7 +46,7 @@ const EventsPage = async () => {
         )}
       </div>
       <div className="lg:grid lg:grid-cols-3 gap-4 flex flex-col">
-        {events.map((event) => {
+        {futureEvents.map((event) => {
           return (
             <Suspense key={event.id} fallback={<EventSkeletonCard />}>
               <EventCard event={event} userIsAdmin={userIsAdmin} />

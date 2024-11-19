@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import SignOutButton from "./SignOutButton";
 
-const UserMenu = () => {
+const UserMenu = ({ isAdmin }: { isAdmin: boolean }) => {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -19,6 +19,11 @@ const UserMenu = () => {
           <Button asChild variant="link">
             <Link href={"/meine-aufgaben"}>Meine Aufgaben</Link>
           </Button>
+          {isAdmin && (
+            <Button asChild variant="link">
+              <Link href={"/dashboard"}>Admin Liste</Link>
+            </Button>
+          )}
           <SignOutButton />
         </div>
       </PopoverContent>

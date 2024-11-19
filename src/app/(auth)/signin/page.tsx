@@ -1,6 +1,7 @@
 import { providerMap, signIn } from "@/auth";
 import BackButton from "@/components/BackButton";
 import Footer from "@/components/Footer";
+import SubmitButton from "@/components/SubmitButton";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -102,9 +103,7 @@ export default async function SignInPage(props: {
                           name="email"
                         />
                       </div>
-                      <Button type="submit" className="w-full">
-                        <span>Mit {provider.name} Anmelden</span>
-                      </Button>
+                      <SubmitButton name={provider.name} />
                       <div className="relative">
                         <div className="absolute inset-0 flex items-center">
                           <span className="w-full border-t" />
@@ -117,18 +116,13 @@ export default async function SignInPage(props: {
                       </div>
                     </>
                   ) : (
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      variant={"outline"}
-                    >
+                    <SubmitButton name={provider.name} variant="outline">
                       {provider.id === "google" && (
                         <div className="relative w-6 h-6">
                           <Image src={"/google.svg"} fill alt="google-logo" />
                         </div>
                       )}
-                      <span>Mit {provider.name} Anmelden</span>
-                    </Button>
+                    </SubmitButton>
                   )}
                 </form>
               ))}
