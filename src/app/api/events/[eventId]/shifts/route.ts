@@ -1,10 +1,8 @@
 import { auth } from "@/auth";
-import { events, shifts } from "@/db/schema";
 import db from "@/db/index";
-import { NextRequest } from "next/server";
-import { eq } from "drizzle-orm";
-import { notFound } from "next/navigation";
+import { shifts } from "@/db/schema";
 import { isAdmin } from "@/lib/auth/utils";
+import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,36 +12,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-
-    const event = await db.query.events.findFirst({
-      where: eq(events.id, body.eventId),
-    });
-
-    if (!event) return notFound();
-
-    const shiftStartTime = event.startDate;
-    shiftStartTime.setHours(
-      new Date(body.startTime).getHours(),
-      new Date(body.startTime).getMinutes(),
-      0,
-      0
-    );
-
-    const shiftEndTime = event.endDate;
-    shiftEndTime.setHours(
-      new Date(body.endTime).getHours(),
-      new Date(body.endTime).getMinutes(),
-      0,
-      0
-    );
+    console.log(body);
 
     const newShift = await db
       .insert(shifts)
       .values({
         id: body.id,
         name: body.name,
-        startTime: shiftStartTime,
-        endTime: shiftEndTime,
+        startTime: new Date(body.startTime),
+        endTime: new Date(body.endTime),
         eventId: body.eventId,
         createdById: session.user.id,
       })
@@ -51,8 +28,8 @@ export async function POST(request: NextRequest) {
         target: shifts.id,
         set: {
           name: body.name,
-          startTime: shiftStartTime,
-          endTime: shiftEndTime,
+          startTime: new Date(body.startTime),
+          endTime: new Date(body.endTime),
         },
       })
       .returning();

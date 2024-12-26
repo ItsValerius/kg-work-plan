@@ -20,7 +20,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import db from "@/db/index";
-import { events, taskParticipants, tasks } from "@/db/schema/index";
+import { events, shifts, taskParticipants, tasks } from "@/db/schema/index";
 import { isAdmin, isLoggedIn } from "@/lib/auth/utils";
 import { eq } from "drizzle-orm";
 import { ArrowLeft } from "lucide-react";
@@ -40,6 +40,7 @@ export default async function EventPage(props: {
     where: eq(events.id, params.eventId),
     with: {
       shifts: {
+        orderBy: shifts.startTime,
         with: {
           tasks: { orderBy: tasks.startTime },
         },
@@ -92,13 +93,13 @@ export default async function EventPage(props: {
               <CardTitle>{shift.name}</CardTitle>
 
               <CardDescription>
-                {new Date(shift.startTime).toLocaleTimeString("de-DE", {
+                {new Date(shift.startTime).toLocaleDateString("de-DE", {
                   timeZone: "Europe/Berlin",
                   hour: "numeric",
                   minute: "numeric",
                 }) +
                   " - " +
-                  new Date(shift.endTime).toLocaleTimeString("de-DE", {
+                  new Date(shift.endTime).toLocaleDateString("de-DE", {
                     timeZone: "Europe/Berlin",
                     hour: "numeric",
                     minute: "numeric",

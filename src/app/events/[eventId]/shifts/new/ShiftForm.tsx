@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import {
   Form,
   FormControl,
@@ -11,7 +12,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { TimePicker } from "@/components/ui/time-picker";
 import { shifts } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createInsertSchema } from "drizzle-zod";
@@ -82,7 +82,7 @@ export function ShiftForm({
             <FormItem className="flex flex-col">
               <FormLabel className="text-left">Startzeit</FormLabel>
               <FormControl>
-                <TimePicker setDate={field.onChange} date={field.value} />
+                <DateTimePicker setDate={field.onChange} date={field.value} />
               </FormControl>
             </FormItem>
           )}
@@ -94,7 +94,7 @@ export function ShiftForm({
             <FormItem className="flex flex-col">
               <FormLabel className="text-left">Endzeit</FormLabel>
               <FormControl>
-                <TimePicker setDate={field.onChange} date={field.value} />
+                <DateTimePicker setDate={field.onChange} date={field.value} />
               </FormControl>
             </FormItem>
           )}
