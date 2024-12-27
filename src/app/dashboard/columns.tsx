@@ -1,8 +1,10 @@
 "use client";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { z } from "zod";
 import { DataTableColumnHeader } from "./data-table-column-header";
+
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
@@ -34,6 +36,26 @@ export const UserTaskSchema = z.object({
 
 type UserTasksResult = z.infer<typeof UserTaskSchema>;
 export const columns: ColumnDef<UserTasksResult>[] = [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+  },
   {
     accessorKey: "user.name",
     header: ({ column }) => (
@@ -72,8 +94,6 @@ export const columns: ColumnDef<UserTasksResult>[] = [
       <DataTableColumnHeader column={column} title="Zeit" />
     ),
     cell: ({ row }) => {
-      console.log("2024-11-11T" + row.getValue("startTime"));
-
       const date = new Date(row.getValue("startTime"));
       const formatted = date.toLocaleTimeString("de-DE", {
         timeZone: "Europe/Berlin",

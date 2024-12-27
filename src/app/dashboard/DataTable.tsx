@@ -35,17 +35,27 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   events: (typeof events.$inferSelect)[];
+  onDeleteRows?: (selectedRowIds: string[]) => void; // New prop
 }
 
-export function DataTable<TData, TValue>({
+interface Identifiable {
+  id: string; // or whatever type your IDs are
+}
+
+export function DataTable<TData extends Identifiable, TValue>({
   columns,
   data,
   events,
+  onDeleteRows,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+  const [rowSelection, setRowSelection] = React.useState<
+    Record<string, boolean>
+  >({});
+
   const table = useReactTable({
     data,
     columns,
@@ -54,11 +64,23 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    onRowSelectionChange: setRowSelection,
+    getRowId: (originalRow) => originalRow.id,
     state: {
       sorting,
       columnFilters,
+      rowSelection,
     },
   });
+
+  const handleDelete = () => {
+    if (onDeleteRows) {
+      const selectedRowIds = Object.keys(rowSelection).filter(
+        (rowId) => rowSelection[rowId]
+      );
+      onDeleteRows(selectedRowIds);
+    }
+  };
 
   return (
     <div>
@@ -95,6 +117,14 @@ export function DataTable<TData, TValue>({
             Zurücksetzen
           </Button>
         )}
+        <Button
+          variant="destructive"
+          className="ml-auto"
+          onClick={handleDelete}
+          disabled={Object.keys(rowSelection).length === 0} // Disable if no rows selected
+        >
+          Ausgewählte löschen
+        </Button>
       </div>
       <div className="rounded-md border">
         <Table>
