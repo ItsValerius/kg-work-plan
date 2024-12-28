@@ -47,16 +47,15 @@ export async function POST(request: NextRequest) {
       return Response.json(newEvent[0]);
     } catch (error) {
       console.log(error);
-      return Response.json({ error: "Internal Server Error" }, { status: 500 });
+      if (error instanceof Error) {
+        return Response.json({ error: error.message }, { status: 500 });
+      }
     }
   } catch (error) {
     console.log(error);
 
     if (error instanceof Error) {
-      return Response.json(
-        { error: "Invalid Input data", message: error.message },
-        { status: 422 }
-      );
+      return Response.json({ error: error.message }, { status: 422 });
     }
   }
 }

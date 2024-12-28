@@ -1,5 +1,6 @@
 "use client";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,7 +16,9 @@ import { TimePicker } from "@/components/ui/time-picker";
 import { tasks } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createInsertSchema } from "drizzle-zod";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -32,6 +35,8 @@ export function TaskForm({
   eventId: string;
   task: typeof tasks.$inferSelect | null | undefined;
 }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,17 +55,34 @@ export function TaskForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    await fetch(`/api/events/${eventId}/shifts/${shiftId}/tasks`, {
-      method: "POST",
-      body: JSON.stringify(values),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `/api/events/${eventId}/shifts/${shiftId}/tasks`,
+      {
+        method: "POST",
+        body: JSON.stringify(values),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      const data = await response.json();
+      setError(data.error);
+      setLoading(false);
+
+      return;
+    }
     redirect(`/events/${eventId}`);
   }
   return (
     <Form {...form}>
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Fehler</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
@@ -128,7 +150,10 @@ export function TaskForm({
           )}
         />
 
-        <Button type="submit">{task ? "Bearbeiten" : "Erstellen"}</Button>
+        <Button type="submit">
+          {" "}
+          {loading ? <Loader2 className="animate-spin" /> : "Speichern"}
+        </Button>
       </form>
     </Form>
   );

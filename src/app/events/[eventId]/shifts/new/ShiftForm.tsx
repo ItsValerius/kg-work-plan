@@ -1,5 +1,6 @@
 "use client";
 
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import {
@@ -15,7 +16,9 @@ import { Input } from "@/components/ui/input";
 import { shifts } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createInsertSchema } from "drizzle-zod";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -30,6 +33,8 @@ export function ShiftForm({
   eventId: string;
   shift: typeof shifts.$inferSelect | null | undefined;
 }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,20 +50,35 @@ export function ShiftForm({
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setLoading(true);
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    await fetch(`/api/events/${eventId}/shifts`, {
+    const response = await fetch(`/api/events/${eventId}/shifts`, {
       method: "POST",
       body: JSON.stringify(values),
       headers: {
         "Content-Type": "application/json",
       },
     });
+    if (!response.ok) {
+      const data = await response.json();
+      setError(data.error);
+      setLoading(false);
+
+      return;
+    }
 
     redirect(`/events/${eventId}`);
   }
   return (
     <Form {...form}>
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Fehler</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
@@ -100,7 +120,9 @@ export function ShiftForm({
           )}
         />
 
-        <Button type="submit">{shift ? "Bearbeiten" : "Erstellen"}</Button>
+        <Button type="submit">
+          {loading ? <Loader2 className="animate-spin" /> : "Speichern"}
+        </Button>
       </form>
     </Form>
   );
