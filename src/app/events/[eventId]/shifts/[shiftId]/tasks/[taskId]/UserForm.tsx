@@ -16,6 +16,7 @@ import { taskParticipants } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createInsertSchema } from "drizzle-zod";
 import { AlertCircle, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -72,9 +73,17 @@ export function UserForm({
       }
       return;
     }
-    toast.success(`Du hast dich erfolgreich für ${taskName} angemeldet.`, {
-      richColors: true,
-    });
+    toast.success(
+      <div className="flex gap-2">
+        Du hast dich erfolgreich für {taskName} angemeldet.
+        <Button asChild>
+          <Link href="/meine-aufgaben">Aufgabenübersicht</Link>
+        </Button>
+      </div>,
+      {
+        richColors: true,
+      }
+    );
     redirect(`/events/${eventId}`);
   }
   return (
