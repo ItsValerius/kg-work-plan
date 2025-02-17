@@ -19,12 +19,15 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { deleteEvent } from "./actions";
-import { asc, gt } from "drizzle-orm";
+import { asc, gte } from "drizzle-orm";
 
 const EventsPage = async () => {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
   const futureEvents = await db.query.events.findMany({
     orderBy: [asc(events.startDate)],
-    where: gt(events.endDate, new Date()),
+    where: gte(events.endDate, startOfToday),
   });
 
   const userIsAdmin = await isAdmin();
