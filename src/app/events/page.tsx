@@ -21,16 +21,16 @@ import { Suspense } from "react";
 import { deleteEvent } from "./actions";
 import { asc, gte } from "drizzle-orm";
 import { toZonedTime } from "date-fns-tz";
+import { UTCDate } from "@date-fns/utc";
 
 const EventsPage = async () => {
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
-  const zonedDate = toZonedTime(startOfToday, "Europe/Berlin");
+  const startOfToday = new UTCDate();
+  startOfToday.setHours(-1, 0, 0, 0);
 
-  console.log(zonedDate);
+  console.log(startOfToday);
   const futureEvents = await db.query.events.findMany({
     orderBy: [asc(events.startDate)],
-    where: gte(events.endDate, zonedDate),
+    where: gte(events.endDate, startOfToday),
   });
 
   const userIsAdmin = await isAdmin();

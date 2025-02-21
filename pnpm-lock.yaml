@@ -8,6 +8,9 @@ dependencies:
   '@auth/drizzle-adapter':
     specifier: ^1.7.2
     version: 1.7.2(nodemailer@6.9.15)
+  '@date-fns/utc':
+    specifier: ^2.1.0
+    version: 2.1.0
   '@hookform/resolvers':
     specifier: ^3.9.0
     version: 3.9.0(react-hook-form@7.53.1)
@@ -205,6 +208,10 @@ packages:
       - '@simplewebauthn/browser'
       - '@simplewebauthn/server'
       - nodemailer
+    dev: false
+
+  /@date-fns/utc@2.1.0:
+    resolution: {integrity: sha512-176grgAgU2U303rD2/vcOmNg0kGPbhzckuH1TEP2al7n0AQipZIy9P15usd2TKQCG1g+E1jX/ZVQSzs4sUDwgA==}
     dev: false
 
   /@drizzle-team/brocli@0.10.1:
