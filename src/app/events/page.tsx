@@ -20,7 +20,6 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { deleteEvent } from "./actions";
 import { asc, gte } from "drizzle-orm";
-import { toZonedTime } from "date-fns-tz";
 import { UTCDate } from "@date-fns/utc";
 
 const EventsPage = async () => {
