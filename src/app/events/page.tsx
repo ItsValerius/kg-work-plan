@@ -20,14 +20,17 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { deleteEvent } from "./actions";
 import { asc, gte } from "drizzle-orm";
+import { format, toZonedTime } from "date-fns-tz";
 
 const EventsPage = async () => {
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
+  const zonedDate = toZonedTime(startOfToday, "Europe/Berlin");
 
+  console.log(zonedDate);
   const futureEvents = await db.query.events.findMany({
     orderBy: [asc(events.startDate)],
-    where: gte(events.endDate, startOfToday),
+    where: gte(events.endDate, zonedDate),
   });
 
   const userIsAdmin = await isAdmin();
