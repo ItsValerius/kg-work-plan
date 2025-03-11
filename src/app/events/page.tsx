@@ -45,7 +45,7 @@ const EventsPage = async () => {
         </div>
         {userIsAdmin && (
           <Button asChild>
-            <Link href={`/events/new`}>Event hinzufügen</Link>
+            <Link href={`/events/new`}>Veranstaltung hinzufügen</Link>
           </Button>
         )}
       </div>
