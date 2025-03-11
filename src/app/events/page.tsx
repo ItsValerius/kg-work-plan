@@ -26,7 +26,6 @@ const EventsPage = async () => {
   const startOfToday = new UTCDate();
   startOfToday.setHours(-1, 0, 0, 0);
 
-  console.log(startOfToday);
   const futureEvents = await db.query.events.findMany({
     orderBy: [asc(events.startDate)],
     where: gte(events.endDate, startOfToday),
@@ -41,7 +40,7 @@ const EventsPage = async () => {
             Bevorstehende Veranstaltungen
           </h1>
           <small className="text-sm font-medium leading-none">
-            Hier findest du alle Bevorstehenden Veranstaltungen
+            Hier findest du alle bevorstehenden Veranstaltungen
           </small>
         </div>
         {userIsAdmin && (
@@ -50,15 +49,39 @@ const EventsPage = async () => {
           </Button>
         )}
       </div>
-      <div className="lg:grid lg:grid-cols-3 gap-4 flex flex-col">
-        {futureEvents.map((event) => {
-          return (
+
+      {futureEvents.length === 0 ? (
+        <Card className="p-8 text-center bg-gray-50">
+          <CardHeader>
+            <CardTitle>Keine Veranstaltungen geplant</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CardDescription>
+              Aktuell sind keine bevorstehenden Veranstaltungen vorhanden.
+              {userIsAdmin && (
+                <span className="block mt-2">
+                  Füge jetzt eine neue Veranstaltung hinzu.
+                </span>
+              )}
+            </CardDescription>
+          </CardContent>
+          {userIsAdmin && (
+            <CardFooter className="justify-center">
+              <Button asChild>
+                <Link href="/events/new">Veranstaltung erstellen</Link>
+              </Button>
+            </CardFooter>
+          )}
+        </Card>
+      ) : (
+        <div className="lg:grid lg:grid-cols-3 gap-4 flex flex-col">
+          {futureEvents.map((event) => (
             <Suspense key={event.id} fallback={<EventSkeletonCard />}>
               <EventCard event={event} userIsAdmin={userIsAdmin} />
             </Suspense>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
     </main>
   );
 };
