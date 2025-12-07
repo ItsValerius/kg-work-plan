@@ -4,7 +4,8 @@ import { isAdmin } from "@/lib/auth/utils";
 import { getStartOfToday } from "@/lib/date-utils";
 import { asc, gte, lt } from "drizzle-orm";
 import { Suspense } from "react";
-import { EventsSection, EventSkeletonCard } from "./EventsSection";
+import { EventsSection } from "./EventsSection";
+import { EventsSectionSkeleton } from "./EventsSectionSkeleton";
 
 const EventsPage = async () => {
   const startOfToday = getStartOfToday();
@@ -24,14 +25,15 @@ const EventsPage = async () => {
     : [];
 
   return (
-    <main className="container mx-auto py-8 ">
+    <main className="container mx-auto py-8">
       <Suspense
         fallback={
-          <div className="lg:grid lg:grid-cols-3 gap-4 flex flex-col">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <EventSkeletonCard key={i} />
-            ))}
-          </div>
+          <EventsSectionSkeleton
+            title="Bevorstehende Veranstaltungen"
+            description="Hier findest du alle bevorstehenden Veranstaltungen"
+            showAddButton={userIsAdmin}
+            isFutureEvents={true}
+          />
         }
       >
         <EventsSection
@@ -49,11 +51,12 @@ const EventsPage = async () => {
       {userIsAdmin && (
         <Suspense
           fallback={
-            <div className="mt-12 lg:grid lg:grid-cols-3 gap-4 flex flex-col">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <EventSkeletonCard key={i} />
-              ))}
-            </div>
+            <EventsSectionSkeleton
+              title="Vergangene Veranstaltungen"
+              description="Hier findest du alle vergangenen Veranstaltungen"
+              showAddButton={false}
+              isFutureEvents={false}
+            />
           }
         >
           <EventsSection

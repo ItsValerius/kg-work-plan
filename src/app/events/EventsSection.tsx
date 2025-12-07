@@ -20,16 +20,16 @@ import { deleteEvent } from "./actions";
 
 export function EventSkeletonCard() {
     return (
-        <Card className="h-[377px]">
-            <CardHeader>
+        <Card className="min-h-[377px] flex flex-col">
+            <CardHeader className="relative">
                 <CardTitle>
-                    <Skeleton className="h-6 w-40" />
+                    <Skeleton className="h-7 w-48" />
                 </CardTitle>
                 <CardDescription>
-                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-4 w-64 mt-2" />
                 </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col gap-2">
+            <CardContent className="flex flex-col gap-2 flex-grow">
                 <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
                     Übersicht
                 </h2>
@@ -37,26 +37,26 @@ export function EventSkeletonCard() {
                     <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
                         Datum:
                     </h3>
-                    <small className="text-sm font-medium leading-none flex gap-2">
-                        <Skeleton className="h-5 w-20" /> -
-                        <Skeleton className="h-5 w-20" />
+                    <small className="text-sm font-medium leading-none flex gap-2 mt-1">
+                        <Skeleton className="h-4 w-24" />
+                        <span className="hidden"> - </span>
+                        <Skeleton className="h-4 w-24" />
                     </small>
                 </div>
-                <div>
+                <div className="mt-2">
                     <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
                         Aufgaben:
                     </h3>
-                    <Progress value={null} />
+                    <Progress value={null} className="mt-1" />
                     <small className="text-sm font-medium leading-none flex mt-2">
-                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-4 w-36" />
                     </small>
                 </div>
             </CardContent>
             <CardFooter>
-                <Button asChild variant={"outline"}>
-                    <Link href="#">
-                        Aufgabenübersicht <ArrowRight />
-                    </Link>
+                <Button variant={"outline"} disabled className="w-full">
+                    <Skeleton className="h-4 w-32" />
+                    <ArrowRight className="ml-2" />
                 </Button>
             </CardFooter>
         </Card>
@@ -70,11 +70,11 @@ const EventCard = ({
     requiredParticipantsCount,
 }: EventCardProps) => {
     return (
-        <Card>
-            <CardHeader>
+        <Card className="min-h-[377px] flex flex-col">
+            <CardHeader className="relative">
                 <CardTitle>{event.name}</CardTitle>
                 {userIsAdmin && (
-                    <div className="self-end absolute flex gap-2">
+                    <div className="absolute self-end flex gap-2">
                         <DeleteButton
                             deleteAction={deleteEvent}
                             id={event.id}
@@ -85,9 +85,9 @@ const EventCard = ({
                         </Link>
                     </div>
                 )}
-                <CardDescription>{event.description}</CardDescription>
+                <CardDescription className="mt-2">{event.description}</CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col gap-2">
+            <CardContent className="flex flex-col gap-2 flex-grow">
                 <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
                     Übersicht
                 </h2>
@@ -99,7 +99,7 @@ const EventCard = ({
                         {formatEventDateRange(event.startDate, event.endDate)}
                     </small>
                 </div>
-                <div>
+                <div className="mt-2">
                     <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
                         Aufgaben:
                     </h3>
@@ -109,6 +109,7 @@ const EventCard = ({
                                 ? (currentParticipantsCount / requiredParticipantsCount) * 100
                                 : 0
                         }
+                        className="mt-1"
                     />
                     <small className="text-sm font-medium leading-none">
                         {currentParticipantsCount +
