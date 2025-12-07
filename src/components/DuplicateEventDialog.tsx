@@ -52,20 +52,6 @@ const duplicateSchema = z.object({
 
 type DuplicateFormValues = z.infer<typeof duplicateSchema>;
 
-function DatePickerButton({ value, placeholder }: { value?: Date; placeholder: string }) {
-    return (
-        <Button
-            variant="outline"
-            className={cn(
-                "w-[240px] pl-3 text-left font-normal",
-                !value && "text-muted-foreground"
-            )}
-        >
-            {value ? format(value, "PPP", { locale: de }) : <span>{placeholder}</span>}
-            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-        </Button>
-    );
-}
 
 export function DuplicateEventDialog({
     eventId,
@@ -157,14 +143,30 @@ export function DuplicateEventDialog({
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <FormControl>
-                                                <DatePickerButton value={field.value} placeholder="Wähle ein Datum" />
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    className={cn(
+                                                        "w-[240px] pl-3 text-left font-normal",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    {field.value ? (
+                                                        format(field.value, "PPP", { locale: de })
+                                                    ) : (
+                                                        <span>Wähle ein Datum</span>
+                                                    )}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
                                             </FormControl>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0" align="start">
                                             <Calendar
                                                 mode="single"
-                                                selected={field.value}
+                                                selected={field.value ?? undefined}
                                                 onSelect={field.onChange}
+                                                defaultMonth={field.value ?? defaultDates.startDate}
+                                                locale={de}
                                                 initialFocus
                                             />
                                         </PopoverContent>
@@ -185,14 +187,30 @@ export function DuplicateEventDialog({
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <FormControl>
-                                                <DatePickerButton value={field.value} placeholder="Wähle ein Datum" />
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    className={cn(
+                                                        "w-[240px] pl-3 text-left font-normal",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    {field.value ? (
+                                                        format(field.value, "PPP", { locale: de })
+                                                    ) : (
+                                                        <span>Wähle ein Datum</span>
+                                                    )}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
                                             </FormControl>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0" align="start">
                                             <Calendar
                                                 mode="single"
-                                                selected={field.value}
+                                                selected={field.value ?? undefined}
                                                 onSelect={field.onChange}
+                                                defaultMonth={field.value ?? defaultDates.endDate}
+                                                locale={de}
                                                 disabled={(date) => {
                                                     const startDate = form.watch("startDate");
                                                     return startDate ? date < startDate : false;
