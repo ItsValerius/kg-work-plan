@@ -1,4 +1,5 @@
 import DeleteButton from "@/components/DeleteButton";
+import DuplicateButton from "@/components/DuplicateButton";
 import EditButton from "@/components/EditButton";
 import { Button } from "@/components/ui/button";
 import {
@@ -71,21 +72,31 @@ const EventCard = ({
 }: EventCardProps) => {
     return (
         <Card className="min-h-[377px] flex flex-col">
-            <CardHeader className="relative">
-                <CardTitle>{event.name}</CardTitle>
-                {userIsAdmin && (
-                    <div className="absolute self-end flex gap-2">
-                        <DeleteButton
-                            deleteAction={deleteEvent}
-                            id={event.id}
-                            className="w-fit"
-                        />
-                        <Link href={`events/${event.id}/edit`}>
-                            <EditButton className="w-fit" />
-                        </Link>
+            <CardHeader className={userIsAdmin ? "pb-4" : ""}>
+                <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                        <CardTitle className="break-words">{event.name}</CardTitle>
+                        <CardDescription className="mt-2 break-words">
+                            {event.description}
+                        </CardDescription>
                     </div>
-                )}
-                <CardDescription className="mt-2">{event.description}</CardDescription>
+                    {userIsAdmin && (
+                        <div className="flex gap-2 shrink-0">
+                            <Link href={`events/${event.id}/edit`}>
+                                <EditButton className="w-fit" />
+                            </Link>
+                            <DuplicateButton
+                                eventId={event.id}
+                                className="w-fit"
+                            />
+                            <DeleteButton
+                                deleteAction={deleteEvent}
+                                id={event.id}
+                                className="w-fit"
+                            />
+                        </div>
+                    )}
+                </div>
             </CardHeader>
             <CardContent className="flex flex-col gap-2 flex-grow">
                 <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">

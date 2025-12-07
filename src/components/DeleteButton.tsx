@@ -30,7 +30,8 @@ const DeleteButton = ({
       <AlertDialogTrigger asChild>
         <Button
           variant="destructive"
-          className={cn(className, "")}
+          size="icon"
+          className={cn("aspect-square", className)}
           disabled={isPending}
         >
           <Trash />

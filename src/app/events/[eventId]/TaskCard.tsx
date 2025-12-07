@@ -16,6 +16,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
 import db from "@/db/index";
 import { taskParticipants, tasks } from "@/db/schema/index";
@@ -55,27 +61,46 @@ export async function TaskCard({
 
   return (
     <Card className="flex flex-col">
-      <CardHeader>
-        <CardTitle className="font-medium">{task.name}</CardTitle>
-        {isAdmin && (
-          <div className="self-end absolute flex gap-2">
-            <DeleteButton
-              className="w-fit"
-              id={task.id}
-              deleteAction={deleteTask}
-            />
-            <Link
-              href={`/events/${eventId}/shifts/${shiftId}/tasks/${task.id}/edit`}
-              aria-label={`Edit task ${task.name}`}
-            >
-              <EditButton className="w-fit" />
-            </Link>
+      <CardHeader className={isAdmin ? "pb-4" : ""}>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="font-medium break-words">{task.name}</CardTitle>
+            <small className="block mt-1">{"ab " + formatTime(new Date(task.startTime))}</small>
+            {task.description.length > 60 ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <CardDescription className="text-sm text-gray-500 mt-2 line-clamp-2 cursor-help">
+                      {task.description}
+                    </CardDescription>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-sm">
+                    <p className="whitespace-pre-wrap break-words">{task.description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <CardDescription className="text-sm text-gray-500 mt-2 break-words">
+                {task.description}
+              </CardDescription>
+            )}
           </div>
-        )}
-        <small>{"ab " + formatTime(new Date(task.startTime))}</small>
-        <CardDescription className="text-sm text-gray-500">
-          {task.description}
-        </CardDescription>
+          {isAdmin && (
+            <div className="flex gap-2 shrink-0">
+              <Link
+                href={`/events/${eventId}/shifts/${shiftId}/tasks/${task.id}/edit`}
+                aria-label={`Edit task ${task.name}`}
+              >
+                <EditButton className="w-fit" />
+              </Link>
+              <DeleteButton
+                className="w-fit"
+                id={task.id}
+                deleteAction={deleteTask}
+              />
+            </div>
+          )}
+        </div>
       </CardHeader>
 
       <CardContent>
@@ -119,7 +144,7 @@ export async function TaskCard({
         <Button
           asChild={!isFull}
           disabled={isFull}
-          className="text-wrap disabled:cursor-not-allowed"
+          className="whitespace-nowrap disabled:cursor-not-allowed w-full"
         >
           <Link
             href={

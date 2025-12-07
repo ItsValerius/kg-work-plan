@@ -4,8 +4,8 @@ import { LogOut } from "lucide-react";
 
 export default function SignOutButton() {
   return (
-    <Button type="submit" variant="destructive" onClick={() => signOut()}>
-      Abmelden <LogOut />
+    <Button type="submit" variant="ghost" className="justify-start w-full" onClick={() => signOut()}>
+      Abmelden <LogOut className="ml-auto" />
     </Button>
   );
 }

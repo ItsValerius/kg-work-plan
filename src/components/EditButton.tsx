@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 
 const EditButton = ({ className }: { className: string }) => {
   return (
-    <Button variant="secondary" className={cn(className, "")}>
+    <Button variant="secondary" size="icon" className={cn("aspect-square", className)}>
       <Pencil />
     </Button>
   );

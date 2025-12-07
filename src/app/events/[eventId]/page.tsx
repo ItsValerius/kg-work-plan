@@ -21,6 +21,7 @@ import { Suspense } from "react";
 import { TaskCard } from "./TaskCard";
 import { SkeletonCard } from "./SkeletonCard";
 import { deleteShift } from "./actions";
+import DuplicateButton from "@/components/DuplicateButton";
 
 interface EventPageProps {
   params: Promise<{ eventId: string }>;
@@ -70,51 +71,56 @@ export default async function EventPage(props: EventPageProps) {
           </div>
 
           {userIsAdmin && (
-            <Button asChild className="w-fit self-end">
-              <Link href={`/events/${event.id}/shifts/new`}>
-                Schicht hinzufügen
-              </Link>
-            </Button>
+            <div className="flex gap-2 w-fit self-end">
+              <DuplicateButton eventId={event.id} className="w-fit" showText />
+              <Button asChild>
+                <Link href={`/events/${event.id}/shifts/new`}>
+                  Schicht hinzufügen
+                </Link>
+              </Button>
+            </div>
           )}
         </div>
 
         <div className="space-y-6">
           {event.shifts.map((shift) => (
             <Card key={shift.id} className="p-4">
-              <CardHeader>
-                <CardTitle>{shift.name}</CardTitle>
-
-                <CardDescription>
-                  {formatDateTimeRange(
-                    new Date(shift.startTime),
-                    new Date(shift.endTime),
-                    false
-                  )}
-                </CardDescription>
-
-                {userIsAdmin && (
-                  <>
-                    <div className="absolute self-end flex gap-2">
+              <CardHeader className={userIsAdmin ? "pb-4" : ""}>
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="break-words">{shift.name}</CardTitle>
+                    <CardDescription className="mt-2 break-words">
+                      {formatDateTimeRange(
+                        new Date(shift.startTime),
+                        new Date(shift.endTime),
+                        false
+                      )}
+                    </CardDescription>
+                  </div>
+                  {userIsAdmin && (
+                    <div className="flex gap-2 shrink-0">
+                      <Link
+                        href={`/events/${event.id}/shifts/${shift.id}/edit`}
+                        aria-label={`Edit shift ${shift.name}`}
+                      >
+                        <EditButton className="w-fit" />
+                      </Link>
                       <DeleteButton
                         id={shift.id}
                         deleteAction={deleteShift}
                         className="w-fit"
                       />
-                      <Link
-                        href={`/events/${event.id}/shifts/${shift.id}/edit`}
-                        aria-label={`Edit shift ${shift.name}`}
-                      >
-                        <EditButton className={"w-fit"} />
-                      </Link>
                     </div>
-                    <Button asChild className="w-fit self-end">
-                      <Link
-                        href={`/events/${event.id}/shifts/${shift.id}/tasks/new`}
-                      >
-                        Aufgabe Hinzufügen
-                      </Link>
-                    </Button>
-                  </>
+                  )}
+                </div>
+                {userIsAdmin && (
+                  <Button asChild className="w-fit">
+                    <Link
+                      href={`/events/${event.id}/shifts/${shift.id}/tasks/new`}
+                    >
+                      Aufgabe Hinzufügen
+                    </Link>
+                  </Button>
                 )}
               </CardHeader>
 

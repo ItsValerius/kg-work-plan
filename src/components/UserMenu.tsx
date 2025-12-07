@@ -7,27 +7,30 @@ import SignOutButton from "./SignOutButton";
 
 const UserMenu = ({ isAdmin }: { isAdmin: boolean }) => {
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button className="absolute right-4 top-4">Konto</Button>
-      </PopoverTrigger>
-      <PopoverContent>
-        <div className="flex flex-col">
-          <Button asChild variant="link">
-            <Link href={"/profile"}>Profil</Link>
-          </Button>
-          <Button asChild variant="link">
-            <Link href={"/meine-aufgaben"}>Meine Aufgaben</Link>
-          </Button>
-          {isAdmin && (
-            <Button asChild variant="link">
-              <Link href={"/dashboard"}>Admin Liste</Link>
+    <div className="absolute right-4 top-4">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button>Konto</Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-56">
+          <div className="flex flex-col gap-1">
+            <Button asChild variant="ghost" className="justify-start">
+              <Link href={"/profile"}>Profil</Link>
             </Button>
-          )}
-          <SignOutButton />
-        </div>
-      </PopoverContent>
-    </Popover>
+            <Button asChild variant="ghost" className="justify-start">
+              <Link href={"/meine-aufgaben"}>Meine Aufgaben</Link>
+            </Button>
+            {isAdmin && (
+              <Button asChild variant="ghost" className="justify-start">
+                <Link href={"/dashboard"}>Admin Liste</Link>
+              </Button>
+            )}
+            <div className="border-t my-1" />
+            <SignOutButton />
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 };
 
