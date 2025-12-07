@@ -1,6 +1,8 @@
 import { auth } from "@/auth";
 import db from "@/db/index";
 import { users } from "@/db/schema";
+import { ApiErrorResponse } from "@/lib/api-errors";
+import { logger } from "@/lib/logger";
 import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
@@ -8,15 +10,15 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return ApiErrorResponse.unauthorized();
     }
 
     const body = await request.json();
-    console.log(body.id);
-    if (session.user.id != body.id) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    if (session.user.id !== body.id) {
+      return ApiErrorResponse.unauthorized("You can only update your own profile");
     }
-    const newEvent = await db
+
+    const updatedUser = await db
       .update(users)
       .set({
         name: body.name,
@@ -24,9 +26,10 @@ export async function POST(request: NextRequest) {
       .where(eq(users.id, body.id))
       .returning();
 
-    return Response.json(newEvent[0]);
+    logger.info("User profile updated", { userId: body.id });
+    return Response.json(updatedUser[0]);
   } catch (error) {
-    console.log(error);
-    return Response.json({ error: "Internal Server Error" }, { status: 500 });
+    logger.error("Failed to update user profile", error);
+    return ApiErrorResponse.internalError("Failed to update profile", error);
   }
 }

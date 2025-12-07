@@ -1,6 +1,8 @@
 import { auth } from "@/auth";
 import db from "@/db/index";
 import { taskParticipants, tasks } from "@/db/schema";
+import { ApiErrorResponse } from "@/lib/api-errors";
+import { logger } from "@/lib/logger";
 import { and, eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { revalidatePath } from "next/cache";
@@ -15,13 +17,20 @@ const taskParticipantsSchema = createInsertSchema(taskParticipants).extend({
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return ApiErrorResponse.unauthorized();
   }
-  const body = await request.json();
+
   try {
+    const body = await request.json();
     const taskParticipant = taskParticipantsSchema.safeParse(body);
-    if (taskParticipant.error) throw new Error(taskParticipant.error.message);
+    
+    if (!taskParticipant.success) {
+      logger.warn("Invalid task participant data", { errors: taskParticipant.error.errors });
+      return ApiErrorResponse.validationError(taskParticipant.error.message);
+    }
+
     try {
+      // Check if user is already registered
       if (
         await db.query.taskParticipants.findFirst({
           where: and(
@@ -30,42 +39,36 @@ export async function POST(request: NextRequest) {
           ),
         })
       ) {
-        return Response.json(
-          { error: "Benutzer bereits zur Aufgabe eingetragen." },
-          { status: 422 }
-        );
+        return ApiErrorResponse.validationError("Benutzer bereits zur Aufgabe eingetragen.");
       }
 
+      // Get task with participants
       const task = await db.query.tasks.findFirst({
         where: eq(tasks.id, taskParticipant.data.taskId),
         with: { participants: true },
       });
+      
       if (!task) {
-        return Response.json(
-          { error: "Aufgabe existiert nicht." },
-          { status: 404 }
-        );
+        return ApiErrorResponse.notFound("Aufgabe existiert nicht.");
       }
 
+      // Check capacity
       const currentParticipantsCount = task.participants.reduce(
         (accumulator, participant) => accumulator + participant.groupSize,
         0
       );
 
+      const requestedGroupSize = taskParticipant.data.groupSize ?? 1;
       if (
-        (taskParticipant.data.groupSize ?? 1) > task.requiredParticipants ||
-        (taskParticipant.data.groupSize ?? 1) + currentParticipantsCount >
-          task.requiredParticipants
+        requestedGroupSize > task.requiredParticipants ||
+        requestedGroupSize + currentParticipantsCount > task.requiredParticipants
       ) {
-        return Response.json(
-          {
-            error:
-              "Die Mitgliederanzahl der Gruppe ist zu groß für diese Aufgabe.",
-          },
-          { status: 422 }
+        return ApiErrorResponse.validationError(
+          "Die Mitgliederanzahl der Gruppe ist zu groß für diese Aufgabe."
         );
       }
 
+      // Create participant
       const newTaskParticipant = await db
         .insert(taskParticipants)
         .values({
@@ -76,16 +79,22 @@ export async function POST(request: NextRequest) {
           createdById: session.user.id,
         })
         .returning();
+      
+      logger.info("Task participant created", {
+        taskId: taskParticipant.data.taskId,
+        userId: session.user.id,
+      });
       revalidatePath("/events");
       return Response.json(newTaskParticipant[0]);
     } catch (error) {
-      if (error instanceof Error) {
-        return Response.json({ error: error.message }, { status: 500 });
-      }
+      logger.error("Failed to create task participant", error, {
+        taskId: taskParticipant.data.taskId,
+        userId: session.user.id,
+      });
+      return ApiErrorResponse.internalError("Failed to register for task", error);
     }
   } catch (error) {
-    if (error instanceof Error) {
-      return Response.json({ error: error.message }, { status: 422 });
-    }
+    logger.error("Invalid request body", error);
+    return ApiErrorResponse.badRequest("Invalid request body");
   }
 }

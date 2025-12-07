@@ -24,8 +24,6 @@ export async function remove(taskId: string) {
     revalidatePath("/profile");
     return;
   } catch (error) {
-    console.log(error);
-
     throw new Error("Failed to remove task");
   }
 }

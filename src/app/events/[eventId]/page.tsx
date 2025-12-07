@@ -11,12 +11,13 @@ import {
 import db from "@/db/index";
 import { events, shifts, tasks } from "@/db/schema/index";
 import { isAdmin, isLoggedIn } from "@/lib/auth/utils";
+import { logger } from "@/lib/logger";
+import { formatDateTimeRange } from "@/lib/formatters";
 import { eq } from "drizzle-orm";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { formatDateTimeRange } from "@/lib/formatters";
 import { TaskCard } from "./TaskCard";
 import { SkeletonCard } from "./SkeletonCard";
 import { deleteShift } from "./actions";
@@ -135,7 +136,7 @@ export default async function EventPage(props: EventPageProps) {
       </div>
     );
   } catch (error) {
-    console.error("Error loading event page:", error);
+    logger.error("Error loading event page", error, { eventId: params.eventId });
     throw new Error("Failed to load event data. Please try again later.");
   }
 }

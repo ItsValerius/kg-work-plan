@@ -17,8 +17,6 @@ export const deleteTask = async (taskId: string) => {
     revalidatePath("/events");
     return;
   } catch (error) {
-    console.log(error);
-
     throw new Error("Failed to remove event");
   }
 };
@@ -37,8 +35,6 @@ export const deleteShift = async (shiftId: string) => {
     revalidatePath(`/events/${deletedShift[0].eventId}`);
     return;
   } catch (error) {
-    console.log(error);
-
     throw new Error("Failed to remove event");
   }
 };

@@ -11,14 +11,14 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { events } from "@/db/schema";
-import { getMissingUsersPerEvent } from "@/lib/utils";
+import { formatEventDateRange } from "@/lib/date-utils";
+import { getMissingUsersPerEvents } from "@/lib/utils";
+import type { EventCardProps, EventsSectionProps } from "@/lib/types/events";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { Suspense } from "react";
 import { deleteEvent } from "./actions";
 
-function EventSkeletonCard() {
+export function EventSkeletonCard() {
     return (
         <Card className="h-[377px]">
             <CardHeader>
@@ -63,16 +63,12 @@ function EventSkeletonCard() {
     );
 }
 
-const EventCard = async ({
+const EventCard = ({
     event,
     userIsAdmin,
-}: {
-    event: typeof events.$inferSelect;
-    userIsAdmin: boolean;
-}) => {
-    const { currentParticipantsCount, requiredParticipantsCount } =
-        await getMissingUsersPerEvent(event.id);
-
+    currentParticipantsCount,
+    requiredParticipantsCount,
+}: EventCardProps) => {
     return (
         <Card>
             <CardHeader>
@@ -82,7 +78,7 @@ const EventCard = async ({
                         <DeleteButton
                             deleteAction={deleteEvent}
                             id={event.id}
-                            className="w-fit "
+                            className="w-fit"
                         />
                         <Link href={`events/${event.id}/edit`}>
                             <EditButton className="w-fit" />
@@ -100,13 +96,7 @@ const EventCard = async ({
                         Datum:
                     </h3>
                     <small className="text-sm font-medium leading-none">
-                        {event.startDate.toLocaleDateString("DE-de", {
-                            timeZone: "Europe/Berlin",
-                        }) +
-                            " - " +
-                            event.endDate.toLocaleDateString("DE-de", {
-                                timeZone: "Europe/Berlin",
-                            })}
+                        {formatEventDateRange(event.startDate, event.endDate)}
                     </small>
                 </div>
                 <div>
@@ -114,8 +104,11 @@ const EventCard = async ({
                         Aufgaben:
                     </h3>
                     <Progress
-                        className=""
-                        value={(currentParticipantsCount / requiredParticipantsCount) * 100}
+                        value={
+                            requiredParticipantsCount > 0
+                                ? (currentParticipantsCount / requiredParticipantsCount) * 100
+                                : 0
+                        }
                     />
                     <small className="text-sm font-medium leading-none">
                         {currentParticipantsCount +
@@ -136,7 +129,7 @@ const EventCard = async ({
     );
 };
 
-export const EventsSection = ({
+export const EventsSection = async ({
     events: eventsList,
     userIsAdmin,
     title,
@@ -146,20 +139,14 @@ export const EventsSection = ({
     emptyStateActionText,
     showAddButton,
     isFutureEvents,
-}: {
-    events: (typeof events.$inferSelect)[];
-    userIsAdmin: boolean;
-    title: string;
-    description: string;
-    emptyStateTitle?: string;
-    emptyStateDescription?: string;
-    emptyStateActionText?: string;
-    showAddButton: boolean;
-    isFutureEvents: boolean;
-}) => {
+}: EventsSectionProps) => {
     if (!isFutureEvents && eventsList.length === 0) {
         return null;
     }
+
+    // Batch load participant counts for all events
+    const eventIds = eventsList.map((event) => event.id);
+    const participantCounts = await getMissingUsersPerEvents(eventIds);
 
     const titleClassName =
         "scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl";
@@ -217,11 +204,21 @@ export const EventsSection = ({
                 </Card>
             ) : (
                 <div className="lg:grid lg:grid-cols-3 gap-4 flex flex-col">
-                    {eventsList.map((event: typeof events.$inferSelect) => (
-                        <Suspense key={event.id} fallback={<EventSkeletonCard />}>
-                            <EventCard event={event} userIsAdmin={userIsAdmin} />
-                        </Suspense>
-                    ))}
+                    {eventsList.map((event) => {
+                        const counts = participantCounts[event.id] || {
+                            currentParticipantsCount: 0,
+                            requiredParticipantsCount: 0,
+                        };
+                        return (
+                            <EventCard
+                                key={event.id}
+                                event={event}
+                                userIsAdmin={userIsAdmin}
+                                currentParticipantsCount={counts.currentParticipantsCount}
+                                requiredParticipantsCount={counts.requiredParticipantsCount}
+                            />
+                        );
+                    })}
                 </div>
             )}
         </div>

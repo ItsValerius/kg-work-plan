@@ -25,7 +25,6 @@ export default async function SignInPage(props: {
   searchParams: Promise<{ callbackUrl: string | undefined }>;
 }) {
   const callbackUrl = (await props.searchParams).callbackUrl;
-  console.log(callbackUrl);
 
   return (
     <main className="flex h-screen w-full items-center justify-center px-4 flex-col">

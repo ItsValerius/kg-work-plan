@@ -1,7 +1,9 @@
 import { auth } from "@/auth";
 import db from "@/db/index";
 import { events } from "@/db/schema";
+import { ApiErrorResponse } from "@/lib/api-errors";
 import { isAdmin } from "@/lib/auth/utils";
+import { logger } from "@/lib/logger";
 import { createInsertSchema } from "drizzle-zod";
 import { revalidatePath } from "next/cache";
 import { NextRequest } from "next/server";
@@ -15,13 +17,18 @@ const eventSchema = createInsertSchema(events).extend({
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id || !(await isAdmin())) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return ApiErrorResponse.unauthorized();
   }
+
   try {
     const body = await request.json();
     const event = eventSchema.safeParse(body);
 
-    if (!event.success) throw new Error(event.error.message);
+    if (!event.success) {
+      logger.warn("Invalid event data", { errors: event.error.errors });
+      return ApiErrorResponse.validationError(event.error.message);
+    }
+
     try {
       const newEvent = await db
         .insert(events)
@@ -44,18 +51,14 @@ export async function POST(request: NextRequest) {
         })
         .returning();
       revalidatePath("/events");
+      logger.info("Event created/updated", { eventId: newEvent[0].id, userId: session.user.id });
       return Response.json(newEvent[0]);
     } catch (error) {
-      console.log(error);
-      if (error instanceof Error) {
-        return Response.json({ error: error.message }, { status: 500 });
-      }
+      logger.error("Failed to create/update event", error, { userId: session.user.id });
+      return ApiErrorResponse.internalError("Failed to create/update event", error);
     }
   } catch (error) {
-    console.log(error);
-
-    if (error instanceof Error) {
-      return Response.json({ error: error.message }, { status: 422 });
-    }
+    logger.error("Invalid request body", error);
+    return ApiErrorResponse.badRequest("Invalid request body");
   }
 }

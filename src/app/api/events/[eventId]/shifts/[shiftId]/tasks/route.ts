@@ -1,7 +1,9 @@
 import { auth } from "@/auth";
 import db from "@/db/index";
 import { tasks } from "@/db/schema";
+import { ApiErrorResponse } from "@/lib/api-errors";
 import { isAdmin } from "@/lib/auth/utils";
+import { logger } from "@/lib/logger";
 import { createInsertSchema } from "drizzle-zod";
 import { NextRequest } from "next/server";
 import { z } from "zod";
@@ -15,12 +17,18 @@ const taskSchema = createInsertSchema(tasks).extend({
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id || !(await isAdmin())) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return ApiErrorResponse.unauthorized();
   }
-  const body = await request.json();
+
   try {
+    const body = await request.json();
     const task = taskSchema.safeParse(body);
-    if (task.error) throw new Error(task.error.message);
+    
+    if (!task.success) {
+      logger.warn("Invalid task data", { errors: task.error.errors });
+      return ApiErrorResponse.validationError(task.error.message);
+    }
+
     try {
       const newTask = await db
         .insert(tasks)
@@ -44,15 +52,14 @@ export async function POST(request: NextRequest) {
         })
         .returning();
 
+      logger.info("Task created/updated", { taskId: newTask[0].id, shiftId: task.data.shiftId });
       return Response.json(newTask[0]);
     } catch (error) {
-      if (error instanceof Error) {
-        return Response.json({ error: error.message }, { status: 500 });
-      }
+      logger.error("Failed to create/update task", error, { shiftId: task.data.shiftId });
+      return ApiErrorResponse.internalError("Failed to create/update task", error);
     }
   } catch (error) {
-    if (error instanceof Error) {
-      return Response.json({ error: error.message }, { status: 422 });
-    }
+    logger.error("Invalid request body", error);
+    return ApiErrorResponse.badRequest("Invalid request body");
   }
 }
