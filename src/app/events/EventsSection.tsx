@@ -87,6 +87,9 @@ const EventCard = ({
                             </Link>
                             <DuplicateButton
                                 eventId={event.id}
+                                eventName={event.name}
+                                eventStartDate={event.startDate}
+                                eventEndDate={event.endDate}
                                 className="w-fit"
                             />
                             <DeleteButton

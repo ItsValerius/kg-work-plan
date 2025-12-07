@@ -72,7 +72,14 @@ export default async function EventPage(props: EventPageProps) {
 
           {userIsAdmin && (
             <div className="flex gap-2 w-fit self-end">
-              <DuplicateButton eventId={event.id} className="w-fit" showText />
+              <DuplicateButton
+                eventId={event.id}
+                eventName={event.name}
+                eventStartDate={event.startDate}
+                eventEndDate={event.endDate}
+                className="w-fit"
+                showText
+              />
               <Button asChild>
                 <Link href={`/events/${event.id}/shifts/new`}>
                   Schicht hinzufügen

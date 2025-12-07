@@ -7,7 +7,6 @@ import { isAdmin } from "@/lib/auth/utils";
 import { logger } from "@/lib/logger";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 export const deleteEvent = async (eventId: string) => {
   try {
@@ -26,7 +25,12 @@ export const deleteEvent = async (eventId: string) => {
   }
 };
 
-export const duplicateEvent = async (eventId: string) => {
+export const duplicateEvent = async (
+  eventId: string,
+  name: string,
+  startDate: Date,
+  endDate: Date
+) => {
   try {
     const session = await auth();
     if (!session?.user?.id || !(await isAdmin())) {
@@ -49,18 +53,15 @@ export const duplicateEvent = async (eventId: string) => {
       throw new Error("Event not found");
     }
 
-    // Calculate new dates: duplicate 1 year in the future from the original dates
     const originalStartDate = new Date(originalEvent.startDate);
-    const originalEndDate = new Date(originalEvent.endDate);
-    const dateOffset = 365 * 24 * 60 * 60 * 1000; // 1 year in milliseconds
-    const newStartDate = new Date(originalStartDate.getTime() + dateOffset);
-    const newEndDate = new Date(originalEndDate.getTime() + dateOffset);
+    const newStartDate = new Date(startDate);
+    const newEndDate = new Date(endDate);
 
     // Create the new event
     const [newEvent] = await db
       .insert(events)
       .values({
-        name: `${originalEvent.name} (Kopie)`,
+        name,
         description: originalEvent.description,
         startDate: newStartDate,
         endDate: newEndDate,
@@ -131,7 +132,7 @@ export const duplicateEvent = async (eventId: string) => {
     });
 
     revalidatePath("/events");
-    redirect(`/events/${newEvent.id}`);
+    return newEvent.id;
   } catch (error) {
     logger.error("Failed to duplicate event", error, { eventId });
     throw new Error("Failed to duplicate event");
