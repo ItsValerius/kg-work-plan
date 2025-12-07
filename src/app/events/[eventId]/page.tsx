@@ -27,8 +27,9 @@ interface EventPageProps {
 }
 
 export default async function EventPage(props: EventPageProps) {
+  const params = await props.params;
+
   try {
-    const params = await props.params;
     const userIsAdmin = await isAdmin();
     const userIsLoggedIn = await isLoggedIn();
 
