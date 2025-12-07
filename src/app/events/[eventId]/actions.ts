@@ -3,6 +3,7 @@
 import db from "@/db";
 import { shifts, tasks } from "@/db/schema";
 import { isAdmin } from "@/lib/auth/utils";
+import { logger } from "@/lib/logger";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -17,6 +18,7 @@ export const deleteTask = async (taskId: string) => {
     revalidatePath("/events");
     return;
   } catch (error) {
+    logger.error("Failed to delete task", error, { taskId });
     throw new Error("Failed to remove event");
   }
 };
@@ -35,6 +37,7 @@ export const deleteShift = async (shiftId: string) => {
     revalidatePath(`/events/${deletedShift[0].eventId}`);
     return;
   } catch (error) {
+    logger.error("Failed to delete shift", error, { shiftId });
     throw new Error("Failed to remove event");
   }
 };

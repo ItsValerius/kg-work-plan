@@ -51,7 +51,7 @@ class Logger {
 
   debug(message: string, context?: LogContext) {
     if (this.isDevelopment) {
-      const logEntry = this.formatMessage("debug", message, context);
+      this.formatMessage("debug", message, context);
       // In production, you might want to filter out debug logs
       // or send to a different service
     }
@@ -65,6 +65,7 @@ class Logger {
       // Example: sendToLogService(logEntry);
       // Or use Vercel's built-in logging which automatically captures console.log
       // You could also integrate with Sentry, LogRocket, etc.
+      void logEntry; // Reserved for future logging service integration
     }
   }
 
@@ -74,6 +75,7 @@ class Logger {
     if (this.isProduction) {
       // Send warnings to logging service
       // Example: sendToLogService(logEntry);
+      void logEntry; // Reserved for future logging service integration
     }
   }
 
@@ -116,6 +118,7 @@ class Logger {
       // });
       
       // Option 4: Send to external monitoring (Datadog, New Relic, etc.)
+      void logEntry; // Reserved for future logging service integration
     }
   }
 }

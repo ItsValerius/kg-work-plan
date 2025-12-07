@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import db from "@/db";
 import { taskParticipants } from "@/db/schema";
+import { logger } from "@/lib/logger";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -24,6 +25,7 @@ export async function remove(taskId: string) {
     revalidatePath("/profile");
     return;
   } catch (error) {
+    logger.error("Failed to remove task participant", error, { taskId });
     throw new Error("Failed to remove task");
   }
 }
