@@ -50,7 +50,7 @@ export default async function EventPage(props: EventPageProps) {
     }
 
     return (
-      <div className="container mx-auto py-6 md:py-8 lg:py-10 px-4 md:px-6 lg:px-8 max-w-7xl">
+      <main id="main-content" className="container mx-auto py-6 md:py-8 lg:py-10 px-4 md:px-6 lg:px-8 max-w-7xl">
         <div className="mb-4">
           <BackButton className="h-9" />
         </div>
@@ -140,7 +140,7 @@ export default async function EventPage(props: EventPageProps) {
             </Card>
           ))}
         </div>
-      </div>
+      </main>
     );
   } catch (error) {
     logger.error("Error loading event page", error, { eventId: params.eventId });

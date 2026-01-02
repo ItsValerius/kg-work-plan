@@ -36,7 +36,7 @@ const TaskDetailsPage = async (props: {
 
   if (!event || !task) return notFound();
   return (
-    <div className="container mx-auto py-8 px-4 md:px-0">
+    <main id="main-content" className="container mx-auto py-8 px-4 md:px-0">
       <div className="flex my-auto w-full items-center justify-center flex-col gap-4">
         <Card className="w-full max-w-xl mx-auto">
           <CardHeader>
@@ -66,7 +66,7 @@ const TaskDetailsPage = async (props: {
           </Link>
         </Button>
       </div>
-    </div>
+    </main>
   );
 };
 
