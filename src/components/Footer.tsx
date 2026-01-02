@@ -4,14 +4,14 @@ import { Button } from "./ui/button";
 
 const Footer = () => {
   return (
-    <div className="flex justify-center items-center flex-wrap border-t w-full">
+    <footer className="flex justify-center items-center flex-wrap border-t w-full">
       <Button asChild variant="link">
         <Link href="/datenschutz">Datenschutz</Link>
       </Button>
       <Button asChild variant="link">
         <Link href="/nutzungsbedingungen">Nutzungsbedingungen</Link>
       </Button>
-    </div>
+    </footer>
   );
 };
 

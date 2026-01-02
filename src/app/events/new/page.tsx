@@ -10,7 +10,7 @@ const NewEventPage = async () => {
   const session = await auth();
   if (!session?.user?.id) return redirect("/");
   return (
-    <main className="p-4 flex flex-col gap-2 max-w-3xl w-full mx-auto">
+    <main id="main-content" className="p-4 flex flex-col gap-2 max-w-3xl w-full mx-auto">
       <Button asChild variant="outline" className="w-fit">
         <Link href="/events">
           {" "}

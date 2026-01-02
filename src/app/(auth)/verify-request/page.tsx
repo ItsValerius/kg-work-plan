@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 const VerifyRequestPage = () => {
   return (
-    <main className="flex justify-center p-4">
+    <main id="main-content" className="flex justify-center p-4">
       <div className="w-full max-w-3xl">
         <Card>
           <CardHeader>

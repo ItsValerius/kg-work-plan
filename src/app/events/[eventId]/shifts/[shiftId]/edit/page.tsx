@@ -26,7 +26,7 @@ const EditShiftPapge = async (props: {
   });
   if (!event || !event.shifts[0]) return notFound();
   return (
-    <main className="p-4 flex flex-col gap-2 max-w-3xl w-full mx-auto">
+    <main id="main-content" className="p-4 flex flex-col gap-2 max-w-3xl w-full mx-auto">
       <Button asChild variant="outline" className="w-fit">
         <Link href={`/events/${event.id}`}>
           <ArrowLeft />
