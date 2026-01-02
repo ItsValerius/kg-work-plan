@@ -38,6 +38,82 @@ interface TaskCardProps {
   isLoggedIn: boolean;
 }
 
+// Constants
+const DESCRIPTION_TOOLTIP_THRESHOLD = 60;
+const ALMOST_FULL_THRESHOLD = 80;
+const HIGH_PROGRESS_THRESHOLD = 67;
+const MEDIUM_PROGRESS_THRESHOLD = 34;
+
+// Helper function to get progress bar color based on percentage
+function getProgressBarColor(progressPercentage: number, isFull: boolean): string {
+  if (isFull || progressPercentage >= HIGH_PROGRESS_THRESHOLD) {
+    return "[&>div]:bg-green-600";
+  }
+  if (progressPercentage >= MEDIUM_PROGRESS_THRESHOLD) {
+    return "[&>div]:bg-orange-500";
+  }
+  return "[&>div]:bg-red-500";
+}
+
+// Helper function to get card hover styles based on state
+function getCardHoverStyles(isFull: boolean, isAlmostFull: boolean): string {
+  if (isFull) return "hover:border-muted-foreground/30 opacity-90";
+  if (isAlmostFull) return "hover:border-primary/40 hover:shadow-md";
+  return "hover:border-primary/20";
+}
+
+// Helper function to render status badge
+function renderStatusBadge(isFull: boolean, isAlmostFull: boolean) {
+  if (isFull) {
+    return (
+      <span className="text-xs font-semibold text-green-800 dark:text-green-400 flex items-center gap-1">
+        <span className="h-1.5 w-1.5 rounded-full bg-green-800 dark:bg-green-400"></span>
+        Voll
+      </span>
+    );
+  }
+  if (isAlmostFull) {
+    return (
+      <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">
+        Fast voll
+      </span>
+    );
+  }
+  return null;
+}
+
+// Helper function to render task description
+function renderTaskDescription(description: string | null) {
+  if (!description) {
+    return <div className="min-h-[2.5rem]"></div>;
+  }
+
+  const needsTooltip = description.length > DESCRIPTION_TOOLTIP_THRESHOLD;
+
+  if (needsTooltip) {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <CardDescription className="text-xs md:text-sm text-muted-foreground line-clamp-2 cursor-help min-h-[2.5rem]">
+              {description}
+            </CardDescription>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-sm">
+            <p className="whitespace-pre-wrap break-words">{description}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+
+  return (
+    <CardDescription className="text-xs md:text-sm text-muted-foreground break-words line-clamp-2 min-h-[2.5rem]">
+      {description}
+    </CardDescription>
+  );
+}
+
 export async function TaskCard({
   eventId,
   shiftId,
@@ -59,16 +135,14 @@ export async function TaskCard({
 
   const isFull = participantsAmount >= task.requiredParticipants;
   const progressPercentage = (participantsAmount / task.requiredParticipants) * 100;
-  const isAlmostFull = progressPercentage >= 80 && !isFull;
+  const isAlmostFull = progressPercentage >= ALMOST_FULL_THRESHOLD && !isFull;
+
+  const cardHoverStyles = getCardHoverStyles(isFull, isAlmostFull);
+  const progressBarColor = getProgressBarColor(progressPercentage, isFull);
 
   return (
     <Card
-      className={`flex flex-col transition-all duration-200 hover:shadow-lg h-full min-h-[240px] md:min-h-[280px] group ${isFull
-        ? "hover:border-muted-foreground/30 opacity-90"
-        : isAlmostFull
-          ? "hover:border-primary/40 hover:shadow-md"
-          : "hover:border-primary/20"
-        }`}
+      className={`flex flex-col transition-all duration-200 hover:shadow-lg h-full min-h-[240px] md:min-h-[280px] group ${cardHoverStyles}`}
     >
       <CardHeader className="pb-3 md:pb-4 lg:pb-5 flex flex-col justify-start min-h-[100px] md:min-h-[110px] lg:min-h-[120px] relative">
         {isAdmin && (
@@ -89,30 +163,9 @@ export async function TaskCard({
             <div className="flex items-start min-h-[2.5rem] md:min-h-[3rem]">
               <div className="space-y-1 md:space-y-1.5 w-full">
                 <small className="block text-xs md:text-sm text-muted-foreground font-medium">
-                  {"ab " + formatTime(new Date(task.startTime))}
+                  ab {formatTime(new Date(task.startTime))}
                 </small>
-                {task.description ? (
-                  task.description.length > 60 ? (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <CardDescription className="text-xs md:text-sm text-muted-foreground line-clamp-2 cursor-help min-h-[2.5rem]">
-                            {task.description}
-                          </CardDescription>
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-sm">
-                          <p className="whitespace-pre-wrap break-words">{task.description}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ) : (
-                    <CardDescription className="text-xs md:text-sm text-muted-foreground break-words line-clamp-2 min-h-[2.5rem]">
-                      {task.description}
-                    </CardDescription>
-                  )
-                ) : (
-                  <div className="min-h-[2.5rem]"></div>
-                )}
+                {renderTaskDescription(task.description)}
               </div>
             </div>
           </div>
@@ -125,28 +178,12 @@ export async function TaskCard({
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               Teilnehmer
             </span>
-            {isFull ? (
-              <span className="text-xs font-semibold text-green-600 dark:text-green-400 flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-green-600 dark:bg-green-400"></span>
-                Voll
-              </span>
-            ) : isAlmostFull ? (
-              <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">
-                Fast voll
-              </span>
-            ) : null}
+            {renderStatusBadge(isFull, isAlmostFull)}
           </div>
           <Progress
             value={progressPercentage}
             aria-label={`${participantsAmount} von ${task.requiredParticipants} Personen`}
-            className={`h-2.5 ${isFull
-              ? "[&>div]:bg-green-500"
-              : progressPercentage >= 67
-                ? "[&>div]:bg-green-500"
-                : progressPercentage >= 34
-                  ? "[&>div]:bg-orange-500"
-                  : "[&>div]:bg-red-500"
-              }`}
+            className={`h-2.5 ${progressBarColor}`}
           />
           <div className="flex items-center justify-between">
             <small className="text-xs md:text-sm font-medium text-muted-foreground">
@@ -215,25 +252,26 @@ export async function TaskCard({
       </CardContent>
 
       <CardFooter className="pt-3 md:pt-4 lg:pt-5">
-        <Button
-          asChild={!isFull}
-          disabled={isFull}
-          className={`whitespace-nowrap disabled:cursor-not-allowed w-full h-10 md:h-11 text-sm md:text-base font-medium transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${isFull
-            ? "disabled:opacity-60"
-            : ""
-            }`}
-        >
-          <Link
-            href={
-              isFull
-                ? "#"
-                : `/events/${eventId}/shifts/${shiftId}/tasks/${task.id}`
-            }
-            className="flex items-center justify-center"
+        {isFull ? (
+          <Button
+            disabled
+            className="whitespace-nowrap disabled:cursor-not-allowed w-full h-10 md:h-11 text-sm md:text-base font-medium transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-60"
           >
-            {isFull ? "Vollständig besetzt" : "Zur Aufgabe anmelden"}
-          </Link>
-        </Button>
+            Vollständig besetzt
+          </Button>
+        ) : (
+          <Button
+            asChild
+            className="whitespace-nowrap w-full h-10 md:h-11 text-sm md:text-base font-medium transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          >
+            <Link
+              href={`/events/${eventId}/shifts/${shiftId}/tasks/${task.id}`}
+              className="flex items-center justify-center"
+            >
+              Zur Aufgabe anmelden
+            </Link>
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

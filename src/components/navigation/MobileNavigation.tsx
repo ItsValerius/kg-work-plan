@@ -23,7 +23,7 @@ export function MobileNavigation({ items }: MobileNavigationProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <div className="flex md:hidden items-center gap-1 shrink-0">
+        <div className="flex lg:hidden items-center gap-1 shrink-0">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-9 w-9" aria-label="Menü öffnen">
@@ -40,7 +40,7 @@ export function MobileNavigation({ items }: MobileNavigationProps) {
                     <div className="flex flex-col gap-2 mt-6">
                         <NavItems items={items} mobile onItemClick={() => setIsOpen(false)} />
                         <div className="pt-4 border-t">
-                            <LogoutButton showText variant="destructive" />
+                            <LogoutButton showText />
                         </div>
                     </div>
                 </SheetContent>

@@ -41,8 +41,10 @@ const TaskDetailsPage = async (props: {
         <Card className="w-full max-w-xl mx-auto">
           <CardHeader>
             <CardTitle>
-              Aufgaben Anmeldung -{" "}
-              <span className="underline decoration-primary">{task.name}</span>
+              <h1>
+                Aufgaben Anmeldung -{" "}
+                <span className="underline decoration-primary">{task.name}</span>
+              </h1>
             </CardTitle>
             <CardDescription>
               Du musst die Felder unten nur Ausfüllen, falls du dich als Gruppe

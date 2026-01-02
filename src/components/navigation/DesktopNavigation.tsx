@@ -10,7 +10,7 @@ interface DesktopNavigationProps {
 
 export function DesktopNavigation({ items }: DesktopNavigationProps) {
   return (
-    <div className="hidden md:flex items-center gap-1">
+    <div className="hidden lg:flex items-center gap-1">
       <NavItems items={items} />
       <LogoutButton showText />
     </div>
