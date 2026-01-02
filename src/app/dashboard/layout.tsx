@@ -3,8 +3,8 @@ import Footer from "@/components/Footer";
 import NavigationBar from "@/components/navigation/NavigationBar";
 import { redirect } from "next/navigation";
 
-export default async function MeineAufgabenLayout({
-  children, // will be a page or nested layout
+export default async function DashboardLayout({
+  children,
 }: {
   children: React.ReactNode;
 }) {
@@ -24,3 +24,4 @@ export default async function MeineAufgabenLayout({
     </div>
   );
 }
+

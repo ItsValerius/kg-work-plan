@@ -25,10 +25,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="de">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
+        <a href="#main-content" className="skip-to-content">
+          Zum Hauptinhalt springen
+        </a>
         {children}
         <Toaster richColors={true} />
       </body>

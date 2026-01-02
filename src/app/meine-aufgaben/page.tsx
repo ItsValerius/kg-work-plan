@@ -1,5 +1,4 @@
-import { auth } from "@/auth";
-import RemoveUserFromTaskButton from "@/components/RemoveUserFromTaskButton";
+import RemoveUserFromTaskButton from "@/components/buttons/RemoveUserFromTaskButton";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,14 +10,18 @@ import {
 } from "@/components/ui/card";
 import db from "@/db";
 import { shifts, taskParticipants, tasks } from "@/db/schema";
+import { auth } from "@/auth";
 import { eq } from "drizzle-orm";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 const MeineAufgabenPage = async () => {
   const session = await auth();
-  if (!session?.user?.id) return redirect("/signin");
+  // Layout handles authentication redirect, so user should always exist here
+  if (!session?.user?.id) {
+    throw new Error("User not authenticated");
+  }
+  const userId = session.user.id;
 
   const userTasks = await db
     .select({
@@ -32,10 +35,10 @@ const MeineAufgabenPage = async () => {
     .from(taskParticipants)
     .leftJoin(tasks, eq(taskParticipants.taskId, tasks.id))
     .leftJoin(shifts, eq(tasks.shiftId, shifts.id))
-    .where(eq(taskParticipants.userId, session.user.id));
+    .where(eq(taskParticipants.userId, userId));
 
   return (
-    <div className="container mx-auto py-8">
+    <main id="main-content" className="container mx-auto py-8 px-4 md:px-0">
       <div className="flex justify-between mb-6 flex-col gap-2">
         <Button asChild variant="outline" className="w-fit">
           <Link href="/events">
@@ -84,22 +87,46 @@ const MeineAufgabenPage = async () => {
             </CardContent>
             <CardFooter>
               <RemoveUserFromTaskButton taskId={task.id} />
-              <Button asChild variant="destructive"></Button>
             </CardFooter>
           </Card>
         ))}
 
         {userTasks.length === 0 && (
-          <Card className="bg-gray-50">
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <p className="text-gray-500 text-center">
-                Noch keine Aufgaben übernommen
-              </p>
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-16 px-4">
+              <div className="flex flex-col items-center gap-4 text-center">
+                <div className="rounded-full bg-muted p-4">
+                  <svg
+                    className="h-8 w-8 text-muted-foreground"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    />
+                  </svg>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold">Noch keine Aufgaben übernommen</h3>
+                  <p className="text-sm text-muted-foreground max-w-sm">
+                    Du hast dich noch für keine Aufgaben angemeldet. Schau dir die
+                    Veranstaltungen an, um Aufgaben zu finden, bei denen du helfen kannst.
+                  </p>
+                </div>
+                <Button asChild className="mt-2">
+                  <Link href="/events">Veranstaltungen ansehen</Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
       </div>
-    </div>
+    </main>
   );
 };
 

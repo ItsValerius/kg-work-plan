@@ -2,7 +2,7 @@
 import { Loader2 } from "lucide-react";
 import React from "react";
 import { useFormStatus } from "react-dom";
-import { Button, ButtonProps } from "./ui/button";
+import { Button, ButtonProps } from "../ui/button";
 
 const SubmitButton = ({
   name,
@@ -34,3 +34,4 @@ const SubmitButton = ({
 };
 
 export default SubmitButton;
+

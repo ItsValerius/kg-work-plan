@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
 import Footer from "@/components/Footer";
-import SignInButton from "@/components/SignInButton";
-import UserMenu from "@/components/UserMenu";
+import NavigationBar from "@/components/navigation/NavigationBar";
+import { redirect } from "next/navigation";
+
 export default async function ProfileLayout({
   children, // will be a page or nested layout
 }: {
@@ -9,10 +10,16 @@ export default async function ProfileLayout({
 }) {
   const user = (await auth())?.user;
 
+  if (!user) {
+    redirect("/signin");
+  }
+
   return (
-    <div className="px-2 flex flex-col justify-between min-h-screen">
-      {!user ? <SignInButton /> : <UserMenu isAdmin={user.role === "admin"} />}
-      {children}
+    <div className="flex flex-col min-h-screen">
+      <NavigationBar isAdmin={user.role === "admin"} />
+      <div className="flex-1">
+        {children}
+      </div>
       <Footer />
     </div>
   );
