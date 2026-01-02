@@ -1,5 +1,3 @@
-import DeleteButton from "@/components/buttons/DeleteButton";
-import EditButton from "@/components/buttons/EditButton";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,6 +28,7 @@ import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { formatTime } from "@/lib/formatters";
 import { deleteTask } from "./actions";
+import { TaskAdminActions } from "@/components/admin-actions/TaskAdminActions";
 
 interface TaskCardProps {
   eventId: string;
@@ -71,59 +70,56 @@ export async function TaskCard({
           : "hover:border-primary/20"
         }`}
     >
-      <CardHeader className="pb-3 md:pb-4 lg:pb-5 lg:h-[120px] flex flex-col justify-start">
-        <div className="flex items-start justify-between gap-2 md:gap-3 lg:gap-4 h-full">
-          <div className="flex-1 min-w-0 flex flex-col space-y-1.5 md:space-y-2 lg:grid lg:grid-rows-[2.5rem_2.5rem] lg:gap-2 lg:h-full">
-            <div className="flex items-start lg:h-[2.5rem]">
+      <CardHeader className="pb-3 md:pb-4 lg:pb-5 flex flex-col justify-start min-h-[100px] md:min-h-[110px] lg:min-h-[120px] relative">
+        {isAdmin && (
+          <TaskAdminActions
+            eventId={eventId}
+            shiftId={shiftId}
+            taskId={task.id}
+            deleteAction={deleteTask}
+          />
+        )}
+        <div className="flex items-start gap-2 md:gap-3 lg:gap-4 h-full">
+          <div className="flex-1 min-w-0 flex flex-col space-y-1.5 md:space-y-2 justify-between h-full">
+            <div className="flex items-start min-h-[3rem] md:min-h-[3.5rem]">
               <CardTitle className="font-semibold break-words text-base md:text-lg leading-tight line-clamp-2 w-full">
                 {task.name}
               </CardTitle>
             </div>
-            <div className="flex items-start lg:h-[2.5rem]">
+            <div className="flex items-start min-h-[2.5rem] md:min-h-[3rem]">
               <div className="space-y-1 md:space-y-1.5 w-full">
                 <small className="block text-xs md:text-sm text-muted-foreground font-medium">
                   {"ab " + formatTime(new Date(task.startTime))}
                 </small>
-                {task.description && (task.description.length > 60 ? (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <CardDescription className="text-xs md:text-sm text-muted-foreground line-clamp-2 cursor-help">
-                          {task.description}
-                        </CardDescription>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-sm">
-                        <p className="whitespace-pre-wrap break-words">{task.description}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                {task.description ? (
+                  task.description.length > 60 ? (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <CardDescription className="text-xs md:text-sm text-muted-foreground line-clamp-2 cursor-help min-h-[2.5rem]">
+                            {task.description}
+                          </CardDescription>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-sm">
+                          <p className="whitespace-pre-wrap break-words">{task.description}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : (
+                    <CardDescription className="text-xs md:text-sm text-muted-foreground break-words line-clamp-2 min-h-[2.5rem]">
+                      {task.description}
+                    </CardDescription>
+                  )
                 ) : (
-                  <CardDescription className="text-xs md:text-sm text-muted-foreground break-words">
-                    {task.description}
-                  </CardDescription>
-                ))}
+                  <div className="min-h-[2.5rem]"></div>
+                )}
               </div>
             </div>
           </div>
-          {isAdmin && (
-            <div className="flex gap-1.5 md:gap-2 shrink-0">
-              <Link
-                href={`/events/${eventId}/shifts/${shiftId}/tasks/${task.id}/edit`}
-                aria-label={`Edit task ${task.name}`}
-              >
-                <EditButton className="w-fit" />
-              </Link>
-              <DeleteButton
-                className="w-fit"
-                id={task.id}
-                deleteAction={deleteTask}
-              />
-            </div>
-          )}
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-2 md:space-y-3 pt-0">
+      <CardContent className="space-y-2 md:space-y-3 pt-2 md:pt-3">
         <div className="space-y-2 pt-1">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -160,7 +156,7 @@ export async function TaskCard({
         </div>
       </CardContent>
 
-      <CardContent className="mt-auto pt-0 pb-0">
+      <CardContent className="mt-auto pt-2 md:pt-3 pb-0">
         <Dialog>
           <DialogTrigger asChild>
             <Button

@@ -1,6 +1,4 @@
-import DeleteButton from "@/components/buttons/DeleteButton";
-import DuplicateButton from "@/components/buttons/DuplicateButton";
-import EditButton from "@/components/buttons/EditButton";
+import { EventAdminActions } from "@/components/admin-actions/EventAdminActions";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -80,7 +78,16 @@ const EventCard = ({
 
     return (
         <Card className="min-h-[280px] md:min-h-[340px] flex flex-col h-full transition-all duration-200 hover:shadow-lg hover:border-primary/20 group">
-            <CardHeader className="pb-3 md:pb-5 lg:pb-5 lg:h-[140px] flex flex-col justify-start">
+            <CardHeader className="pb-3 md:pb-5 lg:pb-5 lg:h-[140px] flex flex-col justify-start relative">
+                {userIsAdmin && (
+                    <EventAdminActions
+                        eventId={event.id}
+                        eventName={event.name}
+                        eventStartDate={event.startDate}
+                        eventEndDate={event.endDate}
+                        deleteAction={deleteEvent}
+                    />
+                )}
                 <div className="flex items-start justify-between gap-3 lg:gap-4 h-full">
                     <div className="flex-1 min-w-0 flex flex-col space-y-2 md:space-y-2.5 lg:grid lg:grid-rows-[3.5rem_3rem] lg:gap-2.5 lg:h-full">
                         <div className="flex items-start lg:h-[3.5rem]">
@@ -98,25 +105,6 @@ const EventCard = ({
                             )}
                         </div>
                     </div>
-                    {userIsAdmin && (
-                        <div className="flex gap-2 shrink-0">
-                            <Link href={`events/${event.id}/edit`}>
-                                <EditButton className="w-fit" />
-                            </Link>
-                            <DuplicateButton
-                                eventId={event.id}
-                                eventName={event.name}
-                                eventStartDate={event.startDate}
-                                eventEndDate={event.endDate}
-                                className="w-fit"
-                            />
-                            <DeleteButton
-                                deleteAction={deleteEvent}
-                                id={event.id}
-                                className="w-fit"
-                            />
-                        </div>
-                    )}
                 </div>
             </CardHeader>
             <CardContent className="flex flex-col flex-grow pt-0">
