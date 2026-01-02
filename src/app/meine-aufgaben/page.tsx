@@ -12,7 +12,6 @@ import db from "@/db";
 import { shifts, taskParticipants, tasks } from "@/db/schema";
 import { auth } from "@/auth";
 import { eq } from "drizzle-orm";
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 const MeineAufgabenPage = async () => {
@@ -38,24 +37,15 @@ const MeineAufgabenPage = async () => {
     .where(eq(taskParticipants.userId, userId));
 
   return (
-    <main id="main-content" className="container mx-auto py-8 px-4 md:px-0">
-      <div className="flex justify-between mb-6 flex-col gap-2">
-        <Button asChild variant="outline" className="w-fit">
-          <Link href="/events">
-            {" "}
-            <ArrowLeft />
-            Zurück
-          </Link>
-        </Button>
-        <div>
-          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-            Meine Aufgaben
-          </h1>
-          <small className="text-sm font-medium leading-none">
-            Für {userTasks.length} Aufgabe{userTasks.length !== 1 ? "n" : ""}{" "}
-            eingetragen
-          </small>
-        </div>
+    <main id="main-content" className="container mx-auto py-6 md:py-8 lg:py-10 px-4 md:px-6 lg:px-8 max-w-7xl">
+      <div className="mb-6 md:mb-8">
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+          Meine Aufgaben
+        </h1>
+        <small className="text-sm font-medium leading-none">
+          Für {userTasks.length} Aufgabe{userTasks.length !== 1 ? "n" : ""}{" "}
+          eingetragen
+        </small>
       </div>
 
       <div className="grid gap-4">
@@ -112,7 +102,7 @@ const MeineAufgabenPage = async () => {
                   </svg>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-lg font-semibold">Noch keine Aufgaben übernommen</h3>
+                  <h2 className="text-lg font-semibold">Noch keine Aufgaben übernommen</h2>
                   <p className="text-sm text-muted-foreground max-w-sm">
                     Du hast dich noch für keine Aufgaben angemeldet. Schau dir die
                     Veranstaltungen an, um Aufgaben zu finden, bei denen du helfen kannst.
