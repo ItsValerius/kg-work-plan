@@ -1,5 +1,4 @@
-import DeleteButton from "@/components/buttons/DeleteButton";
-import EditButton from "@/components/buttons/EditButton";
+import { ShiftAdminActions } from "@/components/admin-actions/ShiftAdminActions";
 import BackButton from "@/components/buttons/BackButton";
 import { Button } from "@/components/ui/button";
 import {
@@ -92,7 +91,14 @@ export default async function EventPage(props: EventPageProps) {
         <div className="space-y-6 md:space-y-8 lg:space-y-10">
           {event.shifts.map((shift) => (
             <Card key={shift.id} className="overflow-hidden">
-              <CardHeader className="pb-4 md:pb-5">
+              <CardHeader className="pb-4 md:pb-5 relative">
+                {userIsAdmin && (
+                  <ShiftAdminActions
+                    eventId={event.id}
+                    shiftId={shift.id}
+                    deleteAction={deleteShift}
+                  />
+                )}
                 <div className="flex items-start justify-between gap-4 md:gap-6 mb-4 md:mb-5">
                   <div className="flex-1 min-w-0">
                     <CardTitle className="break-words text-xl md:text-2xl font-semibold">
@@ -106,21 +112,6 @@ export default async function EventPage(props: EventPageProps) {
                       )}
                     </CardDescription>
                   </div>
-                  {userIsAdmin && (
-                    <div className="flex gap-2 shrink-0">
-                      <Link
-                        href={`/events/${event.id}/shifts/${shift.id}/edit`}
-                        aria-label={`Edit shift ${shift.name}`}
-                      >
-                        <EditButton className="w-fit" />
-                      </Link>
-                      <DeleteButton
-                        id={shift.id}
-                        deleteAction={deleteShift}
-                        className="w-fit"
-                      />
-                    </div>
-                  )}
                 </div>
                 {userIsAdmin && (
                   <Button asChild className="w-fit h-9 md:h-10">
