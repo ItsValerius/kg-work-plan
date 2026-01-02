@@ -1,7 +1,7 @@
 import { providerMap, signIn } from "@/auth";
-import BackButton from "@/components/BackButton";
+import BackButton from "@/components/buttons/BackButton";
 import Footer from "@/components/Footer";
-import SubmitButton from "@/components/SubmitButton";
+import SubmitButton from "@/components/buttons/SubmitButton";
 import {
   Card,
   CardContent,
@@ -27,7 +27,7 @@ export default async function SignInPage(props: {
   const callbackUrl = (await props.searchParams).callbackUrl;
 
   return (
-    <main className="flex h-screen w-full items-center justify-center px-4 flex-col">
+    <main id="main-content" className="flex h-screen w-full items-center justify-center px-4 flex-col">
       <div className="w-full max-w-md mx-auto my-auto flex flex-col gap-2 ">
         <Card className="">
           <CardHeader>

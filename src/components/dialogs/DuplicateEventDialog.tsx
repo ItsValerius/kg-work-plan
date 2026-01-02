@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import {
     Dialog,
     DialogContent,
@@ -9,7 +9,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "./ui/dialog";
+} from "../ui/dialog";
 import {
     Form,
     FormControl,
@@ -18,14 +18,14 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "./ui/form";
-import { Input } from "./ui/input";
-import { Calendar } from "./ui/calendar";
+} from "../ui/form";
+import { Input } from "../ui/input";
+import { Calendar } from "../ui/calendar";
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from "./ui/popover";
+} from "../ui/popover";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -252,4 +252,3 @@ export function DuplicateEventDialog({
         </Dialog>
     );
 }
-

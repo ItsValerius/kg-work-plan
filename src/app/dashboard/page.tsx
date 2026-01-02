@@ -1,4 +1,4 @@
-import BackButton from "@/components/BackButton";
+import BackButton from "@/components/buttons/BackButton";
 import db from "@/db";
 import { events } from "@/db/schema";
 import { isAdmin } from "@/lib/auth/utils";
@@ -30,7 +30,7 @@ const DashboardPage = async () => {
   });
 
   return (
-    <div className="container mx-auto py-8">
+    <main id="main-content" className="container mx-auto py-8 px-4 md:px-0">
       <BackButton />
       <DataTable
         columns={columns}
@@ -38,7 +38,7 @@ const DashboardPage = async () => {
         events={futureEvents}
         onDeleteRows={removeUserFromTaskAction}
       />
-    </div>
+    </main>
   );
 };
 

@@ -1,6 +1,6 @@
 "use client";
 import React, { useTransition } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { Trash } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -13,7 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from "../ui/alert-dialog";
 
 const DeleteButton = ({
   deleteAction,
@@ -33,8 +33,9 @@ const DeleteButton = ({
           size="icon"
           className={cn("aspect-square", className)}
           disabled={isPending}
+          aria-label="Löschen"
         >
-          <Trash />
+          <Trash aria-hidden="true" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -65,3 +66,4 @@ const DeleteButton = ({
 };
 
 export default DeleteButton;
+

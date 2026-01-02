@@ -1,6 +1,6 @@
 "use client";
 import React, { useTransition } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { remove } from "@/app/profile/actions";
 
 const RemoveUserFromTaskButton = ({ taskId }: { taskId: string | null }) => {
@@ -22,3 +22,4 @@ const RemoveUserFromTaskButton = ({ taskId }: { taskId: string | null }) => {
 };
 
 export default RemoveUserFromTaskButton;
+

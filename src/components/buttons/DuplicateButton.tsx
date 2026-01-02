@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DuplicateEventDialog } from "./DuplicateEventDialog";
+import { DuplicateEventDialog } from "../dialogs/DuplicateEventDialog";
 
 const DuplicateButton = ({
     eventId,
@@ -31,8 +31,9 @@ const DuplicateButton = ({
                     variant={showText ? "outline" : "secondary"}
                     size={showText ? "default" : "icon"}
                     className={cn(showText ? "" : "aspect-square", className)}
+                    aria-label={showText ? undefined : "Duplizieren"}
                 >
-                    <Copy className={showText ? "h-4 w-4 mr-2" : ""} />
+                    <Copy className={showText ? "h-4 w-4 mr-2" : ""} aria-hidden="true" />
                     {showText && "Duplizieren"}
                 </Button>
             }

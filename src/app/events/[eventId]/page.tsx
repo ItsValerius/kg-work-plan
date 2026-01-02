@@ -1,5 +1,6 @@
-import DeleteButton from "@/components/DeleteButton";
-import EditButton from "@/components/EditButton";
+import DeleteButton from "@/components/buttons/DeleteButton";
+import EditButton from "@/components/buttons/EditButton";
+import BackButton from "@/components/buttons/BackButton";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,14 +15,13 @@ import { isAdmin, isLoggedIn } from "@/lib/auth/utils";
 import { logger } from "@/lib/logger";
 import { formatDateTimeRange } from "@/lib/formatters";
 import { eq } from "drizzle-orm";
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { TaskCard } from "./TaskCard";
 import { SkeletonCard } from "./SkeletonCard";
 import { deleteShift } from "./actions";
-import DuplicateButton from "@/components/DuplicateButton";
+import DuplicateButton from "@/components/buttons/DuplicateButton";
 
 interface EventPageProps {
   params: Promise<{ eventId: string }>;
@@ -51,36 +51,36 @@ export default async function EventPage(props: EventPageProps) {
     }
 
     return (
-      <div className="container mx-auto py-8">
-        <div className="flex justify-between mb-6 flex-col">
-          <Button asChild variant="outline" className="w-fit">
-            <Link href="/events">
-              <ArrowLeft />
-              Zurück
-            </Link>
-          </Button>
-
-          <div>
-            <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+      <div className="container mx-auto py-6 md:py-8 lg:py-10 px-4 md:px-6 lg:px-8 max-w-7xl">
+        <div className="mb-4">
+          <BackButton className="h-9" />
+        </div>
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 md:gap-6 mb-8 md:mb-10">
+          <div className="flex-1 min-w-0">
+            <h1 className="scroll-m-20 text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl break-words">
               {event.name}
             </h1>
-            <small className="text-sm font-medium leading-none">
+            <small className="text-sm md:text-base font-medium leading-none block mt-2 md:mt-3 text-muted-foreground">
               {formatDateTimeRange(event.startDate, event.endDate)}
             </small>
-            <p className="text-sm text-muted-foreground">{event.description}</p>
+            {event.description && (
+              <p className="text-sm md:text-base text-muted-foreground mt-3 md:mt-4 break-words max-w-3xl leading-relaxed">
+                {event.description}
+              </p>
+            )}
           </div>
 
           {userIsAdmin && (
-            <div className="flex gap-2 w-fit self-end">
+            <div className="flex flex-col sm:flex-row gap-2 shrink-0">
               <DuplicateButton
                 eventId={event.id}
                 eventName={event.name}
                 eventStartDate={event.startDate}
                 eventEndDate={event.endDate}
-                className="w-fit"
+                className="w-full sm:w-fit"
                 showText
               />
-              <Button asChild>
+              <Button asChild className="w-full sm:w-fit h-10 md:h-11">
                 <Link href={`/events/${event.id}/shifts/new`}>
                   Schicht hinzufügen
                 </Link>
@@ -89,14 +89,16 @@ export default async function EventPage(props: EventPageProps) {
           )}
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 md:space-y-8 lg:space-y-10">
           {event.shifts.map((shift) => (
-            <Card key={shift.id} className="p-4">
-              <CardHeader className={userIsAdmin ? "pb-4" : ""}>
-                <div className="flex items-start justify-between gap-4 mb-4">
+            <Card key={shift.id} className="overflow-hidden">
+              <CardHeader className="pb-4 md:pb-5">
+                <div className="flex items-start justify-between gap-4 md:gap-6 mb-4 md:mb-5">
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="break-words">{shift.name}</CardTitle>
-                    <CardDescription className="mt-2 break-words">
+                    <CardTitle className="break-words text-xl md:text-2xl font-semibold">
+                      {shift.name}
+                    </CardTitle>
+                    <CardDescription className="mt-2 md:mt-3 break-words text-sm md:text-base">
                       {formatDateTimeRange(
                         new Date(shift.startTime),
                         new Date(shift.endTime),
@@ -121,7 +123,7 @@ export default async function EventPage(props: EventPageProps) {
                   )}
                 </div>
                 {userIsAdmin && (
-                  <Button asChild className="w-fit">
+                  <Button asChild className="w-fit h-9 md:h-10">
                     <Link
                       href={`/events/${event.id}/shifts/${shift.id}/tasks/new`}
                     >
@@ -131,7 +133,7 @@ export default async function EventPage(props: EventPageProps) {
                 )}
               </CardHeader>
 
-              <CardContent className="grid gap-4 lg:grid-cols-4 md:grid-cols-2">
+              <CardContent className="grid gap-3 md:gap-4 lg:gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch">
                 {shift.tasks.map((task) => (
                   <Suspense key={task.id} fallback={<SkeletonCard />}>
                     <TaskCard

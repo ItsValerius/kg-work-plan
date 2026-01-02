@@ -1,8 +1,7 @@
 import { auth } from "@/auth";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Footer from "@/components/Footer";
-import SignInButton from "@/components/SignInButton";
-import UserMenu from "@/components/UserMenu";
+import NavigationBar from "@/components/navigation/NavigationBar";
 
 export default async function EventsLayout({
   children, // will be a page or nested layout
@@ -12,9 +11,14 @@ export default async function EventsLayout({
   const user = (await auth())?.user;
 
   return (
-    <div className="px-2 flex flex-col justify-between min-h-screen">
-      {!user ? <SignInButton /> : <UserMenu isAdmin={user.role === "admin"} />}
-      <ErrorBoundary>{children}</ErrorBoundary>
+    <div className="flex flex-col min-h-screen">
+      <NavigationBar
+        isAdmin={user?.role === "admin"}
+        showSignInButton={!user}
+      />
+      <div className="flex-1">
+        <ErrorBoundary>{children}</ErrorBoundary>
+      </div>
       <Footer />
     </div>
   );
