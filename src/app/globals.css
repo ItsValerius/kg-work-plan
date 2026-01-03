@@ -8,6 +8,14 @@ body {
 
 @layer base {
   :root {
+
+    body[data-scroll-locked][data-scroll-locked] {
+      overflow: auto !important;
+    }
+    body[data-scroll-locked] {
+      margin-right: 0 !important;
+    }
+
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
@@ -73,7 +81,8 @@ body {
   body {
     @apply bg-background text-foreground;
   }
-  
+
+ 
   /* Enhanced focus styles for keyboard navigation */
   *:focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;

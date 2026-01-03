@@ -80,9 +80,18 @@ export const columns: ColumnDef<UserTasksResult>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Gruppengröße" />
     ),
+    filterFn: (row, id, value) => {
+      const groupSize = row.getValue(id) as number;
+      if (value === "1") return groupSize === 1;
+      if (value === "2") return groupSize === 2;
+      if (value === "3") return groupSize === 3;
+      if (value === "4") return groupSize >= 4;
+      return true;
+    },
   },
   {
-    accessorKey: "task.name",
+    accessorFn: (row) => row.task.name,
+    id: "task.name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Aufgabe" />
     ),
@@ -104,13 +113,14 @@ export const columns: ColumnDef<UserTasksResult>[] = [
     },
   },
   {
-    accessorKey: "task.shift.name",
+    accessorFn: (row) => row.task.shift.name,
+    id: "task.shift.name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Schicht" />
     ),
   },
   {
-    accessorKey: "task.shift.event.name",
+    accessorFn: (row) => row.task.shift.event.name,
     id: "event",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Veranstaltung" />
