@@ -9,36 +9,103 @@ import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AlertCircle } from "lucide-react";
 
 interface SignInFormProps {
   callbackUrl?: string;
+  initialEmail?: string;
 }
 
-export function SignInForm({ callbackUrl }: SignInFormProps) {
+// Helper function to parse and translate error messages
+function parseErrorMessage(error: unknown): string {
+  if (typeof error === "string") {
+    // Handle string errors from better-auth
+    if (error.includes("body.email") || error.includes("Invalid email")) {
+      return "Bitte gib eine gültige E-Mail-Adresse ein.";
+    }
+    if (error.includes("email") && error.includes("required")) {
+      return "Bitte gib eine E-Mail-Adresse ein.";
+    }
+    return error;
+  }
+
+  if (error && typeof error === "object") {
+    const errorObj = error as { message?: string; error?: string };
+
+    // Check for better-auth formatted errors
+    if (errorObj.message) {
+      const msg = errorObj.message;
+      if (msg.includes("body.email") || msg.includes("Invalid email")) {
+        return "Bitte gib eine gültige E-Mail-Adresse ein.";
+      }
+      if (msg.includes("email") && msg.includes("required")) {
+        return "Bitte gib eine E-Mail-Adresse ein.";
+      }
+      return msg;
+    }
+
+    if (errorObj.error) {
+      return parseErrorMessage(errorObj.error);
+    }
+  }
+
+  return "Ein Fehler ist aufgetreten. Bitte versuche es erneut.";
+}
+
+// Simple email validation
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.trim());
+}
+
+export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   const handleEmailSignIn = async (formData: FormData) => {
     setIsLoading(true);
     setError(null);
+    setEmailError(null);
 
     try {
       const email = formData.get("email") as string;
+
+      // Client-side validation
+      if (!email || !email.trim()) {
+        setEmailError("Bitte gib eine E-Mail-Adresse ein.");
+        setIsLoading(false);
+        return;
+      }
+
+      if (!isValidEmail(email.trim())) {
+        setEmailError("Bitte gib eine gültige E-Mail-Adresse ein.");
+        setIsLoading(false);
+        return;
+      }
+
       // Use magic link for passwordless email authentication
       const result = await authClient.signIn.magicLink({
-        email,
+        email: email.trim(),
         callbackURL: callbackUrl || "/",
       });
 
       if (result.error) {
-        setError(result.error.message || "Anmeldung fehlgeschlagen");
+        const errorMessage = parseErrorMessage(result.error);
+        setError(errorMessage);
+
+        // Check if it's an email-specific error
+        if (result.error.message?.includes("email") || result.error.message?.includes("Invalid")) {
+          setEmailError(errorMessage);
+        }
       } else {
-        // Email sent successfully - redirect to verification page
-        router.push("/verify-request");
+        // Email sent successfully - redirect to verification page with email as query param
+        router.push(`/verify-request?email=${encodeURIComponent(email.trim())}`);
       }
     } catch (error) {
-      setError("Ein Fehler ist aufgetreten. Bitte versuche es erneut.");
+      const errorMessage = parseErrorMessage(error);
+      setError(errorMessage);
       console.error("Sign in error:", error);
     } finally {
       setIsLoading(false);
@@ -48,24 +115,33 @@ export function SignInForm({ callbackUrl }: SignInFormProps) {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setError(null);
+    setEmailError(null);
 
     try {
-      await authClient.signIn.social({
+      const result = await authClient.signIn.social({
         provider: "google",
         callbackURL: callbackUrl || "/",
       });
+
+      if (result.error) {
+        const errorMessage = parseErrorMessage(result.error);
+        setError(errorMessage || "Google-Anmeldung fehlgeschlagen. Bitte versuche es erneut.");
+      }
     } catch (error) {
-      setError("Google-Anmeldung fehlgeschlagen");
+      const errorMessage = parseErrorMessage(error);
+      setError(errorMessage || "Google-Anmeldung fehlgeschlagen. Bitte versuche es erneut.");
       console.error("Google sign in error:", error);
+    } finally {
       setIsLoading(false);
     }
   };
 
   return (
     <div className="grid gap-4">
-      {error && (
-        <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-          {error}
+      {error && !emailError && (
+        <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+          <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+          <p>{error}</p>
         </div>
       )}
       {providerMap.map((provider) => (
@@ -84,8 +160,23 @@ export function SignInForm({ callbackUrl }: SignInFormProps) {
                   placeholder="m@example.com"
                   required
                   name="email"
+                  defaultValue={initialEmail}
                   disabled={isLoading}
+                  aria-invalid={!!emailError}
+                  aria-describedby={emailError ? "email-error" : undefined}
+                  className={emailError ? "border-destructive focus-visible:ring-destructive" : ""}
+                  onChange={() => {
+                    // Clear error when user starts typing
+                    if (emailError) setEmailError(null);
+                    if (error) setError(null);
+                  }}
                 />
+                {emailError && (
+                  <p id="email-error" className="flex items-center gap-1.5 text-sm text-destructive" role="alert">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    {emailError}
+                  </p>
+                )}
               </div>
               <SubmitButton name={provider.name} />
               <div className="relative">

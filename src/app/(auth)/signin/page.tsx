@@ -17,9 +17,9 @@ import Image from "next/image";
 import { SignInForm } from "./SignInForm";
 
 export default async function SignInPage(props: {
-  searchParams: Promise<{ callbackUrl: string | undefined }>;
+  searchParams: Promise<{ callbackUrl?: string; email?: string }>;
 }) {
-  const callbackUrl = (await props.searchParams).callbackUrl;
+  const { callbackUrl, email } = await props.searchParams;
 
   return (
     <>
@@ -49,7 +49,7 @@ export default async function SignInPage(props: {
             </CardHeader>
 
             <CardContent className="space-y-4">
-              <SignInForm callbackUrl={callbackUrl} />
+              <SignInForm callbackUrl={callbackUrl} initialEmail={email} />
             </CardContent>
           </Card>{" "}
           <BackButton className="w-fit self-center" />
