@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import db from "@/db";
 import { events, shifts, tasks } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -12,7 +13,9 @@ import { ArrowLeft } from "lucide-react";
 const EditTaskPage = async (props: {
   params: Promise<{ eventId: string; shiftId: string; taskId: string }>;
 }) => {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   if (!session?.user?.id) return redirect("/");
   const params = await props.params;
   const event = await db.query.events.findFirst({

@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import db from "@/db/index";
 import { users } from "@/db/schema";
 import { ApiErrorResponse } from "@/lib/api-errors";
@@ -8,7 +9,9 @@ import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
     if (!session?.user?.id) {
       return ApiErrorResponse.unauthorized();
     }

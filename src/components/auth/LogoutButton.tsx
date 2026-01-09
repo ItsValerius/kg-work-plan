@@ -14,7 +14,7 @@ import {
     AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { LogOut, Loader2 } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { authClient } from "@/lib/auth-client";
 
 interface LogoutButtonProps {
     showText?: boolean;
@@ -24,9 +24,9 @@ interface LogoutButtonProps {
 export function LogoutButton({ showText = false, variant = "ghost" }: LogoutButtonProps) {
     const [isPending, startTransition] = useTransition();
 
-    const handleSignOut = () => {
-        startTransition(() => {
-            signOut();
+    const handleSignOut = async () => {
+        startTransition(async () => {
+            await authClient.signOut();
         });
     };
 

@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,7 +19,9 @@ import { UserForm } from "./UserForm";
 const TaskDetailsPage = async (props: {
   params: Promise<{ eventId: string; shiftId: string; taskId: string }>;
 }) => {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   const params = await props.params;
   if (!session?.user?.id) {
     const callbackUrl = `/events/${params.eventId}/shifts/${params.shiftId}/tasks/${params.taskId}`;

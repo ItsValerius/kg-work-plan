@@ -5,65 +5,73 @@ import {
   primaryKey,
   integer,
 } from "drizzle-orm/pg-core";
-import type { AdapterAccountType } from "next-auth/adapters";
 import { pgTable } from "../util";
 
+// Better Auth User Schema
 export const users = pgTable("user", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name"),
-  email: text("email").unique(),
+  email: text("email").unique().notNull(),
   role: text("role"),
-  emailVerified: timestamp("emailVerified", { mode: "date" }),
+  emailVerified: boolean("emailVerified").notNull().default(false),
   image: text("image"),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });
 
-export const accounts = pgTable(
-  "account",
-  {
-    userId: text("userId")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    type: text("type").$type<AdapterAccountType>().notNull(),
-    provider: text("provider").notNull(),
-    providerAccountId: text("providerAccountId").notNull(),
-    refresh_token: text("refresh_token"),
-    access_token: text("access_token"),
-    expires_at: integer("expires_at"),
-    token_type: text("token_type"),
-    scope: text("scope"),
-    id_token: text("id_token"),
-    session_state: text("session_state"),
-  },
-  (account) => ({
-    compoundKey: primaryKey({
-      columns: [account.provider, account.providerAccountId],
-    }),
-  })
-);
-
-export const sessions = pgTable("session", {
-  sessionToken: text("sessionToken").primaryKey(),
+// Better Auth Account Schema
+export const accounts = pgTable("account", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  expires: timestamp("expires", { mode: "date" }).notNull(),
+  accountId: text("accountId").notNull(), // renamed from providerAccountId
+  providerId: text("providerId").notNull(), // renamed from provider
+  accessToken: text("accessToken"), // renamed from access_token
+  refreshToken: text("refreshToken"), // renamed from refresh_token
+  accessTokenExpiresAt: timestamp("accessTokenExpiresAt", { mode: "date" }), // renamed from expires_at
+  refreshTokenExpiresAt: timestamp("refreshTokenExpiresAt", { mode: "date" }),
+  scope: text("scope"),
+  idToken: text("idToken"), // renamed from id_token
+  password: text("password"),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });
 
-export const verificationTokens = pgTable(
-  "verificationToken",
-  {
-    identifier: text("identifier").notNull(),
-    token: text("token").notNull(),
-    expires: timestamp("expires", { mode: "date" }).notNull(),
-  },
-  (verificationToken) => ({
-    compositePk: primaryKey({
-      columns: [verificationToken.identifier, verificationToken.token],
-    }),
-  })
-);
+// Better Auth Session Schema
+export const sessions = pgTable("session", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  token: text("token").notNull().unique(), // session token (unique but not primary key)
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expiresAt", { mode: "date" }).notNull(), // renamed from expires
+  ipAddress: text("ipAddress"),
+  userAgent: text("userAgent"),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
+});
+
+// Better Auth Verification Schema (renamed from verificationToken)
+export const verification = pgTable("verification", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(), // renamed from token
+  expiresAt: timestamp("expiresAt", { mode: "date" }).notNull(), // renamed from expires
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
+});
+
+// Keep old verificationTokens export for backward compatibility during migration
+export const verificationTokens = verification;
 
 export const authenticators = pgTable(
   "authenticator",

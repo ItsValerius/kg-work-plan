@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { ShiftForm } from "../../new/ShiftForm";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { isAdmin } from "@/lib/auth/utils";
 import db from "@/db";
 import { events, shifts } from "@/db/schema";
@@ -13,7 +14,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 const EditShiftPapge = async (props: {
   params: Promise<{ eventId: string; shiftId: string }>;
 }) => {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   if (!session?.user?.id || !(await isAdmin())) return redirect("/");
   const params = await props.params;
   const event = await db.query.events.findFirst({

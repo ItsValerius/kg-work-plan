@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import db from "@/db";
 import { events } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -13,7 +14,10 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 const EditEventPage = async (props: {
   params: Promise<{ eventId: string }>;
 }) => {
-  const user = (await auth())?.user;
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const user = session?.user;
   const params = await props.params;
   const event = await db.query.events.findFirst({
     where: eq(events.id, params.eventId),
