@@ -41,7 +41,7 @@ export const EventCard = ({
 
     return (
         <Card className="min-h-[280px] md:min-h-[340px] flex flex-col h-full transition-all duration-200 hover:shadow-lg hover:border-primary/20 group">
-            <CardHeader className="pb-3 lg:pb-5 lg:h-[140px] flex flex-col justify-start relative">
+            <CardHeader className="pb-3 lg:pb-5 flex flex-col justify-start relative">
                 {userIsAdmin && (
                     <EventAdminActions
                         eventId={event.id}
@@ -51,15 +51,21 @@ export const EventCard = ({
                         deleteAction={deleteEvent}
                     />
                 )}
-                <div className="flex-1 min-w-0 flex flex-col space-y-2 md:space-y-2.5 lg:grid lg:grid-rows-[3.5rem_3rem] lg:gap-2.5 lg:h-full">
-                    <CardTitle className="break-words line-clamp-2 text-xl md:text-2xl leading-tight w-full lg:h-[3.5rem]">
-                        {event.name}
-                    </CardTitle>
-                    {event.description && (
-                        <CardDescription className="break-words line-clamp-2 text-sm text-muted-foreground w-full lg:h-[3rem]">
-                            {event.description}
-                        </CardDescription>
-                    )}
+                <div className="flex-1 min-w-0 flex flex-col space-y-2 md:space-y-2.5 lg:flex lg:flex-col lg:gap-3">
+                    <div className="lg:min-h-20 lg:pb-2">
+                        <CardTitle className="break-words line-clamp-2 text-xl md:text-2xl leading-tight lg:leading-normal w-full">
+                            {event.name}
+                        </CardTitle>
+                    </div>
+                    <div className="lg:min-h-12">
+                        {event.description ? (
+                            <CardDescription className="break-words line-clamp-2 text-sm text-muted-foreground w-full">
+                                {event.description}
+                            </CardDescription>
+                        ) : (
+                            <div className="w-full" aria-hidden="true" />
+                        )}
+                    </div>
                 </div>
             </CardHeader>
             <CardContent className="flex flex-col flex-grow pt-0">

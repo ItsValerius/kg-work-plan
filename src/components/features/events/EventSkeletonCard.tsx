@@ -12,15 +12,13 @@ import { ArrowRight } from "lucide-react";
 export function EventSkeletonCard() {
     return (
         <Card className="min-h-[280px] md:min-h-[340px] flex flex-col h-full">
-            <CardHeader className="pb-3 md:pb-5 lg:pb-5 lg:h-[140px] flex flex-col justify-start">
-                <div className="flex items-start justify-between gap-3 lg:gap-4 h-full">
-                    <div className="flex-1 min-w-0 flex flex-col space-y-2 md:space-y-2.5 lg:grid lg:grid-rows-[3.5rem_3rem] lg:gap-2.5 lg:h-full">
-                        <div className="flex items-start lg:h-[3.5rem]">
-                            <Skeleton className="h-7 w-48" />
-                        </div>
-                        <div className="flex items-start lg:h-[3rem]">
-                            <Skeleton className="h-4 w-64" />
-                        </div>
+            <CardHeader className="pb-3 md:pb-5 lg:pb-5 flex flex-col justify-start">
+                <div className="flex-1 min-w-0 flex flex-col space-y-2 md:space-y-2.5 lg:flex lg:flex-col lg:gap-3">
+                    <div className="lg:min-h-20 lg:pb-2">
+                        <Skeleton className="h-7 w-48 lg:h-8" />
+                    </div>
+                    <div className="lg:min-h-12">
+                        <Skeleton className="h-4 w-64" />
                     </div>
                 </div>
             </CardHeader>
