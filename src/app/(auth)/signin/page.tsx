@@ -13,7 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Info } from "lucide-react";
-import { SignInForm } from "./SignInForm";
+import { SignInForm } from "@/components/features/auth/SignInForm";
 
 export default async function SignInPage(props: {
   searchParams: Promise<{ callbackUrl?: string; email?: string }>;

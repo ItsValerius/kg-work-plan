@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { EventForm } from "../../new/EventForm";
+import { EventForm } from "@/components/features/events/EventForm";
 import { getAuthenticatedUser, isAdmin } from "@/lib/auth/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";

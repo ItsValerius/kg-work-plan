@@ -1,9 +1,9 @@
-import { getAuthenticatedUser } from "@/lib/auth/utils";
+import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 import { getEventById } from "@/domains/events/queries";
 import { getShiftById } from "@/domains/shifts/queries";
 import { getTaskById } from "@/domains/tasks/queries";
 import { notFound } from "next/navigation";
-import { TaskForm } from "../../new/TaskForm";
+import { TaskForm } from "@/components/features/tasks/TaskForm";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -14,8 +14,8 @@ const EditTaskPage = async (props: {
 }) => {
   const params = await props.params;
 
-  const [user, event, shift, task] = await Promise.all([
-    getAuthenticatedUser(),
+  const [userId, event, shift, task] = await Promise.all([
+    getAuthenticatedAdminUserId(),
     getEventById(params.eventId),
     getShiftById(params.shiftId),
     getTaskById(params.taskId),
@@ -37,7 +37,7 @@ const EditTaskPage = async (props: {
         </CardHeader>
         <CardContent>
           <TaskForm
-            userId={user.id}
+            userId={userId}
             eventId={params.eventId}
             shiftId={params.shiftId}
             task={task}

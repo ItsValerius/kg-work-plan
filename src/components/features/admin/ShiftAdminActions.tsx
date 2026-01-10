@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { MoreVertical, Pencil, Trash } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 import type { ShiftAdminActionsProps } from "./types";
 
 export function ShiftAdminActions({
@@ -29,6 +30,27 @@ export function ShiftAdminActions({
   deleteAction,
 }: ShiftAdminActionsProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  const handleDelete = async () => {
+    startTransition(async () => {
+      try {
+        await deleteAction(shiftId);
+        toast.success("Schicht wurde erfolgreich gelöscht");
+        setDeleteOpen(false);
+      } catch (error) {
+        if (error instanceof Error) {
+          if (error.message === "Unauthorized") {
+            toast.error("Du hast keine Berechtigung, Schichten zu löschen");
+          } else {
+            toast.error(error.message || "Fehler beim Löschen der Schicht");
+          }
+        } else {
+          toast.error("Fehler beim Löschen der Schicht");
+        }
+      }
+    });
+  };
 
   return (
     <div className="absolute top-3 md:top-4 right-3 md:right-4 z-10">
@@ -75,12 +97,13 @@ export function ShiftAdminActions({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending}>Abbrechen</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deleteAction(shiftId)}
+              onClick={handleDelete}
+              disabled={isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Löschen
+              {isPending ? "Wird gelöscht..." : "Löschen"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

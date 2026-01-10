@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,6 +22,7 @@ import {
 import { MoreVertical, Pencil, Trash, Copy } from "lucide-react";
 import Link from "next/link";
 import { DuplicateEventDialog } from "@/components/shared/dialogs/DuplicateEventDialog";
+import { toast } from "sonner";
 import type { EventAdminActionsProps } from "./types";
 
 export function EventAdminActions({
@@ -32,7 +33,28 @@ export function EventAdminActions({
   deleteAction,
 }: EventAdminActionsProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const duplicateButtonRef = useRef<HTMLButtonElement>(null);
+
+  const handleDelete = async () => {
+    startTransition(async () => {
+      try {
+        await deleteAction(eventId);
+        toast.success("Veranstaltung wurde erfolgreich gelöscht");
+        setDeleteOpen(false);
+      } catch (error) {
+        if (error instanceof Error) {
+          if (error.message === "Unauthorized") {
+            toast.error("Du hast keine Berechtigung, Veranstaltungen zu löschen");
+          } else {
+            toast.error(error.message || "Fehler beim Löschen der Veranstaltung");
+          }
+        } else {
+          toast.error("Fehler beim Löschen der Veranstaltung");
+        }
+      }
+    });
+  };
 
   return (
     <div className="absolute top-3 md:top-4 right-3 md:right-4 z-10">
@@ -107,12 +129,13 @@ export function EventAdminActions({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending}>Abbrechen</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deleteAction(eventId)}
+              onClick={handleDelete}
+              disabled={isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Löschen
+              {isPending ? "Wird gelöscht..." : "Löschen"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

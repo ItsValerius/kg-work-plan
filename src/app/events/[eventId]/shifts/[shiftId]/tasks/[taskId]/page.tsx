@@ -12,7 +12,7 @@ import {
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { UserForm } from "./UserForm";
+import { UserForm } from "@/components/features/participants/UserForm";
 
 const TaskDetailsPage = async (props: {
   params: Promise<{ eventId: string; shiftId: string; taskId: string }>;

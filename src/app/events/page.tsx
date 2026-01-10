@@ -1,5 +1,5 @@
 import { isAdmin } from "@/lib/auth/utils";
-import { EventsSection } from "./EventsSection";
+import { EventsSection } from "@/components/features/events/EventsSection";
 import { getFutureEvents, getPastEvents } from "@/domains/events/queries";
 
 const EventsPage = async () => {

@@ -1,8 +1,8 @@
-import { getAuthenticatedUser } from "@/lib/auth/utils";
+import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 import { getEventById } from "@/domains/events/queries";
 import { getShiftById } from "@/domains/shifts/queries";
-import { notFound, redirect } from "next/navigation";
-import { TaskForm } from "./TaskForm";
+import { notFound } from "next/navigation";
+import { TaskForm } from "@/components/features/tasks/TaskForm";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -13,8 +13,8 @@ const NewShiftPage = async (props: {
 }) => {
   const params = await props.params;
 
-  const [user, event, shift] = await Promise.all([
-    getAuthenticatedUser(),
+  const [userId, event, shift] = await Promise.all([
+    getAuthenticatedAdminUserId(),
     getEventById(params.eventId),
     getShiftById(params.shiftId),
   ]);
@@ -35,7 +35,7 @@ const NewShiftPage = async (props: {
         </CardHeader>
         <CardContent>
           <TaskForm
-            userId={user.id}
+            userId={userId}
             eventId={params.eventId}
             shiftId={params.shiftId}
             task={null}

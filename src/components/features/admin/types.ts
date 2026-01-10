@@ -1,7 +1,8 @@
 /**
  * Base type for delete action callback
+ * Server actions are async and return Promise<void>
  */
-export type DeleteAction = (id: string) => void;
+export type DeleteAction = (id: string) => Promise<void>;
 
 /**
  * Props for EventAdminActions component

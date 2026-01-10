@@ -1,5 +1,5 @@
 import { getAuthenticatedUser } from "@/lib/auth/utils";
-import { UserDataForm } from "./UserDataFrom";
+import { UserDataForm } from "@/components/features/profile/UserDataFrom";
 
 const ProfilePage = async () => {
   const user = await getAuthenticatedUser();

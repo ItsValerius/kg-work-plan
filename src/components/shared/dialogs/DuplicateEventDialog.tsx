@@ -36,6 +36,7 @@ import { z } from "zod";
 import { cn } from "@/lib/utils";
 import { duplicateEvent } from "@/server/actions/events";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const duplicateSchema = z.object({
     name: z.string().min(1, "Name ist erforderlich"),
@@ -90,9 +91,19 @@ export function DuplicateEventDialog({
         setLoading(true);
         try {
             await duplicateEvent(eventId, values.name, values.startDate, values.endDate);
+            toast.success("Veranstaltung wurde erfolgreich dupliziert");
             setOpen(false);
             router.refresh();
-        } catch {
+        } catch (error) {
+            if (error instanceof Error) {
+                if (error.message === "Unauthorized") {
+                    toast.error("Du hast keine Berechtigung, Veranstaltungen zu duplizieren");
+                } else {
+                    toast.error(error.message || "Fehler beim Duplizieren der Veranstaltung");
+                }
+            } else {
+                toast.error("Fehler beim Duplizieren der Veranstaltung");
+            }
             setLoading(false);
         }
     }

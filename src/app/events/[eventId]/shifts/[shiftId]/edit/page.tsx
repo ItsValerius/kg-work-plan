@@ -1,6 +1,6 @@
-import { notFound, redirect } from "next/navigation";
-import { ShiftForm } from "../../new/ShiftForm";
-import { getAuthenticatedUser, isAdmin } from "@/lib/auth/utils";
+import { notFound } from "next/navigation";
+import { ShiftForm } from "@/components/features/shifts/ShiftForm";
+import { getAuthenticatedAdminUserId, isAdmin } from "@/lib/auth/utils";
 import { getEventById } from "@/domains/events/queries";
 import { getShiftByIdWithEvent } from "@/domains/shifts/queries";
 import { Button } from "@/components/ui/button";
@@ -13,14 +13,18 @@ const EditShiftPapge = async (props: {
 }) => {
   const params = await props.params;
 
-  const [user, event, shift, userIsAdmin] = await Promise.all([
-    getAuthenticatedUser(),
+  const [event, shift, userIsAdmin] = await Promise.all([
     getEventById(params.eventId),
     getShiftByIdWithEvent(params.eventId, params.shiftId),
     isAdmin(),
   ]);
 
-  if (!userIsAdmin || !event || !shift) return redirect("/");
+  if (!userIsAdmin || !event || !shift) {
+    notFound();
+  }
+
+  // At this point we know user is admin, so we can safely get the admin user ID
+  const userId = await getAuthenticatedAdminUserId();
   return (
     <main id="main-content" className="p-4 flex flex-col gap-2 max-w-3xl w-full mx-auto">
       <Button asChild variant="outline" className="w-fit">
@@ -35,7 +39,7 @@ const EditShiftPapge = async (props: {
         </CardHeader>
         <CardContent>
           <ShiftForm
-            userId={user.id}
+            userId={userId}
             eventId={event.id}
             shift={shift}
           />
