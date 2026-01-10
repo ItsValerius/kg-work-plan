@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import db from "@/db";
 import { shifts, taskParticipants, tasks } from "@/db/schema";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 import Link from "next/link";

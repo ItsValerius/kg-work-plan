@@ -8,7 +8,7 @@ import {
   sessions,
   users,
   verification,
-} from "../db/schema/index";
+} from "../../db/schema/index";
 import { eq } from "drizzle-orm";
 
 dotenv.config();
@@ -83,7 +83,10 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day
   },
-  trustedOrigins: [process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"],
+  trustedOrigins: [
+    "http://localhost:3000", 
+    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : [])
+  ],
 });
 
 function html(params: { url: string; host: string }) {
@@ -132,4 +135,3 @@ function html(params: { url: string; host: string }) {
 </body>
 `;
 }
-

@@ -15,7 +15,7 @@ import {
     AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { LogOut, Loader2, AlertTriangle } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/client";
 
 interface LogoutButtonProps {
     showText?: boolean;

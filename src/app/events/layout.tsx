@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Footer from "@/components/Footer";

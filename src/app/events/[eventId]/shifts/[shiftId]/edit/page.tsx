@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { ShiftForm } from "../../new/ShiftForm";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
 import { isAdmin } from "@/lib/auth/utils";
 import db from "@/db";

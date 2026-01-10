@@ -1,9 +1,11 @@
 import { createAuthClient } from "better-auth/react";
 import { magicLinkClient, customSessionClient } from "better-auth/client/plugins";
-import type { auth } from "@/lib/auth";
+import type { auth } from "@/lib/auth/auth";
 
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  baseURL: typeof window !== "undefined" 
+    ? window.location.origin  // In browser: use current origin (works for any deployment URL)
+    : undefined,
   plugins: [
     magicLinkClient(),
     // Enable type inference for custom session fields
@@ -11,4 +13,3 @@ export const authClient = createAuthClient({
     customSessionClient<typeof auth>(),
   ],
 });
-
