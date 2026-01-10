@@ -18,8 +18,10 @@ export async function getUserTasks(userId: string): Promise<UserTask[]> {
       requiredParticipants: tasks.requiredParticipants,
     })
     .from(taskParticipants)
-    .leftJoin(tasks, eq(taskParticipants.taskId, tasks.id))
-    .leftJoin(shifts, eq(tasks.shiftId, shifts.id))
+    // These joins are safe as taskParticipants.taskId and tasks.shiftId are non-null
+    // and have FK constraints, so the joined records should always exist.
+    .innerJoin(tasks, eq(taskParticipants.taskId, tasks.id))
+    .innerJoin(shifts, eq(tasks.shiftId, shifts.id))
     .where(eq(taskParticipants.userId, userId));
 }
 

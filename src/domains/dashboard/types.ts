@@ -1,5 +1,7 @@
 // Shared types for dashboard components
 
+import type { events, taskParticipants } from "@/db/schema";
+
 export interface TaskStat {
   taskId: string;
   taskName: string;
@@ -56,9 +58,21 @@ export interface TaskFilterOption extends FilterOption {
   shiftName: string;
 }
 
+export type ParticipantsUserTask = (typeof taskParticipants.$inferSelect) & {
+  user: { name: string | null; email: string | null } | null;
+  task: {
+    name: string;
+    startTime: Date;
+    shift: {
+      name: string;
+      event: { name: string };
+    };
+  };
+};
+
 export interface ParticipantsData {
-  userTasks: unknown[]; // Type this properly based on the query result
-  allEvents: unknown[]; // Type this properly based on the query result
+  userTasks: ParticipantsUserTask[];
+  allEvents: (typeof events.$inferSelect)[];
   shiftsForFilter: ShiftFilterOption[];
   tasksForFilter: TaskFilterOption[];
 }
