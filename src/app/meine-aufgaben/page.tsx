@@ -10,12 +10,15 @@ import {
 } from "@/components/ui/card";
 import db from "@/db";
 import { shifts, taskParticipants, tasks } from "@/db/schema";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
+import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
 
 const MeineAufgabenPage = async () => {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   // Layout handles authentication redirect, so user should always exist here
   if (!session?.user?.id) {
     throw new Error("User not authenticated");

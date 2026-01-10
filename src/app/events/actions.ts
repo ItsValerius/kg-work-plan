@@ -1,6 +1,7 @@
 "use server";
 
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
+import { headers } from "next/headers";
 import db from "@/db";
 import { events, shifts, tasks } from "@/db/schema";
 import { isAdmin } from "@/lib/auth/utils";
@@ -32,7 +33,9 @@ export const duplicateEvent = async (
   endDate: Date
 ) => {
   try {
-    const session = await auth();
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
     if (!session?.user?.id || !(await isAdmin())) {
       throw new Error("Unauthorized");
     }

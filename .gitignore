@@ -38,3 +38,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# database backups (contains sensitive data)
+prod_backup.sql
+*.sql.backup

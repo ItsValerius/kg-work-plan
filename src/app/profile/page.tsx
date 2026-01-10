@@ -1,8 +1,11 @@
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
+import { headers } from "next/headers";
 import { UserDataForm } from "./UserDataFrom";
 
 const ProfilePage = async () => {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   // Layout handles authentication redirect, so user should always exist here
   if (!session?.user) {
     throw new Error("User not authenticated");

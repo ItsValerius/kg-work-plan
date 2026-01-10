@@ -1,11 +1,16 @@
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
+import { headers } from "next/headers";
 
 export const isAdmin = async () => {
-  const session = await auth();
-  return typeof session?.user !== "undefined" && session.user.role === "admin";
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  return session?.user?.role === "admin";
 };
 
 export const isLoggedIn = async () => {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   return !!session?.user;
 };

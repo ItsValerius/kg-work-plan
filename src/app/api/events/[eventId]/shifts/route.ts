@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
+import { headers } from "next/headers";
 import db from "@/db/index";
 import { shifts } from "@/db/schema";
 import { ApiErrorResponse } from "@/lib/api-errors";
@@ -14,7 +15,9 @@ const shiftSchema = createInsertSchema(shifts).extend({
 });
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   if (!session?.user?.id || !(await isAdmin())) {
     return ApiErrorResponse.unauthorized();
   }

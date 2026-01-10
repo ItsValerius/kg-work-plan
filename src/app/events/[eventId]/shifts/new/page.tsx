@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ShiftForm } from "./ShiftForm";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 const NewShiftPage = async (props: {
   params: Promise<{ eventId: string }>;
 }) => {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   if (!session?.user?.id) return redirect("/");
   const params = await props.params;
 
