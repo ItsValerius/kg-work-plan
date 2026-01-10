@@ -16,7 +16,7 @@ import { users } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createInsertSchema } from "drizzle-zod";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { User } from "next-auth";
+import { User } from "@/domains/users/types";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
