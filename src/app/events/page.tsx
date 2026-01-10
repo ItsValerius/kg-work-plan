@@ -1,26 +1,13 @@
-import db from "@/db";
-import { events } from "@/db/schema";
 import { isAdmin } from "@/lib/auth/utils";
-import { getStartOfToday } from "@/lib/date-utils";
-import { asc, gte, lt } from "drizzle-orm";
-import { EventsSection } from "./EventsSection";
+import { EventsSection } from "@/components/features/events/EventsSection";
+import { getFutureEvents, getPastEvents } from "@/domains/events/queries";
 
 const EventsPage = async () => {
-  const startOfToday = getStartOfToday();
-
-  const futureEvents = await db.query.events.findMany({
-    orderBy: [asc(events.startDate)],
-    where: gte(events.endDate, startOfToday),
-  });
+  const futureEvents = await getFutureEvents();
 
   const userIsAdmin = await isAdmin();
 
-  const pastEvents = userIsAdmin
-    ? await db.query.events.findMany({
-      orderBy: [asc(events.startDate)],
-      where: lt(events.endDate, startOfToday),
-    })
-    : [];
+  const pastEvents = userIsAdmin ? await getPastEvents() : [];
 
   return (
     <main id="main-content" className="container mx-auto py-6 md:py-8 lg:py-10 px-4 md:px-6 lg:px-8 max-w-7xl">

@@ -1,5 +1,6 @@
-import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
+import { getSession } from "@/lib/auth/utils";
+import { getEventById } from "@/domains/events/queries";
+import { getTaskByIdWithShift } from "@/domains/tasks/queries";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,34 +9,26 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import db from "@/db";
-import { events, tasks } from "@/db/schema";
-import { eq } from "drizzle-orm";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { UserForm } from "./UserForm";
+import { UserForm } from "@/components/features/participants/UserForm";
 
 const TaskDetailsPage = async (props: {
   params: Promise<{ eventId: string; shiftId: string; taskId: string }>;
 }) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
   const params = await props.params;
+  const session = await getSession();
+
   if (!session?.user?.id) {
     const callbackUrl = `/events/${params.eventId}/shifts/${params.shiftId}/tasks/${params.taskId}`;
     return redirect(`/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
   }
-  const event = await db.query.events.findFirst({
-    where: eq(events.id, params.eventId),
-  });
-  const task = await db.query.tasks.findFirst({
-    where: eq(tasks.id, params.taskId),
-    with: {
-      shift: true,
-    },
-  });
+
+  const [event, task] = await Promise.all([
+    getEventById(params.eventId),
+    getTaskByIdWithShift(params.taskId),
+  ]);
 
   if (!event || !task) return notFound();
   return (

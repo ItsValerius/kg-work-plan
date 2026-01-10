@@ -1,7 +1,5 @@
-import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { ShiftForm } from "./ShiftForm";
+import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
+import { ShiftForm } from "@/components/features/shifts/ShiftForm";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -10,11 +8,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 const NewShiftPage = async (props: {
   params: Promise<{ eventId: string }>;
 }) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session?.user?.id) return redirect("/");
   const params = await props.params;
+  const userId = await getAuthenticatedAdminUserId();
 
   return (
     <main id="main-content" className="p-4 flex flex-col gap-2 max-w-3xl w-full mx-auto">
@@ -30,7 +25,7 @@ const NewShiftPage = async (props: {
         </CardHeader>
         <CardContent>
           <ShiftForm
-            userId={session.user.id}
+            userId={userId}
             eventId={params.eventId}
             shift={null}
           />

@@ -1,5 +1,5 @@
-import BackButton from "@/components/buttons/BackButton";
-import Footer from "@/components/Footer";
+import BackButton from "@/components/shared/buttons/BackButton";
+import Footer from "@/components/layout/Footer";
 import {
   Card,
   CardContent,
@@ -13,8 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Info } from "lucide-react";
-import Image from "next/image";
-import { SignInForm } from "./SignInForm";
+import { SignInForm } from "@/components/features/auth/SignInForm";
 
 export default async function SignInPage(props: {
   searchParams: Promise<{ callbackUrl?: string; email?: string }>;

@@ -1,37 +1,25 @@
-import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
-import db from "@/db/index";
-import { users } from "@/db/schema";
 import { ApiErrorResponse } from "@/lib/api-errors";
 import { logger } from "@/lib/logger";
-import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
+import { updateUserProfile } from "@/domains/users/functions";
+import { getAuthenticatedUserId } from "@/lib/auth/utils";
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-    if (!session?.user?.id) {
-      return ApiErrorResponse.unauthorized();
-    }
+    const authenticatedUserId = await getAuthenticatedUserId();
 
     const body = await request.json();
-    if (session.user.id !== body.id) {
+    if (authenticatedUserId !== body.id) {
       return ApiErrorResponse.unauthorized("You can only update your own profile");
     }
 
-    const updatedUser = await db
-      .update(users)
-      .set({
-        name: body.name,
-      })
-      .where(eq(users.id, body.id))
-      .returning();
+    const updatedUser = await updateUserProfile(body.id, body.name, authenticatedUserId);
 
-    logger.info("User profile updated", { userId: body.id });
-    return Response.json(updatedUser[0]);
+    return Response.json(updatedUser);
   } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return ApiErrorResponse.unauthorized();
+    }
     logger.error("Failed to update user profile", error);
     return ApiErrorResponse.internalError("Failed to update profile", error);
   }

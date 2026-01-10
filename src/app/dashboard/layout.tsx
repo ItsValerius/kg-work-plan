@@ -1,7 +1,6 @@
-import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
-import Footer from "@/components/Footer";
-import NavigationBar from "@/components/navigation/NavigationBar";
+import { getSession } from "@/lib/auth/utils";
+import Footer from "@/components/layout/Footer";
+import NavigationBar from "@/components/shared/navigation/NavigationBar";
 import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
@@ -9,14 +8,13 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  const user = session?.user;
+  const session = await getSession();
 
-  if (!user) {
+  if (!session?.user) {
     redirect("/signin");
   }
+  
+  const user = session.user;
 
   return (
     <div className="flex flex-col min-h-screen">

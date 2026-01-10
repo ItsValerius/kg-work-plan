@@ -1,9 +1,9 @@
 import { isAdmin } from "@/lib/auth/utils";
 import { redirect } from "next/navigation";
-import { DashboardTabs } from "./DashboardTabs";
-import { OverviewTab } from "./overview/OverviewTab";
-import { EventsTab } from "./events/EventsTab";
-import { ParticipantsTab } from "./participants/ParticipantsTab";
+import { DashboardTabs } from "@/components/features/dashboard/DashboardTabs";
+import { OverviewTab } from "@/components/features/dashboard/overview/OverviewTab";
+import { EventsTab } from "@/components/features/dashboard/events/EventsTab";
+import { ParticipantsTab } from "@/components/features/dashboard/participants/ParticipantsTab";
 
 // Force dynamic rendering to ensure fresh data on each tab switch
 export const dynamic = "force-dynamic";

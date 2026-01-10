@@ -27,7 +27,7 @@ export const auth = betterAuth({
   }),
   plugins: [
     magicLink({
-      sendMagicLink: async ({ email, url }, ctx) => {
+      sendMagicLink: async ({ email, url }) => {
         const { createTransport } = await import("nodemailer");
         const transport = createTransport({
           host: process.env.EMAIL_SERVER_HOST,

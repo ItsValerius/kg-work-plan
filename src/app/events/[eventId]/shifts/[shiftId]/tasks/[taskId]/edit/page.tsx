@@ -1,10 +1,9 @@
-import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
-import db from "@/db";
-import { events, shifts, tasks } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { notFound, redirect } from "next/navigation";
-import { TaskForm } from "../../new/TaskForm";
+import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
+import { getEventById } from "@/domains/events/queries";
+import { getShiftById } from "@/domains/shifts/queries";
+import { getTaskById } from "@/domains/tasks/queries";
+import { notFound } from "next/navigation";
+import { TaskForm } from "@/components/features/tasks/TaskForm";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -13,20 +12,15 @@ import { ArrowLeft } from "lucide-react";
 const EditTaskPage = async (props: {
   params: Promise<{ eventId: string; shiftId: string; taskId: string }>;
 }) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session?.user?.id) return redirect("/");
   const params = await props.params;
-  const event = await db.query.events.findFirst({
-    where: eq(events.id, params.eventId),
-  });
-  const shift = await db.query.shifts.findFirst({
-    where: eq(shifts.id, params.shiftId),
-  });
-  const task = await db.query.tasks.findFirst({
-    where: eq(tasks.id, params.taskId),
-  });
+
+  const [userId, event, shift, task] = await Promise.all([
+    getAuthenticatedAdminUserId(),
+    getEventById(params.eventId),
+    getShiftById(params.shiftId),
+    getTaskById(params.taskId),
+  ]);
+
   if (!event || !shift || !task) return notFound();
 
   return (
@@ -43,7 +37,7 @@ const EditTaskPage = async (props: {
         </CardHeader>
         <CardContent>
           <TaskForm
-            userId={session.user.id}
+            userId={userId}
             eventId={params.eventId}
             shiftId={params.shiftId}
             task={task}

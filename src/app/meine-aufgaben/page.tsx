@@ -1,4 +1,5 @@
-import RemoveUserFromTaskButton from "@/components/buttons/RemoveUserFromTaskButton";
+import RemoveUserFromTaskButton from "@/components/shared/buttons/RemoveUserFromTaskButton";
+import { EditGroupDialog } from "@/components/shared/dialogs/EditGroupDialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,36 +9,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import db from "@/db";
-import { shifts, taskParticipants, tasks } from "@/db/schema";
-import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
-import { eq } from "drizzle-orm";
+import { getAuthenticatedUser } from "@/lib/auth/utils";
 import Link from "next/link";
+import { getUserTasks } from "@/domains/tasks/queries";
 
 const MeineAufgabenPage = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  // Layout handles authentication redirect, so user should always exist here
-  if (!session?.user?.id) {
-    throw new Error("User not authenticated");
-  }
-  const userId = session.user.id;
+  const user = await getAuthenticatedUser();
+  const userId = user.id;
 
-  const userTasks = await db
-    .select({
-      id: tasks.id,
-      name: tasks.name,
-      description: tasks.description,
-      shifts: tasks.shiftId,
-      startTime: tasks.startTime,
-      shiftDate: shifts.startTime,
-    })
-    .from(taskParticipants)
-    .leftJoin(tasks, eq(taskParticipants.taskId, tasks.id))
-    .leftJoin(shifts, eq(tasks.shiftId, shifts.id))
-    .where(eq(taskParticipants.userId, userId));
+  const userTasks = await getUserTasks(userId);
 
   return (
     <main id="main-content" className="container mx-auto py-6 md:py-8 lg:py-10 px-4 md:px-6 lg:px-8 max-w-7xl">
@@ -76,9 +56,39 @@ const MeineAufgabenPage = async () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4">{<p>{task?.description}</p>}</div>
+              <div className="grid gap-4">
+                <p>{task?.description}</p>
+                {(task.groupName || (task.groupSize !== undefined && task.groupSize !== null && task.groupSize > 1)) && (
+                  <div className="pt-2 border-t">
+                    <div className="flex items-center gap-4 text-sm">
+                      {task.groupName && (
+                        <div>
+                          <span className="text-muted-foreground">Gruppe: </span>
+                          <span className="font-medium">{task.groupName}</span>
+                        </div>
+                      )}
+                      {task.groupSize !== undefined && task.groupSize !== null && task.groupSize > 1 && (
+                        <div>
+                          <span className="text-muted-foreground">
+                            Gruppengröße:{" "}
+                          </span>
+                          <span className="font-medium">
+                            {task.groupSize} Person
+                            {task.groupSize !== 1 ? "en" : ""}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex gap-2">
+              <EditGroupDialog
+                participantId={task.participantId}
+                currentGroupName={task.groupName}
+                currentGroupSize={task.groupSize ?? 1}
+              />
               <RemoveUserFromTaskButton taskId={task.id} />
             </CardFooter>
           </Card>

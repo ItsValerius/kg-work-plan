@@ -1,7 +1,7 @@
 "use client";
 import React, { useTransition } from "react";
 import { Button } from "../ui/button";
-import { remove } from "@/app/profile/actions";
+import { removeUserFromTask } from "@/server/actions/users";
 
 const RemoveUserFromTaskButton = ({ taskId }: { taskId: string | null }) => {
   const [isPending, startTransition] = useTransition();
@@ -13,7 +13,7 @@ const RemoveUserFromTaskButton = ({ taskId }: { taskId: string | null }) => {
   return (
     <Button
       variant="destructive"
-      onClick={() => startTransition(() => remove(taskId))}
+      onClick={() => startTransition(() => removeUserFromTask(taskId))}
       disabled={isPending}
     >
       {isPending ? "Wird entfernt..." : "Aufgabe Entfernen"}

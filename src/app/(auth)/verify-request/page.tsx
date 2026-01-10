@@ -1,5 +1,5 @@
-import BackButton from "@/components/buttons/BackButton";
-import Footer from "@/components/Footer";
+import BackButton from "@/components/shared/buttons/BackButton";
+import Footer from "@/components/layout/Footer";
 import {
   Card,
   CardContent,
