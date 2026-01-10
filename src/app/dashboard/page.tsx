@@ -4,6 +4,7 @@ import { DashboardTabs } from "@/components/features/dashboard/DashboardTabs";
 import { OverviewTab } from "@/components/features/dashboard/overview/OverviewTab";
 import { EventsTab } from "@/components/features/dashboard/events/EventsTab";
 import { ParticipantsTab } from "@/components/features/dashboard/participants/ParticipantsTab";
+import { PageContainer } from "@/components/layout/PageContainer";
 
 // Force dynamic rendering to ensure fresh data on each tab switch
 export const dynamic = "force-dynamic";
@@ -22,7 +23,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
   const currentTab = validTabs.includes(activeTab) ? activeTab : "overview";
 
   return (
-    <main id="main-content" className="container mx-auto py-6 md:py-8 lg:py-10 px-4 md:px-6 lg:px-8 max-w-7xl">
+    <PageContainer>
       <div className="mb-6 md:mb-8">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
           Admin Dashboard
@@ -37,7 +38,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
         eventsContent={currentTab === "events" ? <EventsTab /> : null}
         participantsContent={currentTab === "participants" ? <ParticipantsTab /> : null}
       />
-    </main>
+    </PageContainer>
   );
 };
 

@@ -18,6 +18,7 @@ import { SkeletonCard } from "@/components/features/tasks/SkeletonCard";
 import { deleteShift } from "@/server/actions/events";
 import DuplicateButton from "@/components/shared/buttons/DuplicateButton";
 import { getEventWithShifts } from "@/domains/events/queries";
+import { PageContainer } from "@/components/layout/PageContainer";
 
 interface EventPageProps {
   params: Promise<{ eventId: string }>;
@@ -37,7 +38,7 @@ export default async function EventPage(props: EventPageProps) {
   }
 
   return (
-    <main id="main-content" className="container mx-auto py-6 md:py-8 lg:py-10 px-4 md:px-6 lg:px-8 max-w-7xl">
+    <PageContainer>
       <div className="mb-4">
         <BackButton className="h-9" />
       </div>
@@ -127,6 +128,6 @@ export default async function EventPage(props: EventPageProps) {
           </Card>
         ))}
       </div>
-    </main>
+    </PageContainer>
   );
 }

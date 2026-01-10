@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { PageContainer } from "@/components/layout/PageContainer";
 
 const NewShiftPage = async (props: {
   params: Promise<{ eventId: string }>;
@@ -12,7 +13,7 @@ const NewShiftPage = async (props: {
   const userId = await getAuthenticatedAdminUserId();
 
   return (
-    <main id="main-content" className="p-4 flex flex-col gap-2 max-w-3xl w-full mx-auto">
+    <PageContainer variant="form">
       <Button asChild variant="outline" className="w-fit">
         <Link href={`/events/${params.eventId}`}>
           <ArrowLeft />
@@ -31,7 +32,7 @@ const NewShiftPage = async (props: {
           />
         </CardContent>
       </Card>
-    </main>
+    </PageContainer>
   );
 };
 

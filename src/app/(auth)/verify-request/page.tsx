@@ -1,5 +1,4 @@
 import BackButton from "@/components/shared/buttons/BackButton";
-import Footer from "@/components/layout/Footer";
 import {
   Card,
   CardContent,
@@ -9,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Mail, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { PageContainer } from "@/components/layout/PageContainer";
 
 interface VerifyRequestPageProps {
   searchParams: Promise<{ email?: string }>;
@@ -18,9 +18,7 @@ const VerifyRequestPage = async (props: VerifyRequestPageProps) => {
   const { email } = await props.searchParams;
 
   return (
-    <>
-      <main id="main-content" className="flex h-screen w-full items-center justify-center px-4 flex-col">
-        <div className="w-full max-w-md mx-auto my-auto flex flex-col gap-4">
+    <PageContainer variant="auth" className="gap-4">
           <Card>
             <CardHeader className="text-center space-y-4 pb-6">
               <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
@@ -78,10 +76,7 @@ const VerifyRequestPage = async (props: VerifyRequestPageProps) => {
             </CardContent>
           </Card>
           <BackButton className="w-fit self-center" />
-        </div>
-      </main>
-      <Footer />
-    </>
+    </PageContainer>
   );
 };
 

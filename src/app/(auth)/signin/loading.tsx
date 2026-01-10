@@ -1,17 +1,34 @@
-import Footer from "@/components/layout/Footer";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageContainer } from "@/components/layout/PageContainer";
 
 const loading = () => {
   return (
-    <>
-      <main id="main-content" className="flex h-screen w-full items-center justify-center px-4 flex-col">
-        <Card className="w-full max-w-md mx-auto my-auto">
-          <Skeleton className="w-[448px] h-[338px] "></Skeleton>
+    <PageContainer variant="auth">
+      <Card className="w-full">
+        <CardHeader>
+          <Skeleton className="h-8 w-32" />
+          <Skeleton className="h-4 w-64 mt-2" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-12" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <Skeleton className="h-10 w-full" />
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <Skeleton className="h-3 w-8 bg-background" />
+            </div>
+          </div>
+          <Skeleton className="h-10 w-full" />
+        </CardContent>
         </Card>
-      </main>
-      <Footer />
-    </>
+      <Skeleton className="h-9 w-24 self-center" />
+    </PageContainer>
   );
 };
 

@@ -12,6 +12,7 @@ import {
 import { getAuthenticatedUser } from "@/lib/auth/utils";
 import Link from "next/link";
 import { getUserTasks } from "@/domains/tasks/queries";
+import { PageContainer } from "@/components/layout/PageContainer";
 
 const MeineAufgabenPage = async () => {
   const user = await getAuthenticatedUser();
@@ -20,7 +21,7 @@ const MeineAufgabenPage = async () => {
   const userTasks = await getUserTasks(userId);
 
   return (
-    <main id="main-content" className="container mx-auto py-6 md:py-8 lg:py-10 px-4 md:px-6 lg:px-8 max-w-7xl">
+    <PageContainer>
       <div className="mb-6 md:mb-8">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
           Meine Aufgaben
@@ -129,7 +130,7 @@ const MeineAufgabenPage = async () => {
           </Card>
         )}
       </div>
-    </main>
+    </PageContainer>
   );
 };
 

@@ -38,21 +38,45 @@ export async function getAuthenticatedAdminUserId(): Promise<string> {
   return session.user.id;
 }
 
+type SessionType = Awaited<ReturnType<typeof getSession>>;
+
 /**
  * Check if the current user is an admin
+ * When a session is provided (including null), returns synchronously. Otherwise, fetches the session asynchronously.
  */
-export const isAdmin = async () => {
-  const session = await getSession();
-  return session?.user?.role === "admin";
-};
+export function isAdmin(session: SessionType | null): boolean;
+export function isAdmin(): Promise<boolean>;
+export function isAdmin(session?: SessionType | null): boolean | Promise<boolean> {
+  // Check if an argument was provided (distinguishes undefined from null/explicitly passed)
+  // This ensures that when session is explicitly passed (including null), we return synchronously
+  if (session !== undefined) {
+    // Synchronous when session is provided (handles null gracefully)
+    return session?.user?.role === "admin";
+  }
+  // Asynchronous when no argument provided - fetch session
+  return (async () => {
+    const sessionToCheck = await getSession();
+    return sessionToCheck?.user?.role === "admin";
+  })();
+}
 
 /**
  * Check if the current user is logged in
+ * When a session is provided (including null), returns synchronously. Otherwise, fetches the session asynchronously.
  */
-export const isLoggedIn = async () => {
-  const session = await getSession();
-  return !!session?.user;
-};
+export function isLoggedIn(session: SessionType | null): boolean;
+export function isLoggedIn(): Promise<boolean>;
+export function isLoggedIn(session?: SessionType | null): boolean | Promise<boolean> {
+  if (session !== undefined) {
+    // Synchronous when session is provided
+    return !!session?.user;
+  }
+  // Asynchronous when session needs to be fetched
+  return (async () => {
+    const sessionToCheck = await getSession();
+    return !!sessionToCheck?.user;
+  })();
+}
 
 /**
  * Get the authenticated user, throws if not authenticated

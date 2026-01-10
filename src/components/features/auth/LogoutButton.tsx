@@ -65,37 +65,35 @@ export function LogoutButton({ showText = false, variant = "ghost" }: LogoutButt
             </AlertDialogTrigger>
             <AlertDialogContent className="sm:max-w-[425px]">
                 <AlertDialogHeader>
-                    <div className="flex items-center gap-4 mb-2">
+                    <div className="flex flex-col items-center gap-4 mb-2 text-center">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
                             <AlertTriangle className="h-6 w-6 text-destructive" />
                         </div>
-                        <div className="flex-1">
                             <AlertDialogTitle className="text-xl">
                                 Abmelden bestätigen
                             </AlertDialogTitle>
-                        </div>
-                    </div>
                     <AlertDialogDescription className="text-base pt-2">
                         Bist du sicher, dass du dich abmelden möchtest?
                     </AlertDialogDescription>
+                    </div>
                 </AlertDialogHeader>
-                <AlertDialogFooter className="gap-2 sm:gap-0">
+                <AlertDialogFooter className="gap-2 sm:gap-0 sm:justify-center">
                     <AlertDialogCancel disabled={isPending} className="mt-0">
                         Abbrechen
                     </AlertDialogCancel>
                     <AlertDialogAction
                         onClick={handleSignOut}
                         disabled={isPending}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive"
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive gap-1.5"
                     >
                         {isPending ? (
                             <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                <Loader2 className="h-4 w-4 animate-spin" />
                                 Wird abgemeldet...
                             </>
                         ) : (
                             <>
-                                <LogOut className="mr-2 h-4 w-4" />
+                                <LogOut className="h-4 w-4" />
                                 Abmelden
                             </>
                         )}

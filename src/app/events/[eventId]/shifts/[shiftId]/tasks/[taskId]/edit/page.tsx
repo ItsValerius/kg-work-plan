@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
+import { PageContainer } from "@/components/layout/PageContainer";
 
 const EditTaskPage = async (props: {
   params: Promise<{ eventId: string; shiftId: string; taskId: string }>;
@@ -24,7 +25,7 @@ const EditTaskPage = async (props: {
   if (!event || !shift || !task) return notFound();
 
   return (
-    <main id="main-content" className="p-4 flex flex-col gap-2 max-w-3xl w-full mx-auto">
+    <PageContainer variant="form">
       <Button asChild variant="outline" className="w-fit">
         <Link href={`/events/${params.eventId}`}>
           <ArrowLeft />
@@ -44,7 +45,7 @@ const EditTaskPage = async (props: {
           />
         </CardContent>
       </Card>
-    </main>
+    </PageContainer>
   );
 };
 

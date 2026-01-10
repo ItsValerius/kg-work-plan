@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { getEventByIdWithShiftsAndTasks } from "@/domains/events/queries";
+import { PageContainer } from "@/components/layout/PageContainer";
 
 const EditEventPage = async (props: {
   params: Promise<{ eventId: string }>;
@@ -22,7 +23,7 @@ const EditEventPage = async (props: {
     notFound();
   }
   return (
-    <main id="main-content" className="p-4 flex flex-col gap-2 max-w-3xl w-full mx-auto">
+    <PageContainer variant="form">
       <Button asChild variant="outline" className="w-fit">
         <Link href="/events">
           {" "}
@@ -38,7 +39,7 @@ const EditEventPage = async (props: {
           <EventForm userId={user.id} event={event} />
         </CardContent>
       </Card>
-    </main>
+    </PageContainer>
   );
 };
 

@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { PageContainer } from "@/components/layout/PageContainer";
 
 const NewEventPage = async () => {
   const userId = await getAuthenticatedAdminUserId();
   return (
-    <main id="main-content" className="p-4 flex flex-col gap-2 max-w-3xl w-full mx-auto">
+    <PageContainer variant="form">
       <Button asChild variant="outline" className="w-fit">
         <Link href="/events">
           {" "}
@@ -24,7 +25,7 @@ const NewEventPage = async () => {
           <EventForm userId={userId} event={null} />
         </CardContent>
       </Card>
-    </main>
+    </PageContainer>
   );
 };
 

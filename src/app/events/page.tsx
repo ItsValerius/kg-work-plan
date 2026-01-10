@@ -1,6 +1,7 @@
 import { isAdmin } from "@/lib/auth/utils";
 import { EventsSection } from "@/components/features/events/EventsSection";
 import { getFutureEvents, getPastEvents } from "@/domains/events/queries";
+import { PageContainer } from "@/components/layout/PageContainer";
 
 const EventsPage = async () => {
   const futureEvents = await getFutureEvents();
@@ -10,7 +11,7 @@ const EventsPage = async () => {
   const pastEvents = userIsAdmin ? await getPastEvents() : [];
 
   return (
-    <main id="main-content" className="container mx-auto py-6 md:py-8 lg:py-10 px-4 md:px-6 lg:px-8 max-w-7xl">
+    <PageContainer>
       <div className="space-y-12 md:space-y-16 lg:space-y-20">
         <EventsSection
           events={futureEvents}
@@ -34,7 +35,7 @@ const EventsPage = async () => {
           />
         )}
       </div>
-    </main>
+    </PageContainer>
   );
 };
 

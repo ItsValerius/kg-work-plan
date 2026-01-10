@@ -13,6 +13,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { UserForm } from "@/components/features/participants/UserForm";
+import { PageContainer } from "@/components/layout/PageContainer";
 
 const TaskDetailsPage = async (props: {
   params: Promise<{ eventId: string; shiftId: string; taskId: string }>;
@@ -32,7 +33,7 @@ const TaskDetailsPage = async (props: {
 
   if (!event || !task) return notFound();
   return (
-    <main id="main-content" className="container mx-auto py-8 px-4 md:px-0">
+    <PageContainer variant="wide">
       <div className="flex my-auto w-full items-center justify-center flex-col gap-4">
         <Card className="w-full max-w-xl mx-auto">
           <CardHeader>
@@ -64,7 +65,7 @@ const TaskDetailsPage = async (props: {
           </Link>
         </Button>
       </div>
-    </main>
+    </PageContainer>
   );
 };
 
