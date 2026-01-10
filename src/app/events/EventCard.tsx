@@ -1,4 +1,4 @@
-import { EventAdminActions } from "@/components/admin-actions/EventAdminActions";
+import { EventAdminActions } from "@/components/features/admin/EventAdminActions";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -9,11 +9,11 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { formatEventDateRange } from "@/lib/date-utils";
-import type { EventCardProps } from "@/lib/types/events";
+import { formatEventDateRange } from "@/lib/datetime";
+import type { EventCardProps } from "@/domains/events/types";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { deleteEvent } from "./actions";
+import { deleteEvent } from "@/server/actions/events";
 
 export const EventCard = ({
     event,

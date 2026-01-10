@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getParticipantsData } from "../shared/data/getDashboardData";
+import { getParticipantsData } from "@/domains/dashboard/queries";
 import { ParticipantsTable } from "./ParticipantsTable";
 import { Skeleton } from "@/components/ui/skeleton";
 

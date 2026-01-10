@@ -1,29 +1,14 @@
-import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
-import db from "@/db/index";
-import { events } from "@/db/schema";
 import { ApiErrorResponse } from "@/lib/api-errors";
-import { isAdmin } from "@/lib/auth/utils";
 import { logger } from "@/lib/logger";
-import { createInsertSchema } from "drizzle-zod";
-import { revalidatePath } from "next/cache";
 import { NextRequest } from "next/server";
-import { z } from "zod";
-
-const eventSchema = createInsertSchema(events).extend({
-  startDate: z.coerce.date(),
-  endDate: z.coerce.date(),
-});
+import { eventSchema } from "@/domains/events/types";
+import { createOrUpdateEvent } from "@/domains/events/functions";
+import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 
 export async function POST(request: NextRequest) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session?.user?.id || !(await isAdmin())) {
-    return ApiErrorResponse.unauthorized();
-  }
-
   try {
+    const userId = await getAuthenticatedAdminUserId();
+    
     const body = await request.json();
     const event = eventSchema.safeParse(body);
 
@@ -33,34 +18,19 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      const newEvent = await db
-        .insert(events)
-        .values({
-          id: event.data.id,
-          name: event.data.name,
-          description: event.data.description,
-          startDate: new Date(event.data.startDate),
-          endDate: new Date(event.data.endDate),
-          createdById: session.user.id,
-        })
-        .onConflictDoUpdate({
-          target: events.id,
-          set: {
-            name: event.data.name,
-            description: event.data.description,
-            startDate: new Date(event.data.startDate),
-            endDate: new Date(event.data.endDate),
-          },
-        })
-        .returning();
-      revalidatePath("/events");
-      logger.info("Event created/updated", { eventId: newEvent[0].id, userId: session.user.id });
-      return Response.json(newEvent[0]);
+      const newEvent = await createOrUpdateEvent(event.data, userId);
+      return Response.json(newEvent);
     } catch (error) {
-      logger.error("Failed to create/update event", error, { userId: session.user.id });
+      logger.error("Failed to create/update event", error);
+      if (error instanceof Error && error.message === "Unauthorized") {
+        return ApiErrorResponse.unauthorized();
+      }
       return ApiErrorResponse.internalError("Failed to create/update event", error);
     }
   } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return ApiErrorResponse.unauthorized();
+    }
     logger.error("Invalid request body", error);
     return ApiErrorResponse.badRequest("Invalid request body");
   }

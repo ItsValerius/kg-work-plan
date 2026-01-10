@@ -1,6 +1,5 @@
-import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { getAuthenticatedUser } from "@/lib/auth/utils";
 import { EventForm } from "./EventForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,10 +7,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 const NewEventPage = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session?.user?.id) return redirect("/");
+  const user = await getAuthenticatedUser();
   return (
     <main id="main-content" className="p-4 flex flex-col gap-2 max-w-3xl w-full mx-auto">
       <Button asChild variant="outline" className="w-fit">
@@ -26,7 +22,7 @@ const NewEventPage = async () => {
           <CardTitle>Neue Veranstaltung Erstellen</CardTitle>
         </CardHeader>
         <CardContent>
-          <EventForm userId={session.user.id} event={null} />
+          <EventForm userId={user.id} event={null} />
         </CardContent>
       </Card>
     </main>

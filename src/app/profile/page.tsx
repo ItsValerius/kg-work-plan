@@ -1,15 +1,8 @@
-import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
+import { getAuthenticatedUser } from "@/lib/auth/utils";
 import { UserDataForm } from "./UserDataFrom";
 
 const ProfilePage = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  // Layout handles authentication redirect, so user should always exist here
-  if (!session?.user) {
-    throw new Error("User not authenticated");
-  }
+  const user = await getAuthenticatedUser();
 
   return (
     <main id="main-content" className="container mx-auto py-6 md:py-8 lg:py-10 px-4 md:px-6 lg:px-8 max-w-7xl">
@@ -19,7 +12,7 @@ const ProfilePage = async () => {
         </h1>
         <small className="text-sm font-medium leading-none"></small>
       </div>
-      <UserDataForm user={session.user} />
+      <UserDataForm user={user} />
     </main>
   );
 };

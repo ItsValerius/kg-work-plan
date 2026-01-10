@@ -1,7 +1,7 @@
 "use client";
 
 import { EventStatistics } from "./EventStatistics";
-import { EventStat } from "../shared/types";
+import { EventStat } from "@/domains/dashboard/types";
 
 interface EventsContentProps {
   eventStats: EventStat[];

@@ -2,7 +2,7 @@
 
 import { DataTable } from "./DataTable";
 import { columns } from "./columns";
-import { removeUserFromTaskAction } from "../shared/data/actions";
+import { removeUserFromTaskAction } from "@/server/actions/participants";
 import { UserTaskSchema } from "./columns";
 import { z } from "zod";
 import { events } from "@/db/schema";

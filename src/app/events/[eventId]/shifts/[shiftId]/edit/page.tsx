@@ -1,11 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { ShiftForm } from "../../new/ShiftForm";
-import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
-import { isAdmin } from "@/lib/auth/utils";
-import db from "@/db";
-import { events, shifts } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { getAuthenticatedUser, isAdmin } from "@/lib/auth/utils";
+import { getEventById } from "@/domains/events/queries";
+import { getShiftByIdWithEvent } from "@/domains/shifts/queries";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -14,20 +11,16 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 const EditShiftPapge = async (props: {
   params: Promise<{ eventId: string; shiftId: string }>;
 }) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session?.user?.id || !(await isAdmin())) return redirect("/");
   const params = await props.params;
-  const event = await db.query.events.findFirst({
-    where: eq(events.id, params.eventId),
-    with: {
-      shifts: {
-        where: eq(shifts.id, params.shiftId),
-      },
-    },
-  });
-  if (!event || !event.shifts[0]) return notFound();
+
+  const [user, event, shift, userIsAdmin] = await Promise.all([
+    getAuthenticatedUser(),
+    getEventById(params.eventId),
+    getShiftByIdWithEvent(params.eventId, params.shiftId),
+    isAdmin(),
+  ]);
+
+  if (!userIsAdmin || !event || !shift) return redirect("/");
   return (
     <main id="main-content" className="p-4 flex flex-col gap-2 max-w-3xl w-full mx-auto">
       <Button asChild variant="outline" className="w-fit">
@@ -42,9 +35,9 @@ const EditShiftPapge = async (props: {
         </CardHeader>
         <CardContent>
           <ShiftForm
-            userId={session.user.id}
+            userId={user.id}
             eventId={event.id}
-            shift={event.shifts[0]}
+            shift={shift}
           />
         </CardContent>
       </Card>

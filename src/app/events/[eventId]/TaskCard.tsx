@@ -22,13 +22,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
-import db from "@/db/index";
-import { taskParticipants, tasks } from "@/db/schema/index";
-import { eq } from "drizzle-orm";
+import { tasks } from "@/db/schema/index";
 import Link from "next/link";
-import { formatTime } from "@/lib/formatters";
-import { deleteTask } from "./actions";
-import { TaskAdminActions } from "@/components/admin-actions/TaskAdminActions";
+import { formatTime } from "@/lib/datetime";
+import { deleteTask } from "@/server/actions/events";
+import { TaskAdminActions } from "@/components/features/admin/TaskAdminActions";
+import { getTaskParticipants } from "@/domains/participants/queries";
 
 interface TaskCardProps {
   eventId: string;
@@ -121,12 +120,7 @@ export async function TaskCard({
   isAdmin,
   isLoggedIn,
 }: TaskCardProps) {
-  const participants = await db.query.taskParticipants.findMany({
-    where: eq(taskParticipants.taskId, task.id),
-    with: {
-      user: true,
-    },
-  });
+  const participants = await getTaskParticipants(task.id);
 
   const participantsAmount = participants.reduce(
     (accumulator, participant) => accumulator + participant.groupSize,

@@ -3,7 +3,7 @@ import {
     Card,
     CardContent,
 } from "@/components/ui/card";
-import type { EventsSectionProps } from "@/lib/types/events";
+import type { EventsSectionProps } from "@/domains/events/types";
 import Link from "next/link";
 import { Suspense } from "react";
 import { EventsList } from "./EventsList";

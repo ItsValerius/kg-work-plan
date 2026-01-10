@@ -1,8 +1,6 @@
-import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
-import db from "@/db";
-import { events, shifts } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { getAuthenticatedUser } from "@/lib/auth/utils";
+import { getEventById } from "@/domains/events/queries";
+import { getShiftById } from "@/domains/shifts/queries";
 import { notFound, redirect } from "next/navigation";
 import { TaskForm } from "./TaskForm";
 import { Button } from "@/components/ui/button";
@@ -13,17 +11,14 @@ import { ArrowLeft } from "lucide-react";
 const NewShiftPage = async (props: {
   params: Promise<{ eventId: string; shiftId: string }>;
 }) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session?.user?.id) return redirect("/");
   const params = await props.params;
-  const event = await db.query.events.findFirst({
-    where: eq(events.id, params.eventId),
-  });
-  const shift = await db.query.shifts.findFirst({
-    where: eq(shifts.id, params.shiftId),
-  });
+
+  const [user, event, shift] = await Promise.all([
+    getAuthenticatedUser(),
+    getEventById(params.eventId),
+    getShiftById(params.shiftId),
+  ]);
+
   if (!event || !shift) return notFound();
 
   return (
@@ -40,7 +35,7 @@ const NewShiftPage = async (props: {
         </CardHeader>
         <CardContent>
           <TaskForm
-            userId={session.user.id}
+            userId={user.id}
             eventId={params.eventId}
             shiftId={params.shiftId}
             task={null}

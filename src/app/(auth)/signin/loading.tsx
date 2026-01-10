@@ -1,4 +1,4 @@
-import Footer from "@/components/Footer";
+import Footer from "@/components/layout/Footer";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 

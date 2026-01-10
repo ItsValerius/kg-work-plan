@@ -21,7 +21,7 @@ import { Users, AlertCircle, CheckCircle2, ChevronDown, ChevronRight, Search, Ex
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { EventStat } from "../shared/types";
+import { EventStat } from "@/domains/dashboard/types";
 
 interface EventStatisticsProps {
   events: EventStat[];

@@ -2,7 +2,7 @@
 
 import { authClient } from "@/lib/auth/client";
 import { providerMap } from "@/lib/auth/providers";
-import SubmitButton from "@/components/buttons/SubmitButton";
+import SubmitButton from "@/components/shared/buttons/SubmitButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

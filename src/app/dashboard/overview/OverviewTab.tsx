@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getBasicStatistics } from "../shared/data/getDashboardData";
+import { getBasicStatistics } from "@/domains/dashboard/queries";
 import { OverviewContent } from "./OverviewContent";
 import { Skeleton } from "@/components/ui/skeleton";
 

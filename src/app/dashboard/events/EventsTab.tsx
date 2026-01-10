@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getEventStatistics } from "../shared/data/getDashboardData";
+import { getEventStatistics } from "@/domains/dashboard/queries";
 import { EventsContent } from "./EventsContent";
 import { Skeleton } from "@/components/ui/skeleton";
 

@@ -1,5 +1,5 @@
-import { getMissingUsersPerEvents } from "@/lib/utils";
-import type { Event } from "@/lib/types/events";
+import { getMissingUsersPerEvents } from "@/domains/events/queries";
+import type { Event } from "@/domains/events/types";
 import { EventCard } from "./EventCard";
 
 interface EventsListProps {
