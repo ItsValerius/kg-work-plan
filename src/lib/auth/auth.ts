@@ -53,7 +53,7 @@ export const auth = betterAuth({
         }
       },
     }),
-    // Customize session response to explicitly include role field
+    // Customize session response to normalize user fields (undefined → null)
     // See: https://www.better-auth.com/docs/concepts/session-management#customizing-session-response
     customSession(async ({ user, session }) => {
       // Better Auth's Drizzle adapter may not automatically select all custom fields
@@ -64,9 +64,13 @@ export const auth = betterAuth({
 
       const role = userWithRole?.role ?? null;
 
+      // Normalize undefined values to null to match Drizzle schema types
+      // Drizzle schema expects string | null, but better-auth may return undefined
       return {
         user: {
           ...user,
+          name: user.name ?? null,
+          image: user.image ?? null,
           role,
         },
         session,

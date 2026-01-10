@@ -1,0 +1,6 @@
+onlyBuiltDependencies:
+  - bufferutil
+  - esbuild
+  - msw
+  - sharp
+  - unrs-resolver

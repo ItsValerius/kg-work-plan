@@ -1,5 +1,7 @@
 import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
+import type { User } from "@/domains/users/types";
+import { USER_ROLES, isAdminRole } from "./roles";
 
 /**
  * Get the current user session
@@ -31,8 +33,7 @@ export async function getAuthenticatedAdminUserId(): Promise<string> {
   if (!session?.user?.id) {
     throw new Error("Unauthorized");
   }
-  const userIsAdmin = session.user.role === "admin";
-  if (!userIsAdmin) {
+  if (!isAdminRole(session.user.role)) {
     throw new Error("Unauthorized");
   }
   return session.user.id;
@@ -51,12 +52,12 @@ export function isAdmin(session?: SessionType | null): boolean | Promise<boolean
   // This ensures that when session is explicitly passed (including null), we return synchronously
   if (session !== undefined) {
     // Synchronous when session is provided (handles null gracefully)
-    return session?.user?.role === "admin";
+    return isAdminRole(session?.user?.role);
   }
   // Asynchronous when no argument provided - fetch session
   return (async () => {
     const sessionToCheck = await getSession();
-    return sessionToCheck?.user?.role === "admin";
+    return isAdminRole(sessionToCheck?.user?.role);
   })();
 }
 
@@ -82,10 +83,11 @@ export function isLoggedIn(session?: SessionType | null): boolean | Promise<bool
  * Get the authenticated user, throws if not authenticated
  * Use this in page components to get the user object
  */
-export async function getAuthenticatedUser() {
+export async function getAuthenticatedUser(): Promise<User> {
   const session = await getSession();
   if (!session?.user) {
     throw new Error("User not authenticated");
   }
+
   return session.user;
 }
