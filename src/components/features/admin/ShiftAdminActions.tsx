@@ -59,19 +59,19 @@ export function ShiftAdminActions({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 opacity-60 hover:opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-0"
+            className="h-8 w-8 opacity-60 hover:opacity-100 transition-opacity focus-visible:outline-hidden focus-visible:ring-0"
             aria-label="Schicht-Optionen"
           >
-            <MoreVertical className="h-4 w-4" />
+            <MoreVertical className="size-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="focus:outline-none">
+        <DropdownMenuContent align="end" className="focus:outline-hidden">
           <DropdownMenuItem asChild>
             <Link
               href={`/events/${eventId}/shifts/${shiftId}/edit`}
               className="flex items-center cursor-pointer"
             >
-              <Pencil className="mr-2 h-4 w-4" />
+              <Pencil className="mr-2 size-4" />
               Bearbeiten
             </Link>
           </DropdownMenuItem>
@@ -83,7 +83,7 @@ export function ShiftAdminActions({
               setDeleteOpen(true);
             }}
           >
-            <Trash className="mr-2 h-4 w-4" />
+            <Trash className="mr-2 size-4" />
             Löschen
           </DropdownMenuItem>
         </DropdownMenuContent>

@@ -171,7 +171,7 @@ export function DuplicateEventDialog({
                                                     ) : (
                                                         <span>Wähle ein Datum</span>
                                                     )}
-                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                    <CalendarIcon className="ml-auto size-4 opacity-50" />
                                                 </Button>
                                             </FormControl>
                                         </PopoverTrigger>
@@ -215,7 +215,7 @@ export function DuplicateEventDialog({
                                                     ) : (
                                                         <span>Wähle ein Datum</span>
                                                     )}
-                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                    <CalendarIcon className="ml-auto size-4 opacity-50" />
                                                 </Button>
                                             </FormControl>
                                         </PopoverTrigger>
@@ -253,7 +253,7 @@ export function DuplicateEventDialog({
                             <Button type="submit" disabled={loading}>
                                 {loading ? (
                                     <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        <Loader2 className="mr-2 size-4 animate-spin" />
                                         Duplizieren...
                                     </>
                                 ) : (

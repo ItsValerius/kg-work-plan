@@ -79,7 +79,7 @@ export function EventForm({
     <Form {...form}>
       {error && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="size-4" />
           <AlertTitle>Fehler</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -138,7 +138,7 @@ export function EventForm({
                       ) : (
                         <span>Wähle ein Datum</span>
                       )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      <CalendarIcon className="ml-auto size-4 opacity-50" />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
@@ -180,7 +180,7 @@ export function EventForm({
                       ) : (
                         <span>Wähle ein Datum</span>
                       )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      <CalendarIcon className="ml-auto size-4 opacity-50" />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>

@@ -44,14 +44,14 @@ export default async function EventPage(props: EventPageProps) {
       </div>
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 md:gap-6 mb-8 md:mb-10">
         <div className="flex-1 min-w-0">
-          <h1 className="scroll-m-20 text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl break-words">
+          <h1 className="scroll-m-20 text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl wrap-break-word">
             {event.name}
           </h1>
           <small className="text-sm md:text-base font-medium leading-none block mt-2 md:mt-3 text-muted-foreground">
             {formatDateTimeRange(event.startDate, event.endDate)}
           </small>
           {event.description && (
-            <p className="text-sm md:text-base text-muted-foreground mt-3 md:mt-4 break-words max-w-3xl leading-relaxed">
+            <p className="text-sm md:text-base text-muted-foreground mt-3 md:mt-4 wrap-break-word max-w-3xl leading-relaxed">
               {event.description}
             </p>
           )}
@@ -89,10 +89,10 @@ export default async function EventPage(props: EventPageProps) {
               )}
               <div className="flex items-start justify-between gap-4 md:gap-6 mb-4 md:mb-5">
                 <div className="flex-1 min-w-0">
-                  <CardTitle className="break-words text-xl md:text-2xl font-semibold">
+                  <CardTitle className="wrap-break-word text-xl md:text-2xl font-semibold">
                     {shift.name}
                   </CardTitle>
-                  <CardDescription className="mt-2 md:mt-3 break-words text-sm md:text-base">
+                  <CardDescription className="mt-2 md:mt-3 wrap-break-word text-sm md:text-base">
                     {formatDateTimeRange(
                       new Date(shift.startTime),
                       new Date(shift.endTime),

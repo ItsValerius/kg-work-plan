@@ -54,9 +54,9 @@ export function LogoutButton({ showText = false, variant = "ghost" }: LogoutButt
                     disabled={isPending}
                 >
                     {isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="size-4 animate-spin" />
                     ) : (
-                        <LogOut className="h-4 w-4" aria-hidden="true" />
+                        <LogOut className="size-4" aria-hidden="true" />
                     )}
                     {showText && (
                         <span>Abmelden</span>
@@ -67,14 +67,14 @@ export function LogoutButton({ showText = false, variant = "ghost" }: LogoutButt
                 <AlertDialogHeader>
                     <div className="flex flex-col items-center gap-4 mb-2 text-center">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
-                            <AlertTriangle className="h-6 w-6 text-destructive" />
+                            <AlertTriangle className="size-6 text-destructive" />
                         </div>
-                            <AlertDialogTitle className="text-xl">
-                                Abmelden bestätigen
-                            </AlertDialogTitle>
-                    <AlertDialogDescription className="text-base pt-2">
-                        Bist du sicher, dass du dich abmelden möchtest?
-                    </AlertDialogDescription>
+                        <AlertDialogTitle className="text-xl">
+                            Abmelden bestätigen
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-base pt-2">
+                            Bist du sicher, dass du dich abmelden möchtest?
+                        </AlertDialogDescription>
                     </div>
                 </AlertDialogHeader>
                 <AlertDialogFooter className="gap-2 sm:gap-0 sm:justify-center">
@@ -88,12 +88,12 @@ export function LogoutButton({ showText = false, variant = "ghost" }: LogoutButt
                     >
                         {isPending ? (
                             <>
-                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <Loader2 className="size-4 animate-spin" />
                                 Wird abgemeldet...
                             </>
                         ) : (
                             <>
-                                <LogOut className="h-4 w-4" />
+                                <LogOut className="size-4" />
                                 Abmelden
                             </>
                         )}

@@ -96,7 +96,7 @@ export function EditGroupDialog({
             <DialogTrigger asChild>
                 {trigger || (
                     <Button variant="outline" size="sm">
-                        <Pencil className="h-4 w-4 mr-2" />
+                        <Pencil className="size-4 mr-2" />
                         Bearbeiten
                     </Button>
                 )}
@@ -111,7 +111,7 @@ export function EditGroupDialog({
                 <Form {...form}>
                     {form.formState.errors.root && (
                         <Alert variant="destructive">
-                            <AlertCircle className="h-4 w-4" />
+                            <AlertCircle className="size-4" />
                             <AlertTitle>Fehler</AlertTitle>
                             <AlertDescription>
                                 {form.formState.errors.root.message}
@@ -174,7 +174,7 @@ export function EditGroupDialog({
                                 Abbrechen
                             </Button>
                             <Button type="submit" disabled={isPending}>
-                                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
                                 Speichern
                             </Button>
                         </DialogFooter>

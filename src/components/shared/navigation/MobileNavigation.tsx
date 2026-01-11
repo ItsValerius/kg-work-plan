@@ -27,7 +27,7 @@ export function MobileNavigation({ items }: MobileNavigationProps) {
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-9 w-9" aria-label="Menü öffnen">
-                        <Menu className="h-5 w-5" />
+                        <Menu className="size-5" />
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="right">

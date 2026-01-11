@@ -33,7 +33,7 @@ const DuplicateButton = ({
                     className={cn(showText ? "" : "aspect-square", className)}
                     aria-label={showText ? undefined : "Duplizieren"}
                 >
-                    <Copy className={showText ? "h-4 w-4 mr-2" : ""} aria-hidden="true" />
+                    <Copy className={showText ? "size-4 mr-2" : ""} aria-hidden="true" />
                     {showText && "Duplizieren"}
                 </Button>
             }

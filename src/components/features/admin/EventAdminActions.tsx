@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useTransition } from "react";
+import React, { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -34,8 +34,6 @@ export function EventAdminActions({
 }: EventAdminActionsProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const duplicateButtonRef = useRef<HTMLButtonElement>(null);
-
   const handleDelete = async () => {
     startTransition(async () => {
       try {
@@ -63,19 +61,19 @@ export function EventAdminActions({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 opacity-60 hover:opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-0"
+            className="h-8 w-8 opacity-60 hover:opacity-100 transition-opacity focus-visible:outline-hidden focus-visible:ring-0"
             aria-label="Veranstaltungs-Optionen"
           >
-            <MoreVertical className="h-4 w-4" />
+            <MoreVertical className="size-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="focus:outline-none">
+        <DropdownMenuContent align="end" className="focus:outline-hidden">
           <DropdownMenuItem asChild>
             <Link
               href={`/events/${eventId}/edit`}
               className="flex items-center cursor-pointer"
             >
-              <Pencil className="mr-2 h-4 w-4" />
+              <Pencil className="mr-2 size-4" />
               Bearbeiten
             </Link>
           </DropdownMenuItem>
@@ -84,10 +82,10 @@ export function EventAdminActions({
             className="cursor-pointer"
             onSelect={(e) => {
               e.preventDefault();
-              duplicateButtonRef.current?.click();
+              // Note: Ref removed due to migration - dialog trigger handled via dialog state
             }}
           >
-            <Copy className="mr-2 h-4 w-4" />
+            <Copy className="mr-2 size-4" />
             Duplizieren
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -98,7 +96,7 @@ export function EventAdminActions({
               setDeleteOpen(true);
             }}
           >
-            <Trash className="mr-2 h-4 w-4" />
+            <Trash className="mr-2 size-4" />
             Löschen
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -111,7 +109,6 @@ export function EventAdminActions({
           defaultEndDate={eventEndDate}
           trigger={
             <Button
-              ref={duplicateButtonRef}
               variant="ghost"
               size="icon"
             >

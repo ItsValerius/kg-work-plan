@@ -51,17 +51,17 @@ export function DashboardTabs({
     <Tabs value={activeTab} defaultValue="overview" onValueChange={handleTabChange} className="w-full">
       <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:grid-cols-3">
         <TabsTrigger value="overview" className="flex items-center gap-2">
-          <BarChart3 className="h-4 w-4" />
+          <BarChart3 className="size-4" />
           <span className="hidden sm:inline">Übersicht</span>
           <span className="sm:hidden">Stats</span>
         </TabsTrigger>
         <TabsTrigger value="events" className="flex items-center gap-2">
-          <Calendar className="h-4 w-4" />
+          <Calendar className="size-4" />
           <span className="hidden sm:inline">Veranstaltungen</span>
           <span className="sm:hidden">Events</span>
         </TabsTrigger>
         <TabsTrigger value="participants" className="flex items-center gap-2">
-          <Users className="h-4 w-4" />
+          <Users className="size-4" />
           <span className="hidden sm:inline">Teilnehmer</span>
           <span className="sm:hidden">Users</span>
         </TabsTrigger>

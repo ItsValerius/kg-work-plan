@@ -47,7 +47,7 @@ export function NavItems({ items, mobile = false, onItemClick }: NavItemsProps) 
             onClick={onItemClick}
           >
             <Link href={item.href}>
-              <Icon className="h-4 w-4" aria-hidden="true" />
+              <Icon className="size-4" aria-hidden="true" />
               <span className={mobile ? "" : "hidden md:inline-block"}>
                 {item.label}
               </span>

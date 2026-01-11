@@ -94,7 +94,7 @@ export function EventStatistics({ events }: EventStatisticsProps) {
       {/* Search and Sort Controls */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
             placeholder="Veranstaltungen durchsuchen..."
             value={searchQuery}
@@ -138,26 +138,26 @@ export function EventStatistics({ events }: EventStatisticsProps) {
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   {isExpanded ? (
-                    <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                    <ChevronDown className="size-4 shrink-0" />
                   ) : (
-                    <ChevronRight className="h-4 w-4 flex-shrink-0" />
+                    <ChevronRight className="size-4 shrink-0" />
                   )}
                   <h3 className="font-semibold text-lg truncate">{event.eventName}</h3>
                   {isComplete ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-500 text-white text-xs font-medium flex-shrink-0">
-                      <CheckCircle2 className="h-3 w-3" />
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-500 text-white text-xs font-medium shrink-0">
+                      <CheckCircle2 className="size-3" />
                       Vollständig
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-destructive text-destructive-foreground text-xs font-medium flex-shrink-0">
-                      <AlertCircle className="h-3 w-3" />
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-destructive text-destructive-foreground text-xs font-medium shrink-0">
+                      <AlertCircle className="size-3" />
                       {event.requiredParticipants - event.totalParticipants} mehr
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground flex-shrink-0">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground shrink-0">
                   <span className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
+                    <Users className="size-4" />
                     {event.totalParticipants} / {event.requiredParticipants}
                   </span>
                   <span className="hidden sm:inline text-xs">
@@ -171,7 +171,7 @@ export function EventStatistics({ events }: EventStatisticsProps) {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Link href={`/events/${event.eventId}`}>
-                      <ExternalLink className="h-4 w-4" />
+                      <ExternalLink className="size-4" />
                       <span className="sr-only">Zur Veranstaltung</span>
                     </Link>
                   </Button>
@@ -195,22 +195,22 @@ export function EventStatistics({ events }: EventStatisticsProps) {
                         >
                           <div className="flex items-center gap-2 min-w-0 flex-1">
                             {isShiftExpanded ? (
-                              <ChevronDown className="h-3 w-3 flex-shrink-0" />
+                              <ChevronDown className="size-3 shrink-0" />
                             ) : (
-                              <ChevronRight className="h-3 w-3 flex-shrink-0" />
+                              <ChevronRight className="size-3 shrink-0" />
                             )}
                             <span className="font-medium truncate">{shift.shiftName}</span>
                             {shiftComplete ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-green-500 text-white text-xs font-medium flex-shrink-0">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-green-500 text-white text-xs font-medium shrink-0">
                                 Vollständig
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-destructive text-destructive-foreground text-xs font-medium flex-shrink-0">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-destructive text-destructive-foreground text-xs font-medium shrink-0">
                                 {shift.requiredParticipants - shift.totalParticipants} mehr
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center gap-3 flex-shrink-0">
+                          <div className="flex items-center gap-3 shrink-0">
                             <span className="text-sm text-muted-foreground">
                               {shift.totalParticipants} / {shift.requiredParticipants}
                             </span>
@@ -225,7 +225,7 @@ export function EventStatistics({ events }: EventStatisticsProps) {
                               onClick={(e) => e.stopPropagation()}
                             >
                               <Link href={`/events/${event.eventId}#shift-${shift.shiftId}`}>
-                                <ExternalLink className="h-3 w-3" />
+                                <ExternalLink className="size-3" />
                                 <span className="sr-only">Zur Schicht</span>
                               </Link>
                             </Button>
@@ -285,7 +285,7 @@ export function EventStatistics({ events }: EventStatisticsProps) {
                                             className="h-7 w-7 p-0"
                                           >
                                             <Link href={`/events/${event.eventId}/shifts/${shift.shiftId}/tasks/${task.taskId}`}>
-                                              <ExternalLink className="h-3 w-3" />
+                                              <ExternalLink className="size-3" />
                                               <span className="sr-only">Zur Aufgabe</span>
                                             </Link>
                                           </Button>

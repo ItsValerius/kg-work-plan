@@ -15,13 +15,13 @@ export function SkeletonCard() {
       <CardHeader className="pb-3 md:pb-4 lg:pb-5 flex flex-col justify-start min-h-[100px] md:min-h-[110px] lg:min-h-[120px] relative">
         <div className="flex items-start gap-2 md:gap-3 lg:gap-4 h-full">
           <div className="flex-1 min-w-0 flex flex-col space-y-1.5 md:space-y-2 justify-between h-full">
-            <div className="flex items-start min-h-[3rem] md:min-h-[3.5rem]">
+            <div className="flex items-start min-h-12 md:min-h-14">
               <Skeleton className="h-6 w-40" />
             </div>
-            <div className="flex items-start min-h-[2.5rem] md:min-h-[3rem]">
+            <div className="flex items-start min-h-10 md:min-h-12">
               <div className="space-y-1 md:space-y-1.5 w-full">
                 <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-4 w-48 min-h-[2.5rem]" />
+                <Skeleton className="size-48 min-h-10" />
               </div>
             </div>
           </div>
@@ -49,7 +49,7 @@ export function SkeletonCard() {
           disabled
           className="w-full justify-start text-muted-foreground h-9 md:h-10"
         >
-          <Users className="h-4 w-4 mr-2 shrink-0" />
+          <Users className="size-4 mr-2 shrink-0" />
           <Skeleton className="h-4 w-32" />
         </Button>
       </CardContent>

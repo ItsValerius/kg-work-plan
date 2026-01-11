@@ -53,13 +53,13 @@ export const EventCard = ({
                 )}
                 <div className="flex-1 min-w-0 flex flex-col space-y-2 md:space-y-2.5 lg:flex lg:flex-col lg:gap-3">
                     <div className="lg:min-h-20 lg:pb-2">
-                        <CardTitle className="break-words line-clamp-2 text-xl md:text-2xl leading-tight lg:leading-normal w-full">
+                        <CardTitle className="wrap-break-word line-clamp-2 text-xl md:text-2xl leading-tight lg:leading-normal w-full">
                             {event.name}
                         </CardTitle>
                     </div>
                     <div className="lg:min-h-12">
                         {event.description ? (
-                            <CardDescription className="break-words line-clamp-2 text-sm text-muted-foreground w-full">
+                            <CardDescription className="wrap-break-word line-clamp-2 text-sm text-muted-foreground w-full">
                                 {event.description}
                             </CardDescription>
                         ) : (
@@ -68,7 +68,7 @@ export const EventCard = ({
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="flex flex-col flex-grow pt-0">
+            <CardContent className="flex flex-col grow pt-0">
                 <div className="space-y-3 md:space-y-4">
                     <div className="space-y-1.5">
                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
@@ -80,7 +80,7 @@ export const EventCard = ({
                     </div>
 
                     <div className="space-y-2 pt-2 md:pt-3 border-t">
-                        <div className="flex items-center justify-between min-h-[1.25rem]">
+                        <div className="flex items-center justify-between min-h-5">
                             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                                 Teilnehmer
                             </span>

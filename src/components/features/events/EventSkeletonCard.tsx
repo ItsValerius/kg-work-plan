@@ -22,7 +22,7 @@ export function EventSkeletonCard() {
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="flex flex-col flex-grow pt-0">
+            <CardContent className="flex flex-col grow pt-0">
                 <div className="space-y-3 md:space-y-4">
                     <div className="space-y-1.5">
                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
@@ -32,13 +32,13 @@ export function EventSkeletonCard() {
                     </div>
 
                     <div className="space-y-2 pt-2 md:pt-3 border-t">
-                        <div className="flex items-center justify-between min-h-[1.25rem]">
+                        <div className="flex items-center justify-between min-h-5">
                             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                                 Teilnehmer
                             </span>
                         </div>
                         <Progress value={null} className="h-2.5" aria-label="Lade Teilnehmer-Informationen" />
-                        <div className="min-h-[1.25rem]">
+                        <div className="min-h-5">
                             <Skeleton className="h-4 w-36" />
                         </div>
                     </div>

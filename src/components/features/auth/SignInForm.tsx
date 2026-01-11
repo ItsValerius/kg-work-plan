@@ -140,7 +140,7 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
     <div className="grid gap-4">
       {error && !emailError && (
         <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
-          <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+          <AlertCircle className="size-4 mt-0.5 shrink-0" />
           <p>{error}</p>
         </div>
       )}

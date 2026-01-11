@@ -12,7 +12,7 @@ export default function BrandLogo() {
                 alt="KG Arbeitsplan Logo"
                 width={20}
                 height={20}
-                className="h-5 w-5 shrink-0"
+                className="size-5 shrink-0"
             />
             <span className="hidden sm:inline-block whitespace-nowrap">KG Knallköpp Golkrath Arbeitsplan</span>
         </Link>

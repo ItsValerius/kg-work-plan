@@ -84,7 +84,7 @@ function renderStatusBadge(isFull: boolean, isAlmostFull: boolean) {
 // Helper function to render task description
 function renderTaskDescription(description: string | null) {
   if (!description) {
-    return <div className="min-h-[2.5rem]"></div>;
+    return <div className="min-h-10"></div>;
   }
 
   const needsTooltip = description.length > DESCRIPTION_TOOLTIP_THRESHOLD;
@@ -94,12 +94,12 @@ function renderTaskDescription(description: string | null) {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <CardDescription className="text-xs md:text-sm text-muted-foreground line-clamp-2 cursor-help min-h-[2.5rem]">
+            <CardDescription className="text-xs md:text-sm text-muted-foreground line-clamp-2 cursor-help min-h-10">
               {description}
             </CardDescription>
           </TooltipTrigger>
           <TooltipContent className="max-w-sm">
-            <p className="whitespace-pre-wrap break-words">{description}</p>
+            <p className="whitespace-pre-wrap wrap-break-word">{description}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -107,7 +107,7 @@ function renderTaskDescription(description: string | null) {
   }
 
   return (
-    <CardDescription className="text-xs md:text-sm text-muted-foreground break-words line-clamp-2 min-h-[2.5rem]">
+    <CardDescription className="text-xs md:text-sm text-muted-foreground wrap-break-word line-clamp-2 min-h-10">
       {description}
     </CardDescription>
   );
@@ -149,12 +149,12 @@ export async function TaskCard({
         )}
         <div className="flex items-start gap-2 md:gap-3 lg:gap-4 h-full">
           <div className="flex-1 min-w-0 flex flex-col space-y-1.5 md:space-y-2 justify-between h-full">
-            <div className="flex items-start min-h-[3rem] md:min-h-[3.5rem]">
-              <CardTitle className="font-semibold break-words text-base md:text-lg leading-tight line-clamp-2 w-full">
+            <div className="flex items-start min-h-12 md:min-h-14">
+              <CardTitle className="font-semibold wrap-break-word text-base md:text-lg leading-tight line-clamp-2 w-full">
                 {task.name}
               </CardTitle>
             </div>
-            <div className="flex items-start min-h-[2.5rem] md:min-h-[3rem]">
+            <div className="flex items-start min-h-10 md:min-h-12">
               <div className="space-y-1 md:space-y-1.5 w-full">
                 <small className="block text-xs md:text-sm text-muted-foreground font-medium">
                   ab {formatTime(new Date(task.startTime))}
@@ -195,7 +195,7 @@ export async function TaskCard({
               size="sm"
               className="w-full justify-start text-muted-foreground hover:text-foreground hover:bg-accent/50 h-9 md:h-10"
             >
-              <Users className="h-4 w-4 mr-2 shrink-0" />
+              <Users className="size-4 mr-2 shrink-0" />
               <span className="text-xs md:text-sm truncate">
                 Bereits eingetragen ({participantsAmount})
               </span>

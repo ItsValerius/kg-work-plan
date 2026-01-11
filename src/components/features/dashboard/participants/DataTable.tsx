@@ -310,7 +310,7 @@ export function DataTable<TData extends Identifiable, TValue>({
             className="ml-auto"
             disabled={table.getFilteredRowModel().rows.length === 0}
           >
-            <Download className="mr-2 h-4 w-4" />
+            <Download className="mr-2 size-4" />
             CSV exportieren
           </Button>
           <Button
@@ -412,8 +412,8 @@ export function DataTable<TData extends Identifiable, TValue>({
               disabled={!table.getCanPreviousPage()}
             >
               <span className="sr-only">Zur ersten Seite</span>
-              <ChevronLeft className="h-4 w-4" />
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="size-4" />
+              <ChevronLeft className="size-4" />
             </Button>
             <Button
               variant="outline"
@@ -422,7 +422,7 @@ export function DataTable<TData extends Identifiable, TValue>({
               disabled={!table.getCanPreviousPage()}
             >
               <span className="sr-only">Zur vorherigen Seite</span>
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="size-4" />
             </Button>
             <Button
               variant="outline"
@@ -431,7 +431,7 @@ export function DataTable<TData extends Identifiable, TValue>({
               disabled={!table.getCanNextPage()}
             >
               <span className="sr-only">Zur nächsten Seite</span>
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="size-4" />
             </Button>
             <Button
               variant="outline"
@@ -440,8 +440,8 @@ export function DataTable<TData extends Identifiable, TValue>({
               disabled={!table.getCanNextPage()}
             >
               <span className="sr-only">Zur letzten Seite</span>
-              <ChevronRight className="h-4 w-4" />
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="size-4" />
+              <ChevronRight className="size-4" />
             </Button>
           </div>
         </div>

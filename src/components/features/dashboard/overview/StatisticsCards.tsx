@@ -130,7 +130,7 @@ export function StatisticsCards({
           <CardTitle className="text-sm font-medium">
             {stat.title}
           </CardTitle>
-          <Icon className={`h-4 w-4 ${isAlertCard ? "text-destructive" : "text-muted-foreground"}`} />
+          <Icon className={`size-4 ${isAlertCard ? "text-destructive" : "text-muted-foreground"}`} />
         </CardHeader>
         <CardContent>
           <div className={`text-2xl font-bold ${isAlertCard ? "text-destructive" : ""}`}>
