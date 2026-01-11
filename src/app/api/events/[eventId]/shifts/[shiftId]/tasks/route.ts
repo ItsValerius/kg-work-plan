@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const task = taskSchema.safeParse(body);
     
     if (!task.success) {
-      logger.warn("Invalid task data", { errors: task.error.errors });
+      logger.warn("Invalid task data", { issues: task.error.issues });
       return ApiErrorResponse.validationError(task.error.message);
     }
 

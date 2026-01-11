@@ -23,14 +23,12 @@ import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-import { createInsertSchema } from "drizzle-zod";
+import { eventSchema } from "@/domains/events/types";
 import { AlertCircle, CalendarIcon, Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
-const formSchema = createInsertSchema(events);
 
 export function EventForm({
   userId,
@@ -42,8 +40,8 @@ export function EventForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof eventSchema>>({
+    resolver: zodResolver(eventSchema),
     defaultValues: {
       id: event?.id,
       name: event?.name || "",
@@ -55,7 +53,7 @@ export function EventForm({
   });
 
   // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof eventSchema>) {
     setLoading(true);
     // Do something with the form values.
     // ✅ This will be type-safe and validated.

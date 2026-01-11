@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const shift = shiftSchema.safeParse(body);
 
     if (!shift.success) {
-      logger.warn("Invalid shift data", { errors: shift.error.errors });
+      logger.warn("Invalid shift data", { issues: shift.error.issues });
       return ApiErrorResponse.validationError(shift.error.message);
     }
 

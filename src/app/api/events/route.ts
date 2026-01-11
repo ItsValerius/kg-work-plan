@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const event = eventSchema.safeParse(body);
 
     if (!event.success) {
-      logger.warn("Invalid event data", { errors: event.error.errors });
+      logger.warn("Invalid event data", { issues: event.error.issues });
       return ApiErrorResponse.validationError(event.error.message);
     }
 

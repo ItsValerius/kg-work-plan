@@ -12,9 +12,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { taskParticipants } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createInsertSchema } from "drizzle-zod";
+import { participantSchema } from "@/domains/participants/types";
 import { AlertCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -22,10 +21,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const formSchema = createInsertSchema(taskParticipants).extend({
-  groupName: z.string().optional(),
-  groupSize: z.number().optional(),
-});
 export function UserForm({
   userId,
   taskId,
@@ -40,8 +35,8 @@ export function UserForm({
   taskName: string;
 }) {
   // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof participantSchema>>({
+    resolver: zodResolver(participantSchema),
     defaultValues: {
       groupName: "",
       groupSize: 1,
@@ -51,7 +46,7 @@ export function UserForm({
   });
 
   // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof participantSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     const res = await fetch(

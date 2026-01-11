@@ -15,14 +15,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { shifts } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createInsertSchema } from "drizzle-zod";
+import { shiftSchema } from "@/domains/shifts/types";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
-const formSchema = createInsertSchema(shifts);
 
 export function ShiftForm({
   userId,
@@ -36,8 +34,8 @@ export function ShiftForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof shiftSchema>>({
+    resolver: zodResolver(shiftSchema),
     defaultValues: {
       id: shift?.id,
       name: shift?.name || "",
@@ -49,7 +47,7 @@ export function ShiftForm({
   });
 
   // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof shiftSchema>) {
     setLoading(true);
     // Do something with the form values.
     // ✅ This will be type-safe and validated.

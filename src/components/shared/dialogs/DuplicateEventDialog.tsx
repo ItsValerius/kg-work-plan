@@ -41,10 +41,14 @@ import { toast } from "sonner";
 const duplicateSchema = z.object({
     name: z.string().min(1, "Name ist erforderlich"),
     startDate: z.date({
-        required_error: "Startdatum ist erforderlich",
+        error: (issue) => issue.input === undefined
+            ? "Startdatum ist erforderlich"
+            : "Ungültiges Startdatum",
     }),
     endDate: z.date({
-        required_error: "Enddatum ist erforderlich",
+        error: (issue) => issue.input === undefined
+            ? "Enddatum ist erforderlich"
+            : "Ungültiges Enddatum",
     }),
 }).refine((data) => data.endDate >= data.startDate, {
     message: "Enddatum muss nach dem Startdatum liegen",

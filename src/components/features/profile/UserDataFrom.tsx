@@ -12,22 +12,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { users } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createInsertSchema } from "drizzle-zod";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { User } from "@/domains/users/types";
+import { User, userUpdateSchema } from "@/domains/users/types";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const formSchema = createInsertSchema(users).extend({
-  name: z.string().optional(),
-});
 export function UserDataForm({ user }: { user: User }) {
   // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof userUpdateSchema>>({
+    resolver: zodResolver(userUpdateSchema),
     defaultValues: {
       id: user?.id,
       name: user.name || "",
@@ -37,7 +32,7 @@ export function UserDataForm({ user }: { user: User }) {
   const router = useRouter();
 
   // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof userUpdateSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     const res = await fetch(`/api/users`, {
