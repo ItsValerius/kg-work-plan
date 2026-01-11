@@ -18,6 +18,7 @@ import { User, userUpdateSchema } from "@/domains/users/types";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { toast } from "sonner";
 
 export function UserDataForm({ user }: { user: User }) {
   // 1. Define your form.
@@ -49,8 +50,14 @@ export function UserDataForm({ user }: { user: User }) {
       } else {
         form.setError("root", { type: "500" });
       }
+      toast.error("Fehler beim Aktualisieren des Namens", {
+        description: json.error || "Bitte versuche es erneut.",
+      });
       return;
     }
+    toast.success("Name erfolgreich aktualisiert", {
+      description: `Dein Name wurde auf "${values.name}" geändert.`,
+    });
     router.refresh();
   }
   return (
