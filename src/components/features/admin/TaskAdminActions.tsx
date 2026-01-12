@@ -19,18 +19,26 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreVertical, Pencil, Trash } from "lucide-react";
+import { MoreVertical, Pencil, Trash, Info } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { TaskAdminActionsProps } from "./types";
+import { TaskDetailsDialog } from "@/components/features/tasks/TaskDetailsDialog";
 
 export function TaskAdminActions({
   eventId,
   shiftId,
   taskId,
   deleteAction,
+  task,
+  participants,
+  isLoggedIn,
+  isFull,
+  progressPercentage,
+  progressBarColor,
 }: TaskAdminActionsProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = async () => {
@@ -67,6 +75,17 @@ export function TaskAdminActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="focus:outline-hidden">
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onSelect={(e) => {
+              e.preventDefault();
+              setDetailsOpen(true);
+            }}
+          >
+            <Info className="mr-2 size-4" />
+            Details
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link
               href={`/events/${eventId}/shifts/${shiftId}/tasks/${taskId}/edit`}
@@ -109,6 +128,16 @@ export function TaskAdminActions({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <TaskDetailsDialog
+        task={task}
+        participants={participants}
+        isLoggedIn={isLoggedIn}
+        isFull={isFull}
+        progressPercentage={progressPercentage}
+        progressBarColor={progressBarColor}
+        open={detailsOpen}
+        onOpenChange={setDetailsOpen}
+      />
     </div>
   );
 }

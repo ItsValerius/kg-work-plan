@@ -1,6 +1,11 @@
 import { getAuthenticatedUser } from "@/lib/auth/utils";
 import { UserDataForm } from "@/components/features/profile/UserDataFrom";
 import { PageContainer } from "@/components/layout/PageContainer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Mein Profil",
+};
 
 const ProfilePage = async () => {
   const user = await getAuthenticatedUser();

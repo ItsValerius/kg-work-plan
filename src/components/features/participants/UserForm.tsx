@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,76 +14,140 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { participantSchema } from "@/domains/participants/types";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { participantSchema, updateGroupSchema } from "@/domains/participants/types";
+import { AlertCircle, CheckCircle2, Loader2, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { createParticipant, updateGroup, removeParticipant } from "@/server/actions/participants";
+import { useTransition } from "react";
+import { taskParticipants } from "@/db/schema";
+
+type Participant = typeof taskParticipants.$inferSelect;
 
 export function UserForm({
   userId,
   taskId,
-  shiftId,
-  eventId,
   taskName,
+  existingParticipant,
 }: {
   userId: string;
   taskId: string;
-  shiftId: string;
-  eventId: string;
   taskName: string;
+  existingParticipant?: Participant | null;
 }) {
-  // 1. Define your form.
-  const form = useForm<z.infer<typeof participantSchema>>({
-    resolver: zodResolver(participantSchema),
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const isUpdateMode = !!existingParticipant;
+
+  const updateFormSchema = updateGroupSchema.omit({ participantId: true });
+  const form = useForm<z.infer<typeof participantSchema> | z.infer<typeof updateFormSchema>>({
+    resolver: zodResolver(isUpdateMode ? updateFormSchema : participantSchema),
     defaultValues: {
-      groupName: "",
-      groupSize: 1,
+      groupName: existingParticipant?.groupName || "",
+      groupSize: existingParticipant?.groupSize || 1,
       createdById: userId,
       taskId: taskId,
     },
   });
 
-  // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof participantSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    const res = await fetch(
-      `/api/events/${eventId}/shifts/${shiftId}/tasks/${taskId}/users`,
-      {
-        method: "POST",
-        body: JSON.stringify(values),
-        headers: {
-          "Content-Type": "application/json",
-        },
+  // Handle update
+  async function onUpdate(values: z.infer<typeof updateFormSchema>) {
+    if (!existingParticipant) return;
+
+    startTransition(async () => {
+      try {
+        await updateGroup({
+          participantId: existingParticipant.id,
+          ...values,
+        });
+        toast.success("Teilnahme erfolgreich aktualisiert");
+        router.refresh();
+      } catch (error) {
+        if (error instanceof Error) {
+          form.setError("root", { type: "error", message: error.message });
+          toast.error(error.message);
+        } else {
+          form.setError("root", { type: "500" });
+          toast.error("Fehler beim Aktualisieren");
+        }
       }
-    );
-    const json = await res.json();
-    if (json.error) {
-      if (res.status === 422) {
-        form.setError("root", { type: "422", message: json.error });
-      } else {
-        form.setError("root", { type: "500" });
+    });
+  }
+
+  // Handle create
+  async function onCreate(values: z.infer<typeof participantSchema>) {
+    startTransition(async () => {
+      try {
+        await createParticipant(values);
+        toast.success(
+          <div className="flex gap-2">
+            Du hast dich erfolgreich für {taskName} angemeldet.
+            <Button asChild>
+              <Link href="/meine-aufgaben">Aufgabenübersicht</Link>
+            </Button>
+          </div>,
+          {
+            richColors: true,
+          }
+        );
+        router.refresh();
+      } catch (error) {
+        if (error instanceof Error) {
+          form.setError("root", { type: "error", message: error.message });
+          toast.error(error.message);
+        } else {
+          form.setError("root", { type: "500" });
+          toast.error("Fehler beim Anmelden");
+        }
       }
-      return;
+    });
+  }
+
+  // Handle remove
+  async function onRemove() {
+    if (!existingParticipant) return;
+
+    startTransition(async () => {
+      try {
+        await removeParticipant(existingParticipant.id);
+        toast.success("Du wurdest erfolgreich von der Aufgabe entfernt");
+        router.refresh();
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Fehler beim Entfernen");
+        }
+      }
+    });
+  }
+
+  async function onSubmit(values: z.infer<typeof participantSchema> | z.infer<typeof updateFormSchema>) {
+    if (isUpdateMode) {
+      await onUpdate(values as z.infer<typeof updateFormSchema>);
+    } else {
+      await onCreate(values as z.infer<typeof participantSchema>);
     }
-    toast.success(
-      <div className="flex gap-2">
-        Du hast dich erfolgreich für {taskName} angemeldet.
-        <Button asChild>
-          <Link href="/meine-aufgaben">Aufgabenübersicht</Link>
-        </Button>
-      </div>,
-      {
-        richColors: true,
-      }
-    );
-    redirect(`/events/${eventId}`);
   }
   return (
     <Form {...form}>
+      {isUpdateMode && (
+        <Alert className="mb-6">
+          <CheckCircle2 className="size-4" />
+          <AlertTitle>Bereits angemeldet</AlertTitle>
+          <AlertDescription>
+            Du bist bereits für diese Aufgabe angemeldet. Du kannst deine Teilnahme aktualisieren oder entfernen.
+            {existingParticipant.groupSize > 1 && (
+              <span className="block mt-1">
+                Aktuelle Gruppengröße: {existingParticipant.groupSize} {existingParticipant.groupSize === 1 ? "Person" : "Personen"}
+              </span>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
       {form.formState.errors.root && (
         <Alert variant="destructive">
           <AlertCircle className="size-4" />
@@ -100,7 +165,7 @@ export function UserForm({
             <FormItem>
               <FormLabel>Gruppen Name</FormLabel>
               <FormControl>
-                <Input placeholder="Max Mustermann & Freunde..." {...field} />
+                <Input placeholder="Max Mustermann & Freunde..." {...field} value={field.value || ""} />
               </FormControl>
               <FormDescription>Der Name der Gruppe.</FormDescription>
               <FormMessage />
@@ -130,10 +195,24 @@ export function UserForm({
           )}
         />
 
-        <Button type="submit">
-          {form.formState.isSubmitting && <Loader2 className="animate-spin" />}
-          Anmelden
-        </Button>
+        <div className="flex gap-3">
+          <Button type="submit" disabled={isPending || form.formState.isSubmitting}>
+            {(isPending || form.formState.isSubmitting) && <Loader2 className="mr-2 size-4 animate-spin" />}
+            {isUpdateMode ? "Aktualisieren" : "Anmelden"}
+          </Button>
+          {isUpdateMode && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={onRemove}
+              disabled={isPending || form.formState.isSubmitting}
+            >
+              {(isPending || form.formState.isSubmitting) && <Loader2 className="mr-2 size-4 animate-spin" />}
+              <Trash2 className="mr-2 size-4" />
+              Teilnahme entfernen
+            </Button>
+          )}
+        </div>
       </form>
     </Form>
   );

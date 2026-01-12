@@ -8,6 +8,11 @@ import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import { PageContainer } from "@/components/layout/PageContainer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Neue Aufgabe Erstellen",
+};
 
 const NewShiftPage = async (props: {
   params: Promise<{ eventId: string; shiftId: string }>;

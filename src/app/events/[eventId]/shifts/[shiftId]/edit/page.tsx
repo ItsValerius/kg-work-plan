@@ -8,6 +8,11 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { PageContainer } from "@/components/layout/PageContainer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Schicht bearbeiten",
+};
 
 const EditShiftPapge = async (props: {
   params: Promise<{ eventId: string; shiftId: string }>;

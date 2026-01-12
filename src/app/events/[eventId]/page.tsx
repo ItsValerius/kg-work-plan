@@ -19,9 +19,27 @@ import { deleteShift } from "@/server/actions/events";
 import DuplicateButton from "@/components/shared/buttons/DuplicateButton";
 import { getEventWithShifts } from "@/domains/events/queries";
 import { PageContainer } from "@/components/layout/PageContainer";
+import type { Metadata } from "next";
 
 interface EventPageProps {
   params: Promise<{ eventId: string }>;
+}
+
+export async function generateMetadata(
+  props: EventPageProps
+): Promise<Metadata> {
+  const params = await props.params;
+  const event = await getEventWithShifts(params.eventId);
+
+  if (!event) {
+    return {
+      title: "Veranstaltung nicht gefunden",
+    };
+  }
+
+  return {
+    title: event.name,
+  };
 }
 
 export default async function EventPage(props: EventPageProps) {

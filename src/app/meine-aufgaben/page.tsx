@@ -13,6 +13,11 @@ import { getAuthenticatedUser } from "@/lib/auth/utils";
 import Link from "next/link";
 import { getUserTasks } from "@/domains/tasks/queries";
 import { PageContainer } from "@/components/layout/PageContainer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Meine Aufgaben",
+};
 
 const MeineAufgabenPage = async () => {
   const user = await getAuthenticatedUser();

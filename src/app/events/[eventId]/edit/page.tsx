@@ -7,10 +7,30 @@ import { ArrowLeft } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { getEventByIdWithShiftsAndTasks } from "@/domains/events/queries";
 import { PageContainer } from "@/components/layout/PageContainer";
+import type { Metadata } from "next";
 
-const EditEventPage = async (props: {
+interface EditEventPageProps {
   params: Promise<{ eventId: string }>;
-}) => {
+}
+
+export async function generateMetadata(
+  props: EditEventPageProps
+): Promise<Metadata> {
+  const params = await props.params;
+  const event = await getEventByIdWithShiftsAndTasks(params.eventId);
+
+  if (!event) {
+    return {
+      title: "Veranstaltung bearbeiten",
+    };
+  }
+
+  return {
+    title: `${event.name} bearbeiten`,
+  };
+}
+
+const EditEventPage = async (props: EditEventPageProps) => {
   const params = await props.params;
 
   const [user, event, userIsAdmin] = await Promise.all([

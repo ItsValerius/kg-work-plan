@@ -9,6 +9,11 @@ import {
 import { Mail, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { PageContainer } from "@/components/layout/PageContainer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Bestätigungsmail gesendet",
+};
 
 interface VerifyRequestPageProps {
   searchParams: Promise<{ email?: string }>;

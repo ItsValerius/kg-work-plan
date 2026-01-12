@@ -1,8 +1,15 @@
+import { tasks } from "@/db/schema/index";
+import { taskParticipants } from "@/db/schema";
+
 /**
  * Base type for delete action callback
  * Server actions are async and return Promise<void>
  */
 export type DeleteAction = (id: string) => Promise<void>;
+
+export type Participant = typeof taskParticipants.$inferSelect & {
+  user: { name: string | null; email: string | null } | null;
+};
 
 /**
  * Props for EventAdminActions component
@@ -32,5 +39,11 @@ export interface TaskAdminActionsProps {
   shiftId: string;
   taskId: string;
   deleteAction: DeleteAction;
+  task: typeof tasks.$inferSelect;
+  participants: Participant[];
+  isLoggedIn: boolean;
+  isFull: boolean;
+  progressPercentage: number;
+  progressBarColor: string;
 }
 

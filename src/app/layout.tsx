@@ -15,7 +15,10 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "KG Knallköpp Golkrath Arbeitsplan",
+  title: {
+    template: "%s | KG Knallköpp Golkrath Arbeitsplan",
+    default: "KG Knallköpp Golkrath Arbeitsplan",
+  },
   description: "Arbeitsplan für Veranstaltungen der KG Knallköpp Golkrath e.V.",
 };
 

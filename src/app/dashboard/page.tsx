@@ -5,6 +5,11 @@ import { OverviewTab } from "@/components/features/dashboard/overview/OverviewTa
 import { EventsTab } from "@/components/features/dashboard/events/EventsTab";
 import { ParticipantsTab } from "@/components/features/dashboard/participants/ParticipantsTab";
 import { PageContainer } from "@/components/layout/PageContainer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Admin Dashboard",
+};
 
 // Force dynamic rendering to ensure fresh data on each tab switch
 export const dynamic = "force-dynamic";

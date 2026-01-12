@@ -2,6 +2,11 @@ import { isAdmin } from "@/lib/auth/utils";
 import { EventsSection } from "@/components/features/events/EventsSection";
 import { getFutureEvents, getPastEvents } from "@/domains/events/queries";
 import { PageContainer } from "@/components/layout/PageContainer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Veranstaltungen",
+};
 
 const EventsPage = async () => {
   const futureEvents = await getFutureEvents();

@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
 import type { User } from "@/domains/users/types";
-import { USER_ROLES, isAdminRole } from "./roles";
+import { isAdminRole } from "./roles";
 
 /**
  * Get the current user session

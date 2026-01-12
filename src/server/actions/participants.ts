@@ -16,6 +16,7 @@ export async function updateGroup(data: UpdateGroupData) {
   const userId = await getAuthenticatedUserId();
   const result = await domainActions.updateGroup(data, userId);
   revalidatePath("/meine-aufgaben");
+  revalidatePath("/events");
   return result;
 }
 
@@ -31,4 +32,5 @@ export async function removeParticipant(participantId: string) {
   await domainActions.removeParticipant(participantId, userId);
   revalidatePath("/profile");
   revalidatePath("/meine-aufgaben");
+  revalidatePath("/events");
 }

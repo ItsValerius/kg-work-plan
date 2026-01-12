@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/auth/utils";
 import { getEventById } from "@/domains/events/queries";
 import { getTaskByIdWithShift } from "@/domains/tasks/queries";
+import { getParticipantByUserAndTask } from "@/domains/participants/queries";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,10 +15,30 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { UserForm } from "@/components/features/participants/UserForm";
 import { PageContainer } from "@/components/layout/PageContainer";
+import type { Metadata } from "next";
 
-const TaskDetailsPage = async (props: {
+interface TaskDetailsPageProps {
   params: Promise<{ eventId: string; shiftId: string; taskId: string }>;
-}) => {
+}
+
+export async function generateMetadata(
+  props: TaskDetailsPageProps
+): Promise<Metadata> {
+  const params = await props.params;
+  const task = await getTaskByIdWithShift(params.taskId);
+
+  if (!task) {
+    return {
+      title: "Aufgabe",
+    };
+  }
+
+  return {
+    title: `Aufgaben Anmeldung - ${task.name}`,
+  };
+}
+
+const TaskDetailsPage = async (props: TaskDetailsPageProps) => {
   const params = await props.params;
   const session = await getSession();
 
@@ -26,9 +47,10 @@ const TaskDetailsPage = async (props: {
     return redirect(`/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
   }
 
-  const [event, task] = await Promise.all([
+  const [event, task, existingParticipant] = await Promise.all([
     getEventById(params.eventId),
     getTaskByIdWithShift(params.taskId),
+    getParticipantByUserAndTask(session.user.id, params.taskId),
   ]);
 
   if (!event || !task) return notFound();
@@ -50,11 +72,10 @@ const TaskDetailsPage = async (props: {
           </CardHeader>
           <CardContent>
             <UserForm
-              shiftId={params.shiftId}
               taskId={params.taskId}
               userId={session.user.id}
-              eventId={params.eventId}
               taskName={task.name}
+              existingParticipant={existingParticipant}
             />
           </CardContent>
         </Card>

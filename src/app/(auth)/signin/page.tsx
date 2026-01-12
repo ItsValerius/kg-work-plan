@@ -14,6 +14,11 @@ import {
 import { Info } from "lucide-react";
 import { SignInForm } from "@/components/features/auth/SignInForm";
 import { PageContainer } from "@/components/layout/PageContainer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Anmeldung",
+};
 
 export default async function SignInPage(props: {
   searchParams: Promise<{ callbackUrl?: string; email?: string }>;
