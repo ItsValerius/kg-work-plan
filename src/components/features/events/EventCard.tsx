@@ -40,7 +40,7 @@ export const EventCard = ({
     const participantsText = `${currentParticipantsCount} von ${requiredParticipantsCount} Personen`;
 
     return (
-        <Card className="min-h-[280px] md:min-h-[340px] flex flex-col h-full transition-all duration-200 hover:shadow-lg hover:border-primary/20 group">
+        <Card className="min-h-72 md:min-h-80 flex flex-col h-full transition-all duration-200 hover:shadow-lg hover:border-primary/20 group">
             <CardHeader className="pb-3 lg:pb-5 flex flex-col justify-start relative">
                 {userIsAdmin && (
                     <EventAdminActions

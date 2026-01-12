@@ -11,7 +11,7 @@ import { ArrowRight } from "lucide-react";
 
 export function EventSkeletonCard() {
     return (
-        <Card className="min-h-[280px] md:min-h-[340px] flex flex-col h-full">
+        <Card className="min-h-72 md:min-h-80 flex flex-col h-full">
             <CardHeader className="pb-3 md:pb-5 lg:pb-5 flex flex-col justify-start">
                 <div className="flex-1 min-w-0 flex flex-col space-y-2 md:space-y-2.5 lg:flex lg:flex-col lg:gap-3">
                     <div className="lg:min-h-20 lg:pb-2">
@@ -28,7 +28,7 @@ export function EventSkeletonCard() {
                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
                             Datum
                         </span>
-                        <Skeleton className="h-[23px] w-48" />
+                        <Skeleton className="h-6 w-48" />
                     </div>
 
                     <div className="space-y-2 pt-2 md:pt-3 border-t">

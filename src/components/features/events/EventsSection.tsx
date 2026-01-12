@@ -32,8 +32,8 @@ export const EventsSection = ({
             <div
                 className={
                     isFutureEvents
-                        ? "md:flex-row flex-col flex justify-between md:items-center mb-6 md:mb-8 min-h-[80px] md:min-h-[60px]"
-                        : "mb-6 md:mb-8 min-h-[60px]"
+                        ? "md:flex-row flex-col flex justify-between md:items-center mb-6 md:mb-8 min-h-20 md:min-h-16"
+                        : "mb-6 md:mb-8 min-h-16"
                 }
             >
                 <div className="flex-1 min-w-0">

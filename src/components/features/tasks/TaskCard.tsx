@@ -64,9 +64,9 @@ export async function TaskCard({
 
   return (
     <Card
-      className={`flex flex-col transition-all duration-200 hover:shadow-lg h-full min-h-[240px] md:min-h-[280px] group ${cardHoverStyles}`}
+      className={`flex flex-col transition-all duration-200 hover:shadow-lg h-full min-h-60 md:min-h-72 group ${cardHoverStyles}`}
     >
-      <CardHeader className="pb-3 md:pb-4 lg:pb-5 flex flex-col justify-start min-h-[100px] md:min-h-[110px] lg:min-h-[120px] relative">
+      <CardHeader className="pb-3 md:pb-4 lg:pb-5 flex flex-col justify-start min-h-24 md:min-h-28 lg:min-h-32 relative">
         {isAdmin ? (
           <TaskAdminActions
             eventId={eventId}

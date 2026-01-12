@@ -15,7 +15,7 @@ export const EventsList = async ({ events, userIsAdmin }: EventsListProps) => {
     const participantCounts = await getMissingUsersPerEvents(events.map((event) => event.id));
 
     return (
-        <div className="lg:grid lg:grid-cols-3 gap-4 md:gap-6 flex flex-col lg:items-stretch min-h-[280px]">
+        <div className="lg:grid lg:grid-cols-3 gap-4 md:gap-6 flex flex-col lg:items-stretch min-h-72">
             {events.map((event) => {
                 const counts = participantCounts[event.id] ?? {
                     currentParticipantsCount: 0,
