@@ -135,20 +135,6 @@ export function UserForm({
   }
   return (
     <Form {...form}>
-      {isUpdateMode && (
-        <Alert className="mb-6">
-          <CheckCircle2 className="size-4" />
-          <AlertTitle>Bereits angemeldet</AlertTitle>
-          <AlertDescription>
-            Du bist bereits für diese Aufgabe angemeldet. Du kannst deine Teilnahme aktualisieren oder entfernen.
-            {existingParticipant.groupSize > 1 && (
-              <span className="block mt-1">
-                Aktuelle Gruppengröße: {existingParticipant.groupSize} {existingParticipant.groupSize === 1 ? "Person" : "Personen"}
-              </span>
-            )}
-          </AlertDescription>
-        </Alert>
-      )}
       {form.formState.errors.root && (
         <Alert variant="destructive">
           <AlertCircle className="size-4" />
