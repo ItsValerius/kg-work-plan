@@ -7,7 +7,7 @@ export type ParticipantInsert = typeof taskParticipants.$inferInsert;
 
 export const participantSchema = createInsertSchema(taskParticipants).extend({
   groupName: z.string().optional(),
-  groupSize: z.number().optional(),
+  groupSize: z.number().int().min(1).optional(),
 });
 
 export type ParticipantInput = z.infer<typeof participantSchema>;

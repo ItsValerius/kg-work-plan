@@ -38,7 +38,8 @@ export function UserForm({
   taskName: string;
   existingParticipant?: Participant | null;
 }) {
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, startSubmitTransition] = useTransition();
+  const [isRemoving, startRemoveTransition] = useTransition();
   const router = useRouter();
   const isUpdateMode = !!existingParticipant;
 
@@ -57,7 +58,7 @@ export function UserForm({
   async function onUpdate(values: z.infer<typeof updateFormSchema>) {
     if (!existingParticipant) return;
 
-    startTransition(async () => {
+    startSubmitTransition(async () => {
       try {
         await updateGroup({
           participantId: existingParticipant.id,
@@ -79,7 +80,7 @@ export function UserForm({
 
   // Handle create
   async function onCreate(values: z.infer<typeof participantSchema>) {
-    startTransition(async () => {
+    startSubmitTransition(async () => {
       try {
         await createParticipant(values);
         toast.success(
@@ -110,7 +111,7 @@ export function UserForm({
   async function onRemove() {
     if (!existingParticipant) return;
 
-    startTransition(async () => {
+    startRemoveTransition(async () => {
       try {
         await removeParticipant(existingParticipant.id);
         toast.success("Du wurdest erfolgreich von der Aufgabe entfernt");
@@ -184,7 +185,21 @@ export function UserForm({
                   placeholder="1"
                   {...field}
                   type="number"
-                  onChange={(event) => field.onChange(+event.target.value)}
+                  min="1"
+                  value={field.value || ""}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    // Allow empty string for clearing, otherwise parse as number
+                    if (value === "") {
+                      field.onChange(1);
+                    } else {
+                      const numValue = +value;
+                      // Only update if it's a valid positive number
+                      if (!isNaN(numValue) && numValue >= 1) {
+                        field.onChange(numValue);
+                      }
+                    }
+                  }}
                 />
               </FormControl>
               <FormDescription>
@@ -195,9 +210,13 @@ export function UserForm({
           )}
         />
 
-        <div className="flex gap-3">
-          <Button type="submit" disabled={isPending || form.formState.isSubmitting}>
-            {(isPending || form.formState.isSubmitting) && <Loader2 className="mr-2 size-4 animate-spin" />}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button
+            type="submit"
+            disabled={isSubmitting || isRemoving || form.formState.isSubmitting}
+            className="w-full sm:w-auto"
+          >
+            {(isSubmitting || form.formState.isSubmitting) && <Loader2 className="mr-2 size-4 animate-spin" />}
             {isUpdateMode ? "Aktualisieren" : "Anmelden"}
           </Button>
           {isUpdateMode && (
@@ -205,10 +224,11 @@ export function UserForm({
               type="button"
               variant="destructive"
               onClick={onRemove}
-              disabled={isPending || form.formState.isSubmitting}
+              disabled={isSubmitting || isRemoving || form.formState.isSubmitting}
+              className="w-full sm:w-auto"
             >
-              {(isPending || form.formState.isSubmitting) && <Loader2 className="mr-2 size-4 animate-spin" />}
-              <Trash2 className="mr-2 size-4" />
+              {isRemoving && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {!isRemoving && <Trash2 className="mr-2 size-4" />}
               Teilnahme entfernen
             </Button>
           )}
