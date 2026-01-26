@@ -49,33 +49,33 @@ export function DashboardTabs({
 
   return (
     <Tabs value={activeTab} defaultValue="overview" onValueChange={handleTabChange} className="w-full">
-      <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:grid-cols-3">
-        <TabsTrigger value="overview" className="flex items-center gap-2">
-          <BarChart3 className="size-4" />
+      <TabsList className="grid w-full grid-cols-3 h-auto p-1">
+        <TabsTrigger value="overview" className="flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-3 text-xs sm:text-sm">
+          <BarChart3 className="size-3.5 sm:size-4 shrink-0" />
           <span className="hidden sm:inline">Übersicht</span>
-          <span className="sm:hidden">Stats</span>
+          <span className="sm:hidden truncate">Stats</span>
         </TabsTrigger>
-        <TabsTrigger value="events" className="flex items-center gap-2">
-          <Calendar className="size-4" />
+        <TabsTrigger value="events" className="flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-3 text-xs sm:text-sm">
+          <Calendar className="size-3.5 sm:size-4 shrink-0" />
           <span className="hidden sm:inline">Veranstaltungen</span>
-          <span className="sm:hidden">Events</span>
+          <span className="sm:hidden truncate">Events</span>
         </TabsTrigger>
-        <TabsTrigger value="participants" className="flex items-center gap-2">
-          <Users className="size-4" />
+        <TabsTrigger value="participants" className="flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-3 text-xs sm:text-sm">
+          <Users className="size-3.5 sm:size-4 shrink-0" />
           <span className="hidden sm:inline">Teilnehmer</span>
-          <span className="sm:hidden">Users</span>
+          <span className="sm:hidden truncate">Users</span>
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="overview" className="mt-6 space-y-6">
+      <TabsContent value="overview" className="mt-4 sm:mt-6 space-y-4 sm:space-y-6">
         {overviewContent}
       </TabsContent>
 
-      <TabsContent value="events" className="mt-6">
+      <TabsContent value="events" className="mt-4 sm:mt-6">
         {eventsContent}
       </TabsContent>
 
-      <TabsContent value="participants" className="mt-6">
+      <TabsContent value="participants" className="mt-4 sm:mt-6">
         {participantsContent}
       </TabsContent>
     </Tabs>

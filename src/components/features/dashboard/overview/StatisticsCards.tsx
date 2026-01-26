@@ -126,14 +126,14 @@ export function StatisticsCards({
       <Card
         className={`${isAlertCard ? "border-destructive border-2" : ""} ${"showProgress" in stat ? "bg-muted/30" : ""}`}
       >
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4 sm:px-6 sm:pt-6">
+          <CardTitle className="text-xs sm:text-sm font-medium leading-tight">
             {stat.title}
           </CardTitle>
-          <Icon className={`size-4 ${isAlertCard ? "text-destructive" : "text-muted-foreground"}`} />
+          <Icon className={`size-4 shrink-0 ${isAlertCard ? "text-destructive" : "text-muted-foreground"}`} />
         </CardHeader>
-        <CardContent>
-          <div className={`text-2xl font-bold ${isAlertCard ? "text-destructive" : ""}`}>
+        <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
+          <div className={`text-xl sm:text-2xl font-bold ${isAlertCard ? "text-destructive" : ""}`}>
             {stat.value}
           </div>
           {showProgress && "progressValue" in stat && "progressLabel" in stat ? (
@@ -142,12 +142,12 @@ export function StatisticsCards({
                 value={stat.progressValue}
                 className="h-2"
               />
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-1 leading-tight">
                 {stat.progressLabel}
               </p>
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1 leading-tight">
               {stat.description}
             </p>
           )}
@@ -160,8 +160,8 @@ export function StatisticsCards({
     <div className="space-y-6">
       {/* Base Metrics Section */}
       <div>
-        <h3 className="text-lg font-semibold mb-3 text-muted-foreground">Basis-Statistiken</h3>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <h3 className="text-base sm:text-lg font-semibold mb-3 text-muted-foreground">Basis-Statistiken</h3>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
           {baseStats.map((stat) => (
             <StatCard key={stat.title} stat={stat} />
           ))}
@@ -170,8 +170,8 @@ export function StatisticsCards({
 
       {/* Calculated Metrics Section */}
       <div>
-        <h3 className="text-lg font-semibold mb-3 text-muted-foreground">Berechnete Metriken</h3>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <h3 className="text-base sm:text-lg font-semibold mb-3 text-muted-foreground">Berechnete Metriken</h3>
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {calculatedStats.map((stat) => (
             <StatCard key={stat.title} stat={stat} />
           ))}

@@ -191,18 +191,21 @@ export function DataTable<TData extends Identifiable, TValue>({
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex-1 min-w-[200px]">
-            <Label htmlFor="global-search">Suche</Label>
-            <Input
-              id="global-search"
-              placeholder="Nach Name, Email, Gruppe suchen..."
-              value={globalFilter}
-              onChange={(e) => setGlobalFilter(e.target.value)}
-              className="max-w-sm"
-            />
-          </div>
-          <div className="w-[180px]">
+        {/* Search - full width on mobile */}
+        <div className="w-full">
+          <Label htmlFor="global-search">Suche</Label>
+          <Input
+            id="global-search"
+            placeholder="Nach Name, Email, Gruppe suchen..."
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="w-full"
+          />
+        </div>
+        
+        {/* Filter grid - responsive */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="w-full">
             <Label>Veranstaltung</Label>
             <Select
               key={`event-${selectResetKey}`}
@@ -216,7 +219,7 @@ export function DataTable<TData extends Identifiable, TValue>({
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Alle Veranstaltungen" />
               </SelectTrigger>
-              <SelectContent position="popper" className="w-[180px]">
+              <SelectContent position="popper" className="w-[var(--radix-select-trigger-width)]">
                 {events.map((event) => (
                   <SelectItem key={event.id} value={event.name}>
                     {event.name}
@@ -226,7 +229,7 @@ export function DataTable<TData extends Identifiable, TValue>({
             </Select>
           </div>
           {shifts.length > 0 && (
-            <div className="w-[180px]">
+            <div className="w-full">
               <Label>Schicht</Label>
               <Select
                 key={`shift-${selectResetKey}`}
@@ -240,7 +243,7 @@ export function DataTable<TData extends Identifiable, TValue>({
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Alle Schichten" />
                 </SelectTrigger>
-                <SelectContent position="popper" className="w-[180px]">
+                <SelectContent position="popper" className="w-[var(--radix-select-trigger-width)]">
                   {shifts.map((shift) => (
                     <SelectItem key={shift.id} value={shift.name}>
                       {shift.name} ({shift.eventName})
@@ -251,7 +254,7 @@ export function DataTable<TData extends Identifiable, TValue>({
             </div>
           )}
           {tasks.length > 0 && (
-            <div className="w-[180px]">
+            <div className="w-full">
               <Label>Aufgabe</Label>
               <Select
                 key={`task-${selectResetKey}`}
@@ -265,7 +268,7 @@ export function DataTable<TData extends Identifiable, TValue>({
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Alle Aufgaben" />
                 </SelectTrigger>
-                <SelectContent position="popper" className="w-[180px]">
+                <SelectContent position="popper" className="w-[var(--radix-select-trigger-width)]">
                   {tasks.map((task) => (
                     <SelectItem key={task.id} value={task.name}>
                       {task.name} ({task.shiftName})
@@ -275,7 +278,7 @@ export function DataTable<TData extends Identifiable, TValue>({
               </Select>
             </div>
           )}
-          <div className="w-[150px]">
+          <div className="w-full">
             <Label>Gruppengröße</Label>
             <Select
               key={`groupSize-${selectResetKey}`}
@@ -289,7 +292,7 @@ export function DataTable<TData extends Identifiable, TValue>({
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Alle Größen" />
               </SelectTrigger>
-              <SelectContent position="popper" className="w-[150px]">
+              <SelectContent position="popper" className="w-[var(--radix-select-trigger-width)]">
                 <SelectItem value="1">1 Person</SelectItem>
                 <SelectItem value="2">2 Personen</SelectItem>
                 <SelectItem value="3">3 Personen</SelectItem>
@@ -298,38 +301,44 @@ export function DataTable<TData extends Identifiable, TValue>({
             </Select>
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        
+        {/* Action buttons - stack on mobile */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           {hasActiveFilters && (
-            <Button variant="secondary" onClick={clearAllFilters}>
+            <Button variant="secondary" onClick={clearAllFilters} className="w-full sm:w-auto">
               Filter zurücksetzen
             </Button>
           )}
-          <Button
-            variant="outline"
-            onClick={handleExport}
-            className="ml-auto"
-            disabled={table.getFilteredRowModel().rows.length === 0}
-          >
-            <Download className="mr-2 size-4" />
-            CSV exportieren
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={handleDelete}
-            disabled={Object.keys(rowSelection).length === 0}
-          >
-            Ausgewählte löschen ({Object.keys(rowSelection).length})
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2 sm:ml-auto w-full sm:w-auto">
+            <Button
+              variant="outline"
+              onClick={handleExport}
+              className="w-full sm:w-auto"
+              disabled={table.getFilteredRowModel().rows.length === 0}
+            >
+              <Download className="mr-2 size-4" />
+              <span className="sm:inline">CSV exportieren</span>
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              className="w-full sm:w-auto"
+              disabled={Object.keys(rowSelection).length === 0}
+            >
+              Löschen ({Object.keys(rowSelection).length})
+            </Button>
+          </div>
         </div>
       </div>
-      <div className="rounded-md border">
-        <Table>
+      {/* Table with horizontal scroll on mobile */}
+      <div className="rounded-md border overflow-x-auto">
+        <Table className="min-w-[640px]">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="whitespace-nowrap">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -350,7 +359,7 @@ export function DataTable<TData extends Identifiable, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="whitespace-nowrap">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -372,14 +381,16 @@ export function DataTable<TData extends Identifiable, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between px-2">
-        <div className="flex-1 text-sm text-muted-foreground">
+      
+      {/* Pagination - mobile-optimized */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2">
+        <div className="text-sm text-muted-foreground text-center sm:text-left">
           {table.getFilteredSelectedRowModel().rows.length} von{" "}
           {table.getFilteredRowModel().rows.length} Zeile(n) ausgewählt.
         </div>
-        <div className="flex items-center space-x-6 lg:space-x-8">
-          <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">Zeilen pro Seite</p>
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-8">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium whitespace-nowrap">Zeilen</p>
             <div className="w-[70px]">
               <Select
                 value={`${table.getState().pagination.pageSize}`}
@@ -400,49 +411,50 @@ export function DataTable<TData extends Identifiable, TValue>({
               </Select>
             </div>
           </div>
-          <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-            Seite {table.getState().pagination.pageIndex + 1} von{" "}
-            {table.getPageCount()}
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <span className="sr-only">Zur ersten Seite</span>
-              <ChevronLeft className="size-4" />
-              <ChevronLeft className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <span className="sr-only">Zur vorherigen Seite</span>
-              <ChevronLeft className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              <span className="sr-only">Zur nächsten Seite</span>
-              <ChevronRight className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
-            >
-              <span className="sr-only">Zur letzten Seite</span>
-              <ChevronRight className="size-4" />
-              <ChevronRight className="size-4" />
-            </Button>
+          <div className="flex items-center gap-2">
+            <div className="text-sm font-medium whitespace-nowrap">
+              {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+            </div>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 sm:flex"
+                onClick={() => table.setPageIndex(0)}
+                disabled={!table.getCanPreviousPage()}
+              >
+                <span className="sr-only">Zur ersten Seite</span>
+                <ChevronLeft className="size-4" />
+                <ChevronLeft className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                <span className="sr-only">Zur vorherigen Seite</span>
+                <ChevronLeft className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                <span className="sr-only">Zur nächsten Seite</span>
+                <ChevronRight className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 sm:flex"
+                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                disabled={!table.getCanNextPage()}
+              >
+                <span className="sr-only">Zur letzten Seite</span>
+                <ChevronRight className="size-4" />
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
