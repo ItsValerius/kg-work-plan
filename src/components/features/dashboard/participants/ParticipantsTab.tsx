@@ -8,9 +8,9 @@ async function ParticipantsContent() {
         await getParticipantsData();
 
     return (
-        <div className="space-y-4">
-            <h2 className="text-2xl font-semibold">Teilnehmer Übersicht</h2>
-            <p className="text-muted-foreground">
+        <div className="space-y-3 sm:space-y-4">
+            <h2 className="text-xl sm:text-2xl font-semibold">Teilnehmer Übersicht</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
                 Verwalten Sie alle Teilnehmer-Zuweisungen mit erweiterten Filtern und Export-Funktionen.
             </p>
             <ParticipantsTable

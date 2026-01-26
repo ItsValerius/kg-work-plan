@@ -1,6 +1,6 @@
 import db from "@/db";
-import { events } from "@/db/schema";
-import { gt } from "drizzle-orm";
+import { events, taskParticipants } from "@/db/schema";
+import { gt, desc } from "drizzle-orm";
 import type { BasicStatistics, EventStatistics, ParticipantsData, ShiftFilterOption, TaskFilterOption } from "./types";
 
 // Basic statistics for overview tab
@@ -230,6 +230,7 @@ export async function getParticipantsData(): Promise<ParticipantsData> {
         },
       },
     },
+    orderBy: desc(taskParticipants.createdAt),
   });
 
   const allEvents = await db.query.events.findMany();
