@@ -33,7 +33,7 @@ export function OverviewContent({
 }: OverviewContentProps) {
     return (
         <div>
-            <h2 className="text-2xl font-semibold mb-4">Statistiken</h2>
+            <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">Statistiken</h2>
             <StatisticsCards
                 totalParticipants={totalParticipants}
                 totalEvents={totalEvents}

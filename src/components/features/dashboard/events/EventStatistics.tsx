@@ -92,7 +92,7 @@ export function EventStatistics({ events }: EventStatisticsProps) {
   return (
     <div className="space-y-4">
       {/* Search and Sort Controls */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
@@ -107,7 +107,7 @@ export function EventStatistics({ events }: EventStatisticsProps) {
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Sortieren nach" />
             </SelectTrigger>
-            <SelectContent position="popper" className="w-[200px]">
+            <SelectContent position="popper" className="w-[var(--radix-select-trigger-width)] sm:w-[200px]">
               <SelectItem value="name">Name</SelectItem>
               <SelectItem value="completion">Vollständigkeit</SelectItem>
               <SelectItem value="participants">Teilnehmer</SelectItem>
@@ -133,7 +133,7 @@ export function EventStatistics({ events }: EventStatisticsProps) {
           return (
             <Card key={event.eventId} className="overflow-hidden">
               <div
-                className="flex items-center justify-between cursor-pointer p-4 hover:bg-muted/50 transition-colors"
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between cursor-pointer p-3 sm:p-4 hover:bg-muted/50 transition-colors gap-2 sm:gap-4"
                 onClick={() => toggleEvent(event.eventId)}
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -142,25 +142,26 @@ export function EventStatistics({ events }: EventStatisticsProps) {
                   ) : (
                     <ChevronRight className="size-4 shrink-0" />
                   )}
-                  <h3 className="font-semibold text-lg truncate">{event.eventName}</h3>
+                  <h3 className="font-semibold text-base sm:text-lg truncate">{event.eventName}</h3>
                   {isComplete ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-500 text-white text-xs font-medium shrink-0">
-                      <CheckCircle2 className="size-3" />
-                      Vollständig
+                    <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md bg-green-500 text-white text-xs font-medium shrink-0">
+                      <CheckCircle2 className="size-3 hidden sm:block" />
+                      <span className="hidden sm:inline">Vollständig</span>
+                      <span className="sm:hidden">OK</span>
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-destructive text-destructive-foreground text-xs font-medium shrink-0">
-                      <AlertCircle className="size-3" />
-                      {event.requiredParticipants - event.totalParticipants} mehr
+                    <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md bg-destructive text-destructive-foreground text-xs font-medium shrink-0">
+                      <AlertCircle className="size-3 hidden sm:block" />
+                      +{event.requiredParticipants - event.totalParticipants}
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground shrink-0">
+                <div className="flex items-center gap-3 sm:gap-4 text-sm text-muted-foreground shrink-0 pl-6 sm:pl-0">
                   <span className="flex items-center gap-1">
                     <Users className="size-4" />
-                    {event.totalParticipants} / {event.requiredParticipants}
+                    {event.totalParticipants}/{event.requiredParticipants}
                   </span>
-                  <span className="hidden sm:inline text-xs">
+                  <span className="text-xs">
                     {completionPercentage}%
                   </span>
                   <Button
@@ -179,7 +180,7 @@ export function EventStatistics({ events }: EventStatisticsProps) {
               </div>
 
               {isExpanded && (
-                <div className="px-4 pb-4 space-y-3 border-t pt-4">
+                <div className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-3 border-t pt-3 sm:pt-4">
                   {event.shifts.map((shift) => {
                     const shiftComplete = shift.totalParticipants >= shift.requiredParticipants;
                     const isShiftExpanded = expandedShifts.has(shift.shiftId);
@@ -190,7 +191,7 @@ export function EventStatistics({ events }: EventStatisticsProps) {
                     return (
                       <Card key={shift.shiftId} className="bg-muted/30">
                         <div
-                          className="flex items-center justify-between cursor-pointer p-3 hover:bg-muted/50 transition-colors rounded-t-lg"
+                          className="flex flex-col sm:flex-row sm:items-center sm:justify-between cursor-pointer p-2.5 sm:p-3 hover:bg-muted/50 transition-colors rounded-t-lg gap-2 sm:gap-0"
                           onClick={() => toggleShift(shift.shiftId)}
                         >
                           <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -199,22 +200,23 @@ export function EventStatistics({ events }: EventStatisticsProps) {
                             ) : (
                               <ChevronRight className="size-3 shrink-0" />
                             )}
-                            <span className="font-medium truncate">{shift.shiftName}</span>
+                            <span className="font-medium truncate text-sm sm:text-base">{shift.shiftName}</span>
                             {shiftComplete ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-green-500 text-white text-xs font-medium shrink-0">
-                                Vollständig
+                              <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-md bg-green-500 text-white text-xs font-medium shrink-0">
+                                <span className="hidden sm:inline">Vollständig</span>
+                                <span className="sm:hidden">OK</span>
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-destructive text-destructive-foreground text-xs font-medium shrink-0">
-                                {shift.requiredParticipants - shift.totalParticipants} mehr
+                              <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-md bg-destructive text-destructive-foreground text-xs font-medium shrink-0">
+                                +{shift.requiredParticipants - shift.totalParticipants}
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center gap-3 shrink-0">
-                            <span className="text-sm text-muted-foreground">
-                              {shift.totalParticipants} / {shift.requiredParticipants}
+                          <div className="flex items-center gap-3 shrink-0 pl-5 sm:pl-0">
+                            <span className="text-xs sm:text-sm text-muted-foreground">
+                              {shift.totalParticipants}/{shift.requiredParticipants}
                             </span>
-                            <span className="text-xs text-muted-foreground hidden sm:inline">
+                            <span className="text-xs text-muted-foreground">
                               {shiftCompletionPercentage}%
                             </span>
                             <Button
@@ -233,8 +235,59 @@ export function EventStatistics({ events }: EventStatisticsProps) {
                         </div>
 
                         {isShiftExpanded && (
-                          <div className="px-3 pb-3">
-                            <div className="rounded-md border bg-background">
+                          <div className="px-2 sm:px-3 pb-2 sm:pb-3">
+                            {/* Mobile: Card-based layout */}
+                            <div className="space-y-2 sm:hidden">
+                              {shift.tasks.map((task) => {
+                                const taskComplete = task.currentParticipants >= task.requiredParticipants;
+                                const taskTime = new Date(task.startTime).toLocaleTimeString("de-DE", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                });
+                                const taskCompletionPercentage = task.requiredParticipants > 0
+                                  ? Math.round((task.currentParticipants / task.requiredParticipants) * 100)
+                                  : 0;
+
+                                return (
+                                  <div key={task.taskId} className="bg-background rounded-md border p-3">
+                                    <div className="flex items-start justify-between gap-2">
+                                      <div className="flex-1 min-w-0">
+                                        <p className="font-medium text-sm truncate">{task.taskName}</p>
+                                        <p className="text-xs text-muted-foreground mt-1">{taskTime}</p>
+                                      </div>
+                                      <Button
+                                        asChild
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-7 w-7 p-0 shrink-0"
+                                      >
+                                        <Link href={`/events/${event.eventId}/shifts/${shift.shiftId}/tasks/${task.taskId}`}>
+                                          <ExternalLink className="size-3" />
+                                          <span className="sr-only">Zur Aufgabe</span>
+                                        </Link>
+                                      </Button>
+                                    </div>
+                                    <div className="flex items-center justify-between mt-2 pt-2 border-t">
+                                      <span className="text-xs text-muted-foreground">
+                                        {task.currentParticipants}/{task.requiredParticipants} ({taskCompletionPercentage}%)
+                                      </span>
+                                      {taskComplete ? (
+                                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-green-500 text-white text-xs font-medium">
+                                          OK
+                                        </span>
+                                      ) : (
+                                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-destructive text-destructive-foreground text-xs font-medium">
+                                          +{task.requiredParticipants - task.currentParticipants}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            
+                            {/* Desktop: Table layout */}
+                            <div className="hidden sm:block rounded-md border bg-background overflow-x-auto">
                               <Table>
                                 <TableHeader>
                                   <TableRow>
