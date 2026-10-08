@@ -42,15 +42,17 @@ export function RemoveHelperButton({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="px-3 text-destructive hover:bg-destructive-surface hover:text-destructive print:hidden"
-        >
-          Austragen
-        </Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="sm"
+            className="px-3 text-destructive hover:bg-destructive-surface hover:text-destructive print:hidden"
+          >
+            Austragen
+          </Button>
+        }
+      />
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{helperName} austragen?</AlertDialogTitle>

@@ -45,26 +45,28 @@ export function LogoutButton({ showText = false, variant = "ghost" }: LogoutButt
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <Button
-          variant={variant}
-          size={showText ? "default" : "icon"}
-          className={
-            showText
-              ? "w-full justify-start gap-2.5 px-3 text-muted-foreground hover:text-foreground"
-              : ""
-          }
-          aria-label="Abmelden"
-          disabled={isPending}
-        >
-          {isPending ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <LogOut className="size-4" aria-hidden="true" />
-          )}
-          {showText && <span>Abmelden</span>}
-        </Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger
+        render={
+          <Button
+            variant={variant}
+            size={showText ? "default" : "icon"}
+            className={
+              showText
+                ? "w-full justify-start gap-2.5 px-3 text-muted-foreground hover:text-foreground"
+                : ""
+            }
+            aria-label="Abmelden"
+            disabled={isPending}
+          >
+            {isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <LogOut className="size-4" aria-hidden="true" />
+            )}
+            {showText && <span>Abmelden</span>}
+          </Button>
+        }
+      />
       <AlertDialogContent className="sm:max-w-[425px]">
         <AlertDialogHeader>
           <AlertDialogTitle>Abmelden?</AlertDialogTitle>
