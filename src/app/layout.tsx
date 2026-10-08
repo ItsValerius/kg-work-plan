@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ZodLocale } from "@/components/layout/ZodLocale";
+import { ThemeProvider } from "next-themes";
 
 const barlow = localFont({
   src: "./fonts/BarlowCondensed-Bold.woff2",
@@ -25,14 +26,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="de">
+    // next-themes sets the dark class before hydration.
+    <html lang="de" suppressHydrationWarning>
       <body className={barlow.variable}>
         <a href="#main-content" className="skip-to-content">
           Zum Hauptinhalt springen
         </a>
-        {children}
-        <Toaster position="bottom-center" />
-        <ZodLocale />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster position="bottom-center" />
+          <ZodLocale />
+        </ThemeProvider>
       </body>
     </html>
   );

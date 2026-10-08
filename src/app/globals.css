@@ -2,7 +2,7 @@
 @plugin "@tailwindcss/typography";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 /*
   Knallköpp family palette, shared with kg-eventplan ("Vereinskalender"):
@@ -10,6 +10,9 @@
 */
 :root {
   --background: #ffffff;
+  --shimmer-base: #eef2ea;
+  --shimmer-highlight: #f7f9f4;
+  --claim-glow: #b9ec86;
   --foreground: #17251c;
   --card: #ffffff;
   --card-foreground: #17251c;
@@ -54,33 +57,39 @@
   --karneval-live: #176717;
 }
 
-.dark {
-  color-scheme: dark;
-  --background: #0f1712;
-  --foreground: #e3ebe1;
-  --card: #141e17;
-  --card-foreground: #e3ebe1;
-  --popover: #141e17;
-  --popover-foreground: #e3ebe1;
-  --primary: #56b04a;
-  --primary-foreground: #0c1a0f;
-  --primary-dark: #a8e59a;
-  --primary-link: #7cc96f;
-  --secondary: #1d3320;
-  --secondary-foreground: #a8e59a;
-  --muted: #172119;
-  --muted-foreground: #9aa89c;
-  --accent: #1d3320;
-  --accent-foreground: #a8e59a;
-  --destructive: #f08a76;
-  --destructive-foreground: #0f1712;
-  --destructive-surface: #3a1a14;
-  --danger: #b8452f;
-  --surface-open: #131d16;
-  --border: #283629;
-  --input: #5d6e60;
-  --ring: #56b04a;
-  --scrim: rgb(4 8 5 / 0.62);
+/* Screen only: printouts stay light. */
+@media screen {
+  .dark {
+    color-scheme: dark;
+    --background: #0f1712;
+    --foreground: #e3ebe1;
+    --card: #141e17;
+    --card-foreground: #e3ebe1;
+    --popover: #141e17;
+    --popover-foreground: #e3ebe1;
+    --primary: #56b04a;
+    --primary-foreground: #0c1a0f;
+    --primary-dark: #a8e59a;
+    --primary-link: #7cc96f;
+    --secondary: #1d3320;
+    --secondary-foreground: #a8e59a;
+    --muted: #172119;
+    --muted-foreground: #9aa89c;
+    --accent: #1d3320;
+    --accent-foreground: #a8e59a;
+    --destructive: #f08a76;
+    --destructive-foreground: #0f1712;
+    --destructive-surface: #3a1a14;
+    --danger: #b8452f;
+    --surface-open: #131d16;
+    --border: #283629;
+    --input: #5d6e60;
+    --ring: #56b04a;
+    --scrim: rgb(4 8 5 / 0.62);
+    --shimmer-base: #1a251d;
+    --shimmer-highlight: #223026;
+    --claim-glow: #2f5a2a;
+  }
 }
 
 @theme inline {
@@ -222,7 +231,12 @@
   .skeleton {
     display: block;
     border-radius: var(--radius-md);
-    background: linear-gradient(90deg, #eef2ea 25%, #f7f9f4 45%, #eef2ea 65%);
+    background: linear-gradient(
+      90deg,
+      var(--shimmer-base) 25%,
+      var(--shimmer-highlight) 45%,
+      var(--shimmer-base) 65%
+    );
     background-size: 220% 100%;
     animation:
       shimmer 1.6s ease-in-out infinite,
@@ -251,7 +265,7 @@
 /* A freshly claimed sheet line glows pale green, then settles into the "your line" tint. */
 @keyframes claim {
   0% {
-    background-color: #b9ec86;
+    background-color: var(--claim-glow);
   }
   100% {
     background-color: var(--accent);

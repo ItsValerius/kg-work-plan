@@ -266,7 +266,7 @@ Organizers get the same sheet seen from the Vorstand's side: an event folder. A 
 
 The density is generous on purpose. The users include older members on phones, so body text is 16px, lead text 17px, buttons 15px semibold and every control is at least 44px tall. The display face adds the celebration. Controls stay plain, clearly labelled and familiar.
 
-This app deliberately differs from its parent in three places. Body text is 16px instead of 15px, and buttons are 15px semibold instead of 13px, for legibility. A sticky header with the crest, wordmark and navigation is kept, while kg-eventplan removed its nav. Dark tokens exist, but nothing in this app switches to them.
+This app deliberately differs from its parent in two places. Body text is 16px instead of 15px, and buttons are 15px semibold instead of 13px, for legibility. A sticky header with the crest, wordmark and navigation is kept, while kg-eventplan removed its nav. The footer and the dark theme match kg-eventplan: dark mode follows the system until someone uses the footer toggle (remembered per browser), and it applies on screen only, so printouts stay light.
 
 **Key Characteristics:**
 
@@ -297,7 +297,7 @@ Club green carries action and "still needed". Pale green marks what is yours. Gr
 - **White** (`white`): page, fields, header, toasts and the claim line at rest.
 - **Ink** (`ink`): primary text. A 2px ink rule at 80% opacity opens each task sheet.
 - **Muted** (`muted`): metadata, past dates, filled-line placeholders ("belegt"), the totals in tallies.
-- **Wash** (`wash`): shift rail, organizer event rail, quick-add task row, form-page panels, sign-in, empty-state and error panels, row hover, footer, the event page's organizer bar and the sign-in email's canvas.
+- **Wash** (`wash`): shift rail, organizer event rail, quick-add task row, form-page panels, sign-in, empty-state and error panels, row hover, the event page's organizer bar and the sign-in email's canvas.
 - **Line** (`line`): every 1px divider (`* { border-color }`) and the sheet-line rules.
 - **Field Border** (`field-border`): input and outline-button strokes, the numerals of quiet empty lines, and the scrollbar thumb.
 - **Open Panel** (`open-panel`): the expanded claim panel and the quick-add shift row.
