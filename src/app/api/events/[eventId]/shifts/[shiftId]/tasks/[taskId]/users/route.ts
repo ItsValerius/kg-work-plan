@@ -1,3 +1,5 @@
+import { revalidateTag } from "next/cache";
+import { WORKPLAN_TAG } from "@/lib/cache-tags";
 import { ApiErrorResponse } from "@/lib/api-errors";
 import { logger } from "@/lib/logger";
 import { NextRequest } from "next/server";
@@ -14,11 +16,13 @@ export async function POST(request: NextRequest) {
     
     if (!taskParticipant.success) {
       logger.warn("Invalid task participant data", { issues: taskParticipant.error.issues });
-      return ApiErrorResponse.validationError(taskParticipant.error.message);
+      return ApiErrorResponse.validationError("Bitte prüfe deine Eingaben.", taskParticipant.error.issues);
     }
 
     try {
       const newTaskParticipant = await createParticipant(taskParticipant.data, userId);
+      // Route handlers cannot use updateTag; expire: 0 makes the next read fresh.
+      revalidateTag(WORKPLAN_TAG, { expire: 0 });
       return Response.json(newTaskParticipant);
     } catch (error) {
       logger.error("Failed to create task participant", error);
@@ -33,13 +37,13 @@ export async function POST(request: NextRequest) {
           return ApiErrorResponse.validationError(error.message);
         }
       }
-      return ApiErrorResponse.internalError("Failed to register for task", error);
+      return ApiErrorResponse.internalError("Das Eintragen hat nicht geklappt. Bitte versuch es noch einmal.", error);
     }
   } catch (error) {
     if (error instanceof Error && error.message === "Unauthorized") {
       return ApiErrorResponse.unauthorized();
     }
     logger.error("Invalid request body", error);
-    return ApiErrorResponse.badRequest("Invalid request body");
+    return ApiErrorResponse.badRequest();
   }
 }

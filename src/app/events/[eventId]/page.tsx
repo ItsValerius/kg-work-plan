@@ -1,150 +1,147 @@
-import { ShiftAdminActions } from "@/components/features/admin/ShiftAdminActions";
-import BackButton from "@/components/shared/buttons/BackButton";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { isAdmin, isLoggedIn } from "@/lib/auth/utils";
-import { formatDateTimeRange } from "@/lib/datetime";
+import { DateBlock } from "@/components/features/events/DateBlock";
+import { OpenSpots } from "@/components/features/events/OpenSpots";
+import { TaskSheet } from "@/components/features/worksheet/TaskSheet";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { getEventWorkPlan } from "@/domains/events/queries";
+import { formatShortDate, formatTime, isSameBerlinDay } from "@/lib/datetime";
+import { getSession } from "@/lib/auth/utils";
+import { ArrowLeft } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
-import { TaskCard } from "@/components/features/tasks/TaskCard";
-import { SkeletonCard } from "@/components/features/tasks/SkeletonCard";
-import { deleteShift } from "@/server/actions/events";
-import DuplicateButton from "@/components/shared/buttons/DuplicateButton";
-import { getEventWithShifts } from "@/domains/events/queries";
-import { PageContainer } from "@/components/layout/PageContainer";
-import type { Metadata } from "next";
 
 interface EventPageProps {
   params: Promise<{ eventId: string }>;
+  searchParams: Promise<{ eingetragen?: string }>;
 }
 
-export async function generateMetadata(
-  props: EventPageProps
-): Promise<Metadata> {
+export async function generateMetadata(props: EventPageProps): Promise<Metadata> {
   const params = await props.params;
-  const event = await getEventWithShifts(params.eventId);
+  const event = await getEventWorkPlan(params.eventId);
+  return { title: event ? event.name : "Veranstaltung nicht gefunden" };
+}
 
-  if (!event) {
-    return {
-      title: "Veranstaltung nicht gefunden",
-    };
+function sumSpots(tasks: { requiredParticipants: number; participants: { groupSize: number }[] }[]) {
+  let required = 0;
+  let open = 0;
+  for (const task of tasks) {
+    const filled = task.participants.reduce((sum, p) => sum + p.groupSize, 0);
+    required += task.requiredParticipants;
+    open += Math.max(0, task.requiredParticipants - filled);
   }
-
-  return {
-    title: event.name,
-  };
+  return { required, open };
 }
 
 export default async function EventPage(props: EventPageProps) {
-  const params = await props.params;
-
-  const [userIsAdmin, userIsLoggedIn, event] = await Promise.all([
-    isAdmin(),
-    isLoggedIn(),
-    getEventWithShifts(params.eventId),
+  const [params, searchParams, session] = await Promise.all([
+    props.params,
+    props.searchParams,
+    getSession(),
   ]);
+  const event = await getEventWorkPlan(params.eventId);
 
   if (!event) {
     notFound();
   }
 
+  const viewerId = session?.user?.id ?? null;
+  const eventSpots = sumSpots(event.shifts.flatMap((shift) => shift.tasks));
+  const multiDay = !isSameBerlinDay(event.startDate, event.endDate);
+
   return (
     <PageContainer>
-      <div className="mb-4">
-        <BackButton className="h-9" />
-      </div>
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 md:gap-6 mb-8 md:mb-10">
-        <div className="flex-1 min-w-0">
-          <h1 className="scroll-m-20 text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl wrap-break-word">
-            {event.name}
-          </h1>
-          <small className="text-sm md:text-base font-medium leading-none block mt-2 md:mt-3 text-muted-foreground">
-            {formatDateTimeRange(event.startDate, event.endDate)}
-          </small>
-          {event.description && (
-            <p className="text-sm md:text-base text-muted-foreground mt-3 md:mt-4 wrap-break-word max-w-3xl leading-relaxed">
-              {event.description}
-            </p>
-          )}
-        </div>
+      <Link
+        href="/events"
+        className="inline-flex min-h-11 items-center gap-2 rounded-md pr-2 text-[15px] font-semibold text-primary hover:underline"
+      >
+        <ArrowLeft className="size-4" aria-hidden="true" />
+        Alle Veranstaltungen
+      </Link>
 
-        {userIsAdmin && (
-          <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-            <DuplicateButton
-              eventId={event.id}
-              eventName={event.name}
-              eventStartDate={event.startDate}
-              eventEndDate={event.endDate}
-              className="w-full sm:w-fit"
-              showText
-            />
-            <Button asChild className="w-full sm:w-fit h-10 md:h-11">
-              <Link href={`/events/${event.id}/shifts/new`}>
-                Schicht hinzufügen
-              </Link>
-            </Button>
+      <header className="mt-3 grid gap-x-10 gap-y-4 border-b pb-6 md:mt-8 md:grid-cols-[auto_1fr] md:items-start md:pb-10">
+        <DateBlock date={event.startDate} size="lg" className="hidden md:flex" />
+        <div className="min-w-0">
+          <div className="mb-3 flex items-center gap-3 md:hidden">
+            <DateBlock date={event.startDate} />
+            {!multiDay && (
+              <span className="font-display text-[26px] font-bold leading-none text-muted-foreground tabular">
+                {formatTime(event.startDate)} – {formatTime(event.endDate)}
+              </span>
+            )}
           </div>
-        )}
-      </div>
+          <h1 className="text-[44px] wrap-break-word md:text-[clamp(56px,5.7vw,80px)]">{event.name}</h1>
+          <p className={multiDay ? "mt-2 text-[17px] text-muted-foreground md:mt-3" : "mt-3 hidden text-[17px] text-muted-foreground md:block"}>
+            {multiDay
+              ? `${formatShortDate(event.startDate)} bis ${formatShortDate(event.endDate)}`
+              : `${formatShortDate(event.startDate)}, ${formatTime(event.startDate)} – ${formatTime(event.endDate)} Uhr`}
+          </p>
+          {event.description && (
+            <p className="mt-2 max-w-[65ch] text-[17px] leading-relaxed wrap-break-word md:mt-3">{event.description}</p>
+          )}
+          <OpenSpots open={eventSpots.open} required={eventSpots.required} className="mt-3 text-[19px] md:mt-5" />
+        </div>
+      </header>
 
-      <div className="space-y-6 md:space-y-8 lg:space-y-10">
-        {event.shifts.map((shift) => (
-          <Card key={shift.id} className="overflow-hidden">
-            <CardHeader className="pb-4 md:pb-5 relative">
-              {userIsAdmin && (
-                <ShiftAdminActions
-                  eventId={event.id}
-                  shiftId={shift.id}
-                  deleteAction={deleteShift}
-                />
-              )}
-              <div className="flex items-start justify-between gap-4 md:gap-6 mb-4 md:mb-5">
-                <div className="flex-1 min-w-0">
-                  <CardTitle className="wrap-break-word text-xl md:text-2xl font-semibold">
-                    {shift.name}
-                  </CardTitle>
-                  <CardDescription className="mt-2 md:mt-3 wrap-break-word text-sm md:text-base">
-                    {formatDateTimeRange(
-                      new Date(shift.startTime),
-                      new Date(shift.endTime),
-                      false
-                    )}
-                  </CardDescription>
-                </div>
-              </div>
-              {userIsAdmin && (
-                <Button asChild className="w-fit h-9 md:h-10">
-                  <Link
-                    href={`/events/${event.id}/shifts/${shift.id}/tasks/new`}
+
+      {event.shifts.length === 0 && (
+        <p className="mt-10 text-[17px] text-muted-foreground">
+          Für diese Veranstaltung sind noch keine Schichten geplant.
+        </p>
+      )}
+
+      <div className="mt-1 md:mt-6">
+        {event.shifts.map((shift) => {
+          const shiftSpots = sumSpots(shift.tasks);
+          return (
+            <section
+              key={shift.id}
+              aria-labelledby={`schicht-${shift.id}`}
+              className="grid gap-x-10 gap-y-4 pt-5 pb-8 md:grid-cols-[264px_1fr] md:py-10"
+            >
+              <div className="rounded-lg bg-muted px-4 py-4 md:sticky md:top-24 md:self-start md:px-5 md:py-6">
+                <p className="whitespace-nowrap font-display text-[34px] font-bold leading-none text-primary tabular md:text-[36px]">
+                  {formatTime(shift.startTime)}
+                  <span className="text-muted-foreground"> – {formatTime(shift.endTime)}</span>
+                </p>
+                <h2 id={`schicht-${shift.id}`} className="mt-2 text-[30px] md:text-[34px]">
+                  {shift.name}
+                </h2>
+                {multiDay && (
+                  <p className="mt-1 text-[15px] text-muted-foreground">{formatShortDate(shift.startTime)}</p>
+                )}
+                {shiftSpots.required > 0 && (
+                  <p
+                    className={
+                      shiftSpots.open > 0
+                        ? "mt-2 text-[15px] font-semibold text-primary"
+                        : "mt-2 text-[15px] text-muted-foreground"
+                    }
                   >
-                    Aufgabe Hinzufügen
-                  </Link>
-                </Button>
-              )}
-            </CardHeader>
+                    {shiftSpots.open > 0
+                      ? `${shiftSpots.open} ${shiftSpots.open === 1 ? "Platz" : "Plätze"} frei`
+                      : "Alles belegt"}
+                  </p>
+                )}
+              </div>
 
-            <CardContent className="grid gap-3 md:gap-4 lg:gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch">
-              {shift.tasks.map((task) => (
-                <Suspense key={task.id} fallback={<SkeletonCard />}>
-                  <TaskCard
+              <div className="grid gap-5 md:gap-6">
+                {shift.tasks.map((task) => (
+                  <TaskSheet
+                    key={task.id}
                     eventId={event.id}
                     shiftId={shift.id}
                     task={task}
-                    isAdmin={userIsAdmin}
-                    isLoggedIn={userIsLoggedIn}
+                    viewerId={viewerId}
+                    justClaimed={searchParams.eingetragen === task.id}
                   />
-                </Suspense>
-              ))}
-            </CardContent>
-          </Card>
-        ))}
+                ))}
+                {shift.tasks.length === 0 && (
+                  <p className="text-[17px] text-muted-foreground">In dieser Schicht gibt es noch keine Aufgaben.</p>
+                )}
+              </div>
+            </section>
+          );
+        })}
       </div>
     </PageContainer>
   );

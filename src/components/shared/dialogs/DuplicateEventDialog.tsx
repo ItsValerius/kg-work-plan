@@ -182,7 +182,7 @@ export function DuplicateEventDialog({
                                                 onSelect={field.onChange}
                                                 defaultMonth={field.value ?? defaultDates.startDate}
                                                 locale={de}
-                                                initialFocus
+                                                autoFocus
                                             />
                                         </PopoverContent>
                                     </Popover>
@@ -230,7 +230,7 @@ export function DuplicateEventDialog({
                                                     const startDate = form.watch("startDate");
                                                     return startDate ? date < startDate : false;
                                                 }}
-                                                initialFocus
+                                                autoFocus
                                             />
                                         </PopoverContent>
                                     </Popover>

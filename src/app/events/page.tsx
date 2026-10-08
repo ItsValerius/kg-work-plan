@@ -17,15 +17,15 @@ const EventsPage = async () => {
 
   return (
     <PageContainer>
-      <div className="space-y-12 md:space-y-16 lg:space-y-20">
+      <div className="space-y-16 md:space-y-24">
         <EventsSection
           events={futureEvents}
           userIsAdmin={userIsAdmin}
-          title="Bevorstehende Veranstaltungen"
-          description="Hier findest du alle bevorstehenden Veranstaltungen"
+          title="Veranstaltungen"
+          description="Such dir eine Veranstaltung aus und trag dich bei einer Aufgabe ein, die noch Helfer braucht."
           emptyStateTitle="Keine Veranstaltungen geplant"
           emptyStateDescription="Aktuell sind keine bevorstehenden Veranstaltungen vorhanden."
-          emptyStateActionText="Füge jetzt eine neue Veranstaltung hinzu."
+          emptyStateActionText="Neue Veranstaltungen legst du unter „Organisation“ an."
           showAddButton={true}
           isFutureEvents={true}
         />
@@ -34,7 +34,7 @@ const EventsPage = async () => {
             events={pastEvents}
             userIsAdmin={userIsAdmin}
             title="Vergangene Veranstaltungen"
-            description="Hier findest du alle vergangenen Veranstaltungen"
+            description="Nur für Organisatoren sichtbar."
             showAddButton={false}
             isFutureEvents={false}
           />

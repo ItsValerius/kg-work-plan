@@ -1,9 +1,14 @@
 import db from "@/db";
-import { shifts, taskParticipants, tasks } from "@/db/schema";
+import { events, shifts, taskParticipants, tasks } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { cacheLife, cacheTag } from "next/cache";
+import { WORKPLAN_TAG } from "@/lib/cache-tags";
 import type { UserTask } from "./types";
 
 export async function getUserTasks(userId: string): Promise<UserTask[]> {
+  "use cache";
+  cacheLife("workplan");
+  cacheTag(WORKPLAN_TAG);
   return db
     .select({
       id: tasks.id,
@@ -12,6 +17,10 @@ export async function getUserTasks(userId: string): Promise<UserTask[]> {
       shifts: tasks.shiftId,
       startTime: tasks.startTime,
       shiftDate: shifts.startTime,
+      shiftName: shifts.name,
+      shiftEndTime: shifts.endTime,
+      eventId: events.id,
+      eventName: events.name,
       participantId: taskParticipants.id,
       groupName: taskParticipants.groupName,
       groupSize: taskParticipants.groupSize,
@@ -22,7 +31,9 @@ export async function getUserTasks(userId: string): Promise<UserTask[]> {
     // and have FK constraints, so the joined records should always exist.
     .innerJoin(tasks, eq(taskParticipants.taskId, tasks.id))
     .innerJoin(shifts, eq(tasks.shiftId, shifts.id))
-    .where(eq(taskParticipants.userId, userId));
+    .innerJoin(events, eq(shifts.eventId, events.id))
+    .where(eq(taskParticipants.userId, userId))
+    .orderBy(tasks.startTime);
 }
 
 export async function getTaskById(taskId: string) {

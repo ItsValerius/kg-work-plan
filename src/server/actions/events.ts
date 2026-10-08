@@ -4,12 +4,13 @@ import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 import { isAdmin } from "@/lib/auth/utils";
 import * as domainActions from "@/domains/events/functions";
 import type { EventInput } from "@/domains/events/types";
-import { revalidatePath } from "next/cache";
+import { updateTag } from "next/cache";
+import { WORKPLAN_TAG } from "@/lib/cache-tags";
 
 export async function createOrUpdateEvent(data: EventInput) {
   const userId = await getAuthenticatedAdminUserId();
   const result = await domainActions.createOrUpdateEvent(data, userId);
-  revalidatePath("/events");
+  updateTag(WORKPLAN_TAG);
   return result;
 }
 
@@ -18,7 +19,7 @@ export async function deleteEvent(eventId: string) {
     throw new Error("Unauthorized");
   }
   await domainActions.deleteEvent(eventId);
-  revalidatePath("/events");
+  updateTag(WORKPLAN_TAG);
 }
 
 export async function duplicateEvent(
@@ -29,7 +30,7 @@ export async function duplicateEvent(
 ) {
   const userId = await getAuthenticatedAdminUserId();
   const result = await domainActions.duplicateEvent(eventId, name, startDate, endDate, userId);
-  revalidatePath("/events");
+  updateTag(WORKPLAN_TAG);
   return result;
 }
 
@@ -38,13 +39,13 @@ export async function deleteTask(taskId: string) {
     throw new Error("Unauthorized");
   }
   await domainActions.deleteTask(taskId);
-  revalidatePath("/events");
+  updateTag(WORKPLAN_TAG);
 }
 
 export async function deleteShift(shiftId: string) {
   if (!(await isAdmin())) {
     throw new Error("Unauthorized");
   }
-  const deletedShift = await domainActions.deleteShift(shiftId);
-  revalidatePath(`/events/${deletedShift.eventId}`);
+  await domainActions.deleteShift(shiftId);
+  updateTag(WORKPLAN_TAG);
 }

@@ -1,38 +1,23 @@
-import { notFound } from "next/navigation";
 import { EventForm } from "@/components/features/events/EventForm";
-import { getAuthenticatedUser, isAdmin } from "@/lib/auth/utils";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { FormPageShell } from "@/components/layout/FormPageShell";
 import { getEventByIdWithShiftsAndTasks } from "@/domains/events/queries";
-import { PageContainer } from "@/components/layout/PageContainer";
+import { getAuthenticatedUser, isAdmin } from "@/lib/auth/utils";
+import { organisationBackLink } from "@/lib/edit-origin";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 interface EditEventPageProps {
   params: Promise<{ eventId: string }>;
 }
 
-export async function generateMetadata(
-  props: EditEventPageProps
-): Promise<Metadata> {
+export async function generateMetadata(props: EditEventPageProps): Promise<Metadata> {
   const params = await props.params;
   const event = await getEventByIdWithShiftsAndTasks(params.eventId);
-
-  if (!event) {
-    return {
-      title: "Veranstaltung bearbeiten",
-    };
-  }
-
-  return {
-    title: `${event.name} bearbeiten`,
-  };
+  return { title: event ? `${event.name} bearbeiten` : "Veranstaltung bearbeiten" };
 }
 
 const EditEventPage = async (props: EditEventPageProps) => {
   const params = await props.params;
-
   const [user, event, userIsAdmin] = await Promise.all([
     getAuthenticatedUser(),
     getEventByIdWithShiftsAndTasks(params.eventId),
@@ -42,24 +27,12 @@ const EditEventPage = async (props: EditEventPageProps) => {
   if (!event || !userIsAdmin) {
     notFound();
   }
+
+  const back = organisationBackLink(event.id, "luecken");
   return (
-    <PageContainer variant="form">
-      <Button asChild variant="outline" className="w-fit">
-        <Link href="/events">
-          {" "}
-          <ArrowLeft />
-          Zurück
-        </Link>
-      </Button>
-      <Card>
-        <CardHeader>
-          <CardTitle>Veranstaltung Bearbeiten</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <EventForm userId={user.id} event={event} />
-        </CardContent>
-      </Card>
-    </PageContainer>
+    <FormPageShell title="Veranstaltung bearbeiten" context={event.name} backHref={back.href} backLabel={back.label}>
+      <EventForm userId={user.id} event={event} returnTo={back.href} />
+    </FormPageShell>
   );
 };
 

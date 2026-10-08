@@ -1,12 +1,12 @@
 import { AuthenticatedLayoutWrapper } from "@/components/layout/AuthenticatedLayoutWrapper";
 
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <AuthenticatedLayoutWrapper requireAuth={true}>
+    <AuthenticatedLayoutWrapper>
         {children}
     </AuthenticatedLayoutWrapper>
   );

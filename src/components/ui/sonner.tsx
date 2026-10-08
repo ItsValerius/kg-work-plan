@@ -14,13 +14,15 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster group"
       toastOptions={{
         classNames: {
+          // Sonner's own styles win on specificity, so the flat family look is marked important.
           toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-          description: "group-[.toast]:text-muted-foreground",
+            "bg-background! text-foreground! border! border-border! rounded-md! shadow-none! font-sans! text-[15px]!",
+          success: "[&_[data-icon]]:text-primary!",
+          error: "[&_[data-icon]]:text-destructive!",
+          description: "text-muted-foreground!",
           actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-          cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+            "bg-primary! text-primary-foreground! font-semibold! rounded-md! min-h-9! px-3! text-sm!",
+          cancelButton: "bg-muted! text-muted-foreground!",
         },
       }}
       {...props}

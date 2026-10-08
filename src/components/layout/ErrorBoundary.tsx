@@ -2,14 +2,7 @@
 
 import { logger } from "@/lib/logger";
 import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
+import Link from "next/link";
 import { Component, ReactNode } from "react";
 
 interface ErrorBoundaryProps {
@@ -20,6 +13,15 @@ interface ErrorBoundaryProps {
 interface ErrorBoundaryState {
     hasError: boolean;
     error?: Error;
+}
+
+// notFound() and redirect() work by throwing; they belong to Next.js, not to this boundary.
+function isNextNavigationError(error: unknown): boolean {
+    const digest = (error as { digest?: unknown } | null)?.digest;
+    return (
+        typeof digest === "string" &&
+        (digest.startsWith("NEXT_HTTP_ERROR_FALLBACK") || digest.startsWith("NEXT_REDIRECT"))
+    );
 }
 
 // Error Boundaries must be class components - React doesn't support error boundaries in function components yet
@@ -35,6 +37,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     }
 
     componentDidCatch(error: Error, errorInfo: { componentStack: string }) {
+        if (isNextNavigationError(error)) return;
         logger.error("ErrorBoundary caught an error", error, {
             componentStack: errorInfo.componentStack,
         });
@@ -47,37 +50,41 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
     render() {
         if (this.state.hasError) {
+            if (isNextNavigationError(this.state.error)) {
+                throw this.state.error;
+            }
             if (this.props.fallback) {
                 return this.props.fallback;
             }
 
             return (
-                <Card className="m-4">
-                    <CardHeader>
-                        <CardTitle>Etwas ist schiefgelaufen</CardTitle>
-                        <CardDescription>
-                            Es gab einen Fehler beim Laden dieser Seite. Bitte versuchen Sie
-                            es erneut.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
+                <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+                    <div role="alert" className="max-w-xl rounded-xl border bg-muted p-6 md:p-9">
+                        <h1 className="text-[44px] md:text-[48px]">Da ist etwas schiefgelaufen</h1>
+                        <p className="mt-3 text-[17px] text-muted-foreground">
+                            Die Seite konnte gerade nicht geladen werden. Das liegt nicht an dir – versuch es bitte noch
+                            einmal. Deine Einträge sind dadurch nicht verloren.
+                        </p>
                         {process.env.NODE_ENV === "development" && this.state.error && (
                             <details className="mt-4">
                                 <summary className="cursor-pointer text-sm text-muted-foreground">
                                     Fehlerdetails
                                 </summary>
-                                <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto">
+                                <pre className="mt-2 overflow-auto rounded bg-background p-2 text-xs">
                                     {this.state.error.message}
                                     {"\n"}
                                     {this.state.error.stack}
                                 </pre>
                             </details>
                         )}
-                    </CardContent>
-                    <CardFooter>
-                        <Button onClick={this.handleReset}>Seite neu laden</Button>
-                    </CardFooter>
-                </Card>
+                        <div className="mt-6 flex flex-wrap gap-3">
+                            <Button onClick={this.handleReset}>Noch einmal versuchen</Button>
+                            <Button asChild variant="outline">
+                                <Link href="/events">Zu den Veranstaltungen</Link>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
             );
         }
 

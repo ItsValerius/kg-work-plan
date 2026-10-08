@@ -33,9 +33,12 @@ import { z } from "zod";
 export function EventForm({
   userId,
   event,
+  returnTo,
 }: {
   userId: string;
   event: typeof events.$inferSelect | null | undefined;
+  /** Where to go after saving an edit; defaults to the event's work plan. */
+  returnTo?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +75,12 @@ export function EventForm({
       return;
     }
     setLoading(false);
-    redirect("/events");
+    // New events continue straight into planning shifts and tasks.
+    if (event) {
+      redirect(returnTo ?? `/events/${event.id}`);
+    }
+    const created: { id: string } = await response.json();
+    redirect(`/dashboard?event=${created.id}&ansicht=planen`);
   }
 
   return (
@@ -148,7 +156,7 @@ export function EventForm({
                     selected={field.value}
                     onSelect={field.onChange}
                     disabled={(date) => date < new Date()}
-                    initialFocus
+                    autoFocus
                   />
                 </PopoverContent>
               </Popover>
@@ -190,7 +198,7 @@ export function EventForm({
                     selected={field.value}
                     onSelect={field.onChange}
                     disabled={(date) => date < new Date()}
-                    initialFocus
+                    autoFocus
                   />
                 </PopoverContent>
               </Popover>

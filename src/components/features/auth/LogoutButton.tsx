@@ -14,7 +14,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { LogOut, Loader2, AlertTriangle } from "lucide-react";
+import { LogOut, Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 
 interface LogoutButtonProps {
@@ -49,7 +49,7 @@ export function LogoutButton({ showText = false, variant = "ghost" }: LogoutButt
                 <Button
                     variant={variant}
                     size={showText ? "default" : "icon"}
-                    className={showText ? "h-9 gap-2 w-full justify-start" : "h-9 w-9"}
+                    className={showText ? "w-full justify-start gap-2.5 px-3 text-muted-foreground hover:text-foreground" : ""}
                     aria-label="Abmelden"
                     disabled={isPending}
                 >
@@ -65,26 +65,19 @@ export function LogoutButton({ showText = false, variant = "ghost" }: LogoutButt
             </AlertDialogTrigger>
             <AlertDialogContent className="sm:max-w-[425px]">
                 <AlertDialogHeader>
-                    <div className="flex flex-col items-center gap-4 mb-2 text-center">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
-                            <AlertTriangle className="size-6 text-destructive" />
-                        </div>
-                        <AlertDialogTitle className="text-xl">
-                            Abmelden bestätigen
-                        </AlertDialogTitle>
-                        <AlertDialogDescription className="text-base pt-2">
-                            Bist du sicher, dass du dich abmelden möchtest?
-                        </AlertDialogDescription>
-                    </div>
+                    <AlertDialogTitle>Abmelden?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Deine Einträge bleiben erhalten. Zum Eintragen meldest du dich einfach wieder an.
+                    </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter className="gap-2 sm:gap-0 sm:justify-center">
+                <AlertDialogFooter>
                     <AlertDialogCancel disabled={isPending} className="mt-0">
                         Abbrechen
                     </AlertDialogCancel>
                     <AlertDialogAction
                         onClick={handleSignOut}
                         disabled={isPending}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive gap-1.5"
+                        className="gap-1.5"
                     >
                         {isPending ? (
                             <>

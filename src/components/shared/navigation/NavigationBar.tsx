@@ -1,48 +1,25 @@
-"use client";
-
-import { DesktopNavigation } from "./DesktopNavigation";
-import { MobileNavigation } from "./MobileNavigation";
-import { navItems, adminNavItem } from "./navItemsData";
-import SignInButton from "@/components/features/auth/SignInButton";
+import { Suspense } from "react";
 import BrandLogo from "./BrandLogo";
+import { SessionNav, SessionNavPlaceholder } from "./SessionNav";
 
 interface NavigationBarProps {
-  isAdmin?: boolean;
-  showSignInButton?: boolean;
   showLogoOnly?: boolean;
 }
 
-export default function NavigationBar({
-  isAdmin = false,
-  showSignInButton = false,
-  showLogoOnly = false,
-}: NavigationBarProps) {
-  const navItemsToShow = isAdmin ? [...navItems, adminNavItem] : navItems;
-  const showNavigationContent = !showLogoOnly;
-
-  let navigationContent = null;
-  if (showNavigationContent && showSignInButton) {
-    navigationContent = <SignInButton />;
-  } else if (showNavigationContent) {
-    navigationContent = (
-      <>
-        <DesktopNavigation items={navItemsToShow} />
-        <MobileNavigation items={navItemsToShow} />
-      </>
-    );
-  }
-
+export default function NavigationBar({ showLogoOnly = false }: NavigationBarProps) {
   return (
-    <nav
-      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60"
-      aria-label="Hauptnavigation"
-    >
-      <div className="w-full max-w-7xl mx-auto flex h-14 items-center px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 w-full border-b bg-background print:hidden">
+      <nav
+        className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8"
+        aria-label="Hauptnavigation"
+      >
         <BrandLogo />
-        {showNavigationContent && <div className="flex-1" />}
-        {navigationContent}
-      </div>
-    </nav>
+        {!showLogoOnly && (
+          <Suspense fallback={<SessionNavPlaceholder />}>
+            <SessionNav />
+          </Suspense>
+        )}
+      </nav>
+    </header>
   );
 }
-

@@ -21,7 +21,7 @@ export const navItems: NavItem[] = [
 
 export const adminNavItem: NavItem = {
   href: "/dashboard",
-  label: "Admin Dashboard",
+  label: "Organisation",
   icon: LayoutDashboard,
 };
 

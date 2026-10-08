@@ -1,23 +1,30 @@
 import db from "@/db";
 import { events, shifts, tasks, taskParticipants } from "@/db/schema";
 import { getStartOfToday } from "@/lib/datetime";
-import { asc, eq, gte, inArray, lt } from "drizzle-orm";
-import type { ParticipantCounts, EventParticipantCounts } from "./types";
+import { WORKPLAN_TAG } from "@/lib/cache-tags";
+import { asc, eq, inArray } from "drizzle-orm";
+import { cacheLife, cacheTag } from "next/cache";
+import { connection } from "next/server";
+import type { EventParticipantCounts } from "./types";
 
+async function getAllEvents() {
+  "use cache";
+  cacheLife("workplan");
+  cacheTag(WORKPLAN_TAG);
+  return db.query.events.findMany({ orderBy: [asc(events.startDate)] });
+}
+
+// The list is cached; which events count as upcoming depends on the request's "today".
 export async function getFutureEvents() {
+  await connection();
   const startOfToday = getStartOfToday();
-  return db.query.events.findMany({
-    orderBy: [asc(events.startDate)],
-    where: gte(events.endDate, startOfToday),
-  });
+  return (await getAllEvents()).filter((event) => event.endDate >= startOfToday);
 }
 
 export async function getPastEvents() {
+  await connection();
   const startOfToday = getStartOfToday();
-  return db.query.events.findMany({
-    orderBy: [asc(events.startDate)],
-    where: lt(events.endDate, startOfToday),
-  });
+  return (await getAllEvents()).filter((event) => event.endDate < startOfToday);
 }
 
 export async function getEventById(eventId: string) {
@@ -53,42 +60,61 @@ export async function getEventByIdWithShiftsAndTasks(eventId: string) {
   });
 }
 
-export async function getMissingUsersPerEvent(eventId: string): Promise<ParticipantCounts> {
-  const event = await db.query.events.findFirst({
-    where: eq(events.id, eventId),
-  });
-  if (!event)
-    return { currentParticipantsCount: 0, requiredParticipantsCount: 0 };
-  const eventShiftIds = (
-    await db.query.shifts.findMany({
-      columns: { id: true },
-      where: eq(shifts.eventId, event.id),
-    })
-  ).map((v) => v.id);
-
-  const eventTasks = await db.query.tasks.findMany({
-    where: inArray(tasks.shiftId, eventShiftIds),
-  });
-
-  const eventTasksIds = eventTasks.map((v) => v.id);
-  const participants = await db.query.taskParticipants.findMany({
-    where: inArray(taskParticipants.taskId, eventTasksIds),
-  });
-  const currentParticipantsCount = participants.reduce(
-    (accumulator, participant) => accumulator + participant.groupSize,
+function countOpenSpots(
+  eventTasks: { id: string; requiredParticipants: number }[],
+  participants: { taskId: string; groupSize: number }[]
+): number {
+  const filledByTask = new Map<string, number>();
+  for (const participant of participants) {
+    filledByTask.set(
+      participant.taskId,
+      (filledByTask.get(participant.taskId) ?? 0) + participant.groupSize
+    );
+  }
+  return eventTasks.reduce(
+    (open, task) =>
+      open + Math.max(0, task.requiredParticipants - (filledByTask.get(task.id) ?? 0)),
     0
   );
-  const requiredParticipantsCount = eventTasks.reduce(
-    (accumulator, participant) =>
-      accumulator + participant.requiredParticipants,
-    0
-  );
-  return { currentParticipantsCount, requiredParticipantsCount };
 }
+
+/**
+ * The full work plan of an event: shifts, their tasks and everyone signed up,
+ * loaded in one query for the sign-up sheet.
+ */
+export async function getEventWorkPlan(eventId: string) {
+  "use cache";
+  cacheLife("workplan");
+  cacheTag(WORKPLAN_TAG);
+  return db.query.events.findFirst({
+    where: eq(events.id, eventId),
+    with: {
+      shifts: {
+        orderBy: shifts.startTime,
+        with: {
+          tasks: {
+            orderBy: tasks.startTime,
+            with: {
+              participants: {
+                orderBy: taskParticipants.createdAt,
+                with: { user: { columns: { name: true, email: true } } },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+export type EventWorkPlan = NonNullable<Awaited<ReturnType<typeof getEventWorkPlan>>>;
 
 export async function getMissingUsersPerEvents(
   eventIds: string[]
 ): Promise<EventParticipantCounts> {
+  "use cache";
+  cacheLife("workplan");
+  cacheTag(WORKPLAN_TAG);
   if (eventIds.length === 0) return {};
 
   // Get all shifts for all events
@@ -175,7 +201,9 @@ export async function getMissingUsersPerEvents(
       0
     );
 
-    result[eventId] = { currentParticipantsCount, requiredParticipantsCount };
+    const openSpotsCount = countOpenSpots(eventTasks, eventParticipants);
+
+    result[eventId] = { currentParticipantsCount, requiredParticipantsCount, openSpotsCount };
   }
 
   return result;

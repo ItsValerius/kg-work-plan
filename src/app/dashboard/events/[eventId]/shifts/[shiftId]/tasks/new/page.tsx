@@ -1,55 +1,34 @@
-import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
+import { TaskForm } from "@/components/features/tasks/TaskForm";
+import { FormPageShell } from "@/components/layout/FormPageShell";
 import { getEventById } from "@/domains/events/queries";
 import { getShiftById } from "@/domains/shifts/queries";
-import { notFound } from "next/navigation";
-import { TaskForm } from "@/components/features/tasks/TaskForm";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
-import { PageContainer } from "@/components/layout/PageContainer";
+import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Neue Aufgabe Erstellen",
+  title: "Neue Aufgabe",
 };
 
-const NewShiftPage = async (props: {
-  params: Promise<{ eventId: string; shiftId: string }>;
-}) => {
+const NewTaskPage = async (props: { params: Promise<{ eventId: string; shiftId: string }> }) => {
   const params = await props.params;
-
   const [userId, event, shift] = await Promise.all([
     getAuthenticatedAdminUserId(),
     getEventById(params.eventId),
     getShiftById(params.shiftId),
   ]);
-
-  if (!event || !shift) return notFound();
+  if (!event || !shift) notFound();
 
   return (
-    <PageContainer variant="form">
-      <Button asChild variant="outline" className="w-fit">
-        <Link href={`/events/${params.eventId}`}>
-          <ArrowLeft />
-          Zurück
-        </Link>
-      </Button>
-      <Card>
-        <CardHeader>
-          <CardTitle>Neue Aufgabe Erstellen</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TaskForm
-            userId={userId}
-            eventId={params.eventId}
-            shiftId={params.shiftId}
-            task={null}
-          />
-        </CardContent>
-      </Card>
-    </PageContainer>
+    <FormPageShell
+      title="Neue Aufgabe"
+      context={`${event.name} · Schicht ${shift.name}`}
+      backHref={`/dashboard?event=${event.id}&ansicht=planen`}
+      backLabel="Zurück zur Planung"
+    >
+      <TaskForm userId={userId} eventId={event.id} shiftId={shift.id} task={null} />
+    </FormPageShell>
   );
 };
 
-export default NewShiftPage;
+export default NewTaskPage;

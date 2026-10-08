@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 const ProfilePage = async () => {
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedUser("/profile");
 
   return (
     <PageContainer>

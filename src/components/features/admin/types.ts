@@ -12,17 +12,6 @@ export type Participant = typeof taskParticipants.$inferSelect & {
 };
 
 /**
- * Props for EventAdminActions component
- */
-export interface EventAdminActionsProps {
-  eventId: string;
-  eventName: string;
-  eventStartDate: Date;
-  eventEndDate: Date;
-  deleteAction: DeleteAction;
-}
-
-/**
  * Props for ShiftAdminActions component
  */
 export interface ShiftAdminActionsProps {

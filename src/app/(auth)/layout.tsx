@@ -7,7 +7,6 @@ export default function AuthLayout({
 }) {
     return (
         <AuthenticatedLayoutWrapper
-            requireAuth={false}
             showLogoOnly={true}
         >
             {children}

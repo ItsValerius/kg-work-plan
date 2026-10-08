@@ -139,7 +139,7 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
   return (
     <div className="grid gap-4">
       {error && !emailError && (
-        <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+        <div role="alert" className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive-surface p-3 text-[15px] text-destructive">
           <AlertCircle className="size-4 mt-0.5 shrink-0" />
           <p>{error}</p>
         </div>
@@ -153,18 +153,20 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
           {provider.id === "email" ? (
             <>
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-[15px] font-semibold">Deine E-Mail-Adresse</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="name@beispiel.de"
+                  autoComplete="email"
+                  inputMode="email"
                   required
                   name="email"
                   defaultValue={initialEmail}
                   disabled={isLoading}
                   aria-invalid={!!emailError}
                   aria-describedby={emailError ? "email-error" : undefined}
-                  className={emailError ? "border-destructive focus-visible:ring-destructive" : ""}
+                  className="h-12 text-[17px]"
                   onChange={() => {
                     // Clear error when user starts typing
                     if (emailError) setEmailError(null);
@@ -178,13 +180,13 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
                   </p>
                 )}
               </div>
-              <SubmitButton name={provider.name} />
+              <SubmitButton name={provider.name} label="Anmeldelink schicken" pendingLabel="Wird gesendet …" />
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-muted px-3 text-muted-foreground">
                     oder
                   </span>
                 </div>
@@ -196,14 +198,14 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
               type="button"
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full"
+              className="w-full bg-background"
             >
               {provider.id === "google" && (
-                <div className="relative w-6 h-6 mr-2">
-                  <Image src={"/google.svg"} fill alt="google-logo" />
+                <div className="relative size-5">
+                  <Image src={"/google.svg"} fill alt="" />
                 </div>
               )}
-              Mit {provider.name} Anmelden
+              Mit {provider.name} anmelden
             </Button>
           )}
         </form>

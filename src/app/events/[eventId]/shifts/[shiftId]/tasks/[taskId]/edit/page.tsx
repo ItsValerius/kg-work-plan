@@ -1,15 +1,12 @@
-import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
+import { TaskForm } from "@/components/features/tasks/TaskForm";
+import { FormPageShell } from "@/components/layout/FormPageShell";
 import { getEventById } from "@/domains/events/queries";
 import { getShiftById } from "@/domains/shifts/queries";
 import { getTaskById } from "@/domains/tasks/queries";
-import { notFound } from "next/navigation";
-import { TaskForm } from "@/components/features/tasks/TaskForm";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
-import { PageContainer } from "@/components/layout/PageContainer";
+import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
+import { organisationBackLink } from "@/lib/edit-origin";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Aufgabe bearbeiten",
@@ -19,7 +16,6 @@ const EditTaskPage = async (props: {
   params: Promise<{ eventId: string; shiftId: string; taskId: string }>;
 }) => {
   const params = await props.params;
-
   const [userId, event, shift, task] = await Promise.all([
     getAuthenticatedAdminUserId(),
     getEventById(params.eventId),
@@ -27,30 +23,18 @@ const EditTaskPage = async (props: {
     getTaskById(params.taskId),
   ]);
 
-  if (!event || !shift || !task) return notFound();
+  if (!event || !shift || !task) notFound();
 
+  const back = organisationBackLink(event.id, "planen");
   return (
-    <PageContainer variant="form">
-      <Button asChild variant="outline" className="w-fit">
-        <Link href={`/events/${params.eventId}`}>
-          <ArrowLeft />
-          Zurück
-        </Link>
-      </Button>
-      <Card>
-        <CardHeader>
-          <CardTitle>Aufgabe bearbeiten</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TaskForm
-            userId={userId}
-            eventId={params.eventId}
-            shiftId={params.shiftId}
-            task={task}
-          />
-        </CardContent>
-      </Card>
-    </PageContainer>
+    <FormPageShell
+      title="Aufgabe bearbeiten"
+      context={`${event.name} · Schicht ${shift.name}`}
+      backHref={back.href}
+      backLabel={back.label}
+    >
+      <TaskForm userId={userId} eventId={event.id} shiftId={shift.id} task={task} returnTo={back.href} />
+    </FormPageShell>
   );
 };
 

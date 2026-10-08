@@ -4,12 +4,10 @@ import {
   ColumnDef,
   ColumnFiltersState,
   flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
+  RowData,
+  RowSelectionState,
   SortingState,
-  useReactTable,
+  useTable,
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
@@ -32,48 +30,61 @@ import {
 } from "@/components/ui/table";
 import { events } from "@/db/schema";
 import React from "react";
-import { Download, ChevronLeft, ChevronRight } from "lucide-react";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Download, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import {
+  participantsTableFeatures,
+  type ParticipantsTableFeatures,
+} from "./table-features";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+interface DataTableProps<TData extends RowData> {
+  columns: ColumnDef<ParticipantsTableFeatures, TData>[];
   data: TData[];
   events: (typeof events.$inferSelect)[];
   shifts?: Array<{ id: string; name: string; eventName: string }>;
   tasks?: Array<{ id: string; name: string; shiftName: string }>;
-  onDeleteRows?: (selectedRowIds: string[]) => void;
+  onDeleteRows?: (selectedRowIds: string[]) => void | Promise<void>;
 }
 
-interface Identifiable {
+type Identifiable = {
   id: string; // or whatever type your IDs are
-}
+};
 
-export function DataTable<TData extends Identifiable, TValue>({
+export function DataTable<TData extends Identifiable>({
   columns,
   data,
   events,
   shifts = [],
   tasks = [],
   onDeleteRows,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  const [rowSelection, setRowSelection] = React.useState<
-    Record<string, boolean>
-  >({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>(
+    {}
+  );
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [selectResetKey, setSelectResetKey] = React.useState(0);
 
-  const table = useReactTable({
+  const table = useTable({
+    features: participantsTableFeatures,
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
     getRowId: (originalRow) => originalRow.id,
     state: {
@@ -110,18 +121,31 @@ export function DataTable<TData extends Identifiable, TValue>({
     },
     initialState: {
       pagination: {
+        pageIndex: 0,
         pageSize: 10,
       },
     },
   });
 
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const [isRemoving, startRemoving] = React.useTransition();
+  const selectedCount = Object.keys(rowSelection).length;
+
   const handleDelete = () => {
-    if (onDeleteRows) {
-      const selectedRowIds = Object.keys(rowSelection).filter(
-        (rowId) => rowSelection[rowId]
-      );
-      onDeleteRows(selectedRowIds);
-    }
+    if (!onDeleteRows) return;
+    const selectedRowIds = Object.keys(rowSelection).filter((rowId) => rowSelection[rowId]);
+    startRemoving(async () => {
+      try {
+        await onDeleteRows(selectedRowIds);
+        toast.success(
+          selectedRowIds.length === 1 ? "1 Eintrag ausgetragen." : `${selectedRowIds.length} Einträge ausgetragen.`
+        );
+        setRowSelection({});
+        setConfirmOpen(false);
+      } catch {
+        toast.error("Austragen hat nicht geklappt. Bitte versuche es noch einmal.");
+      }
+    });
   };
 
   const handleExport = () => {
@@ -210,7 +234,7 @@ export function DataTable<TData extends Identifiable, TValue>({
             <Select
               key={`event-${selectResetKey}`}
               value={
-                (table.getColumn("event")?.getFilterValue() as string) || undefined
+                (table.getColumn("event")?.getFilterValue() as string) ?? ""
               }
               onValueChange={(value) =>
                 table.getColumn("event")?.setFilterValue(value || undefined)
@@ -234,7 +258,7 @@ export function DataTable<TData extends Identifiable, TValue>({
               <Select
                 key={`shift-${selectResetKey}`}
                 value={
-                  (table.getColumn("task.shift.name")?.getFilterValue() as string) || undefined
+                  (table.getColumn("task.shift.name")?.getFilterValue() as string) ?? ""
                 }
                 onValueChange={(value) =>
                   table.getColumn("task.shift.name")?.setFilterValue(value || undefined)
@@ -259,7 +283,7 @@ export function DataTable<TData extends Identifiable, TValue>({
               <Select
                 key={`task-${selectResetKey}`}
                 value={
-                  (table.getColumn("task.name")?.getFilterValue() as string) || undefined
+                  (table.getColumn("task.name")?.getFilterValue() as string) ?? ""
                 }
                 onValueChange={(value) =>
                   table.getColumn("task.name")?.setFilterValue(value || undefined)
@@ -283,7 +307,7 @@ export function DataTable<TData extends Identifiable, TValue>({
             <Select
               key={`groupSize-${selectResetKey}`}
               value={
-                (table.getColumn("groupSize")?.getFilterValue() as string) || undefined
+                (table.getColumn("groupSize")?.getFilterValue() as string) ?? ""
               }
               onValueChange={(value) =>
                 table.getColumn("groupSize")?.setFilterValue(value || undefined)
@@ -319,19 +343,43 @@ export function DataTable<TData extends Identifiable, TValue>({
               <Download className="mr-2 size-4" />
               <span className="sm:inline">CSV exportieren</span>
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              className="w-full sm:w-auto"
-              disabled={Object.keys(rowSelection).length === 0}
-            >
-              Löschen ({Object.keys(rowSelection).length})
-            </Button>
+            <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="w-full sm:w-auto" disabled={selectedCount === 0}>
+                  Austragen ({selectedCount})
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {selectedCount === 1 ? "1 Eintrag austragen?" : `${selectedCount} Einträge austragen?`}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Die Plätze werden wieder frei. Sag den Personen am besten kurz Bescheid.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={isRemoving} autoFocus>
+                    Behalten
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDelete();
+                    }}
+                    disabled={isRemoving}
+                    className="bg-danger text-white hover:bg-destructive"
+                  >
+                    {isRemoving ? "Wird ausgetragen …" : "Ja, austragen"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </div>
       {/* Table with horizontal scroll on mobile */}
-      <div className="rounded-md border overflow-x-auto">
+      <div className="overflow-x-auto border-t-2 border-foreground/80">
         <Table className="min-w-[640px]">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -358,7 +406,7 @@ export function DataTable<TData extends Identifiable, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
-                  {row.getVisibleCells().map((cell) => (
+                  {row.getAllCells().map((cell) => (
                     <TableCell key={cell.id} className="whitespace-nowrap">
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -386,20 +434,20 @@ export function DataTable<TData extends Identifiable, TValue>({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2">
         <div className="text-sm text-muted-foreground text-center sm:text-left">
           {table.getFilteredSelectedRowModel().rows.length} von{" "}
-          {table.getFilteredRowModel().rows.length} Zeile(n) ausgewählt.
+          {table.getFilteredRowModel().rows.length} ausgewählt
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-8">
           <div className="flex items-center gap-2">
             <p className="text-sm font-medium whitespace-nowrap">Zeilen</p>
-            <div className="w-[70px]">
+            <div className="w-[84px]">
               <Select
-                value={`${table.getState().pagination.pageSize}`}
+                value={`${table.state.pagination.pageSize}`}
                 onValueChange={(value) => {
                   table.setPageSize(Number(value));
                 }}
               >
-                <SelectTrigger className="h-8 w-full">
-                  <SelectValue placeholder={table.getState().pagination.pageSize} />
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={table.state.pagination.pageSize} />
                 </SelectTrigger>
                 <SelectContent position="popper" side="top" className="w-[70px]">
                   {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -413,22 +461,21 @@ export function DataTable<TData extends Identifiable, TValue>({
           </div>
           <div className="flex items-center gap-2">
             <div className="text-sm font-medium whitespace-nowrap">
-              {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+              {table.state.pagination.pageIndex + 1} / {table.getPageCount()}
             </div>
             <div className="flex items-center gap-1">
               <Button
                 variant="outline"
-                className="hidden h-8 w-8 p-0 sm:flex"
+                size="icon" className="hidden sm:flex"
                 onClick={() => table.setPageIndex(0)}
                 disabled={!table.getCanPreviousPage()}
               >
                 <span className="sr-only">Zur ersten Seite</span>
-                <ChevronLeft className="size-4" />
-                <ChevronLeft className="size-4" />
+                <ChevronsLeft className="size-4" />
               </Button>
               <Button
                 variant="outline"
-                className="h-8 w-8 p-0"
+                size="icon"
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
               >
@@ -437,7 +484,7 @@ export function DataTable<TData extends Identifiable, TValue>({
               </Button>
               <Button
                 variant="outline"
-                className="h-8 w-8 p-0"
+                size="icon"
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
               >
@@ -446,13 +493,12 @@ export function DataTable<TData extends Identifiable, TValue>({
               </Button>
               <Button
                 variant="outline"
-                className="hidden h-8 w-8 p-0 sm:flex"
+                size="icon" className="hidden sm:flex"
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                 disabled={!table.getCanNextPage()}
               >
                 <span className="sr-only">Zur letzten Seite</span>
-                <ChevronRight className="size-4" />
-                <ChevronRight className="size-4" />
+                <ChevronsRight className="size-4" />
               </Button>
             </div>
           </div>

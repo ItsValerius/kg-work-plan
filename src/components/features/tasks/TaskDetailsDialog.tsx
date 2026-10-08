@@ -73,7 +73,7 @@ export function TaskDetailsDialog({
                     <div className="space-y-3">
                         <div className="flex items-center gap-2">
                             <Clock className="size-4 sm:size-5 text-muted-foreground shrink-0" />
-                            <h3 className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                            <h3 className="text-[15px] font-semibold text-foreground">
                                 Zeit
                             </h3>
                         </div>
@@ -86,7 +86,7 @@ export function TaskDetailsDialog({
                         <div className="space-y-3">
                             <div className="flex items-center gap-2">
                                 <FileText className="size-4 sm:size-5 text-muted-foreground shrink-0" />
-                                <h3 className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                                <h3 className="text-[15px] font-semibold text-foreground">
                                     Beschreibung
                                 </h3>
                             </div>
@@ -99,14 +99,14 @@ export function TaskDetailsDialog({
                     <div className="space-y-4 sm:space-y-5">
                         <div className="flex items-center gap-2">
                             <Users className="size-4 sm:size-5 text-muted-foreground shrink-0" />
-                            <h3 className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                            <h3 className="text-[15px] font-semibold text-foreground">
                                 Teilnehmer
                             </h3>
                         </div>
                         <div className="space-y-4 sm:space-y-5">
                             <div className="space-y-3.5 p-4 sm:p-5 rounded-lg border bg-muted/40 dark:bg-muted/20">
                                 <div className="flex items-center justify-between gap-2">
-                                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                    <span className="text-[15px] font-semibold text-muted-foreground">
                                         Status
                                     </span>
                                     {isFull ? (

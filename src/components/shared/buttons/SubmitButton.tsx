@@ -8,10 +8,14 @@ const SubmitButton = ({
   name,
   variant,
   children,
+  label,
+  pendingLabel,
 }: {
   name: string;
   variant?: ButtonProps["variant"];
   children?: React.ReactNode;
+  label?: string;
+  pendingLabel?: string;
 }) => {
   const { pending } = useFormStatus();
   return (
@@ -22,11 +26,14 @@ const SubmitButton = ({
       variant={variant}
     >
       {pending ? (
-        <Loader2 className="animate-spin" />
+        <>
+          <Loader2 className="animate-spin" aria-hidden="true" />
+          {pendingLabel && <span>{pendingLabel}</span>}
+        </>
       ) : (
         <>
           {children}
-          <span>Mit {name} Anmelden</span>
+          <span>{label ?? `Mit ${name} Anmelden`}</span>
         </>
       )}
     </Button>

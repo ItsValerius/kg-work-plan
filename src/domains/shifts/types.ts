@@ -6,8 +6,8 @@ export type Shift = typeof shifts.$inferSelect;
 export type ShiftInsert = typeof shifts.$inferInsert;
 
 export const shiftSchema = createInsertSchema(shifts).extend({
-  startTime: z.coerce.date(),
-  endTime: z.coerce.date(),
+  startTime: z.coerce.date<Date>(),
+  endTime: z.coerce.date<Date>(),
 });
 
 export type ShiftInput = z.infer<typeof shiftSchema>;

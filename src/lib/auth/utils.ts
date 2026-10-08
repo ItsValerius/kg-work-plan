@@ -1,15 +1,26 @@
 import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { cache } from "react";
 import type { User } from "@/domains/users/types";
 import { isAdminRole } from "./roles";
 
 /**
- * Get the current user session
+ * Get the current user session. Deduplicated per request, so layouts, pages and
+ * helpers can all ask without extra database round trips.
  */
-export async function getSession() {
+export const getSession = cache(async () => {
   return auth.api.getSession({
     headers: await headers(),
   });
+});
+
+/**
+ * Better Auth answers "no session" when its database is unreachable. A session cookie
+ * without a session means the state is unknown rather than signed out.
+ */
+export async function hasSessionCookie(): Promise<boolean> {
+  return (await cookies()).getAll().some((cookie) => cookie.name.endsWith("better-auth.session_token"));
 }
 
 /**
@@ -80,13 +91,12 @@ export function isLoggedIn(session?: SessionType | null): boolean | Promise<bool
 }
 
 /**
- * Get the authenticated user, throws if not authenticated
- * Use this in page components to get the user object
+ * Get the authenticated user for a page; sends signed-out visitors to the sign-in page.
  */
-export async function getAuthenticatedUser(): Promise<User> {
+export async function getAuthenticatedUser(callbackUrl?: string): Promise<User> {
   const session = await getSession();
   if (!session?.user) {
-    throw new Error("User not authenticated");
+    redirect(callbackUrl ? `/signin?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/signin");
   }
 
   return session.user;

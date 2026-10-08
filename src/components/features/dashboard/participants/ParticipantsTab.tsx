@@ -8,10 +8,10 @@ async function ParticipantsContent() {
         await getParticipantsData();
 
     return (
-        <div className="space-y-3 sm:space-y-4">
-            <h2 className="text-xl sm:text-2xl font-semibold">Teilnehmer Übersicht</h2>
-            <p className="text-sm sm:text-base text-muted-foreground">
-                Verwalten Sie alle Teilnehmer-Zuweisungen mit erweiterten Filtern und Export-Funktionen.
+        <div className="space-y-4">
+            <h2 className="text-[32px] md:text-[44px]">Alle Helfer</h2>
+            <p className="max-w-[65ch] text-[17px] text-muted-foreground">
+                Alle Einträge über alle Veranstaltungen: filtern, mehrere auf einmal austragen oder als Liste exportieren.
             </p>
             <ParticipantsTable
                 userTasks={userTasks}

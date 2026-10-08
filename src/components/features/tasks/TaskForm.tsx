@@ -27,11 +27,14 @@ export function TaskForm({
   shiftId,
   eventId,
   task,
+  returnTo,
 }: {
   userId: string;
   shiftId: string;
   eventId: string;
   task: typeof tasks.$inferSelect | null | undefined;
+  /** Where to go after saving an edit; defaults to the event's work plan. */
+  returnTo?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +73,7 @@ export function TaskForm({
 
       return;
     }
-    redirect(`/events/${eventId}`);
+    redirect(task ? (returnTo ?? `/events/${eventId}`) : `/dashboard?event=${eventId}&ansicht=planen`);
   }
   return (
     <Form {...form}>

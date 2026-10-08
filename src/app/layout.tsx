@@ -2,16 +2,13 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { ZodLocale } from "@/components/layout/ZodLocale";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const barlow = localFont({
+  src: "./fonts/BarlowCondensed-Bold.woff2",
+  variable: "--font-barlow",
+  weight: "700",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -30,13 +27,14 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
+        className={barlow.variable}
       >
         <a href="#main-content" className="skip-to-content">
           Zum Hauptinhalt springen
         </a>
         {children}
-        <Toaster richColors={true} position="top-right" />
+        <Toaster position="bottom-center" />
+        <ZodLocale />
       </body>
     </html>
   );

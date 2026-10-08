@@ -59,7 +59,7 @@ export function DateTimePicker({ date, setDate }: TimePickerProps) {
           mode="single"
           selected={date}
           onSelect={(d) => handleSelect(d)}
-          initialFocus
+          autoFocus
           locale={de}
         />
         <div className="p-3 border-t border-border">

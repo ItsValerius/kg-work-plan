@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { z } from "zod";
 import { DataTableColumnHeader } from "./data-table-column-header";
+import type { ParticipantsTableFeatures } from "./table-features";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -35,7 +36,7 @@ export const UserTaskSchema = z.object({
 });
 
 type UserTasksResult = z.infer<typeof UserTaskSchema>;
-export const columns: ColumnDef<UserTasksResult>[] = [
+export const columns: ColumnDef<ParticipantsTableFeatures, UserTasksResult>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -63,23 +64,30 @@ export const columns: ColumnDef<UserTasksResult>[] = [
     ),
   },
   {
-    accessorKey: "user.email",
-    id: "email",
+    accessorFn: (row) => row.task.shift.event.name,
+    id: "event",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Email" />
+      <DataTableColumnHeader column={column} title="Veranstaltung" />
     ),
   },
   {
-    accessorKey: "groupName",
+    accessorKey: "user.email",
+    id: "email",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Gruppenname" />
+      <DataTableColumnHeader column={column} title="E-Mail" />
     ),
   },
   {
     accessorKey: "groupSize",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Gruppengröße" />
+      <DataTableColumnHeader column={column} title="Gruppe" />
     ),
+    cell: ({ row }) => {
+      const size = row.original.groupSize;
+      const name = row.original.groupName;
+      if (!name && size === 1) return <span className="text-muted-foreground">allein</span>;
+      return `${name ? `„${name}“ · ` : ""}${size}`;
+    },
     filterFn: (row, id, value) => {
       const groupSize = row.getValue(id) as number;
       if (value === "1") return groupSize === 1;
@@ -95,21 +103,17 @@ export const columns: ColumnDef<UserTasksResult>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Aufgabe" />
     ),
-  },
-  {
-    accessorKey: "task.startTime",
-    id: "startTime",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Zeit" />
-    ),
     cell: ({ row }) => {
-      const date = new Date(row.getValue("startTime"));
-      const formatted = date.toLocaleTimeString("de-DE", {
+      const time = new Date(row.original.task.startTime).toLocaleTimeString("de-DE", {
         timeZone: "Europe/Berlin",
         hour: "2-digit",
         minute: "2-digit",
       });
-      return formatted;
+      return (
+        <span>
+          {row.original.task.name} <span className="text-muted-foreground tabular">· {time}</span>
+        </span>
+      );
     },
   },
   {
@@ -117,13 +121,6 @@ export const columns: ColumnDef<UserTasksResult>[] = [
     id: "task.shift.name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Schicht" />
-    ),
-  },
-  {
-    accessorFn: (row) => row.task.shift.event.name,
-    id: "event",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Veranstaltung" />
     ),
   },
 ];

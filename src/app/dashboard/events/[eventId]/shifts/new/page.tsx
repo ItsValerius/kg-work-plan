@@ -1,43 +1,29 @@
-import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 import { ShiftForm } from "@/components/features/shifts/ShiftForm";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { PageContainer } from "@/components/layout/PageContainer";
+import { FormPageShell } from "@/components/layout/FormPageShell";
+import { getEventById } from "@/domains/events/queries";
+import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
+import { formatShortDate } from "@/lib/datetime";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Neue Schicht Erstellen",
+  title: "Neue Schicht",
 };
 
-const NewShiftPage = async (props: {
-  params: Promise<{ eventId: string }>;
-}) => {
+const NewShiftPage = async (props: { params: Promise<{ eventId: string }> }) => {
   const params = await props.params;
-  const userId = await getAuthenticatedAdminUserId();
+  const [userId, event] = await Promise.all([getAuthenticatedAdminUserId(), getEventById(params.eventId)]);
+  if (!event) notFound();
 
   return (
-    <PageContainer variant="form">
-      <Button asChild variant="outline" className="w-fit">
-        <Link href={`/events/${params.eventId}`}>
-          <ArrowLeft />
-          Zurück
-        </Link>
-      </Button>
-      <Card>
-        <CardHeader>
-          <CardTitle>Neue Schicht Erstellen</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ShiftForm
-            userId={userId}
-            eventId={params.eventId}
-            shift={null}
-          />
-        </CardContent>
-      </Card>
-    </PageContainer>
+    <FormPageShell
+      title="Neue Schicht"
+      context={`${event.name} · ${formatShortDate(event.startDate)}`}
+      backHref={`/dashboard?event=${event.id}&ansicht=planen`}
+      backLabel="Zurück zur Planung"
+    >
+      <ShiftForm userId={userId} eventId={event.id} shift={null} />
+    </FormPageShell>
   );
 };
 

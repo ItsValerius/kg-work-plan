@@ -1,12 +1,12 @@
 import { AuthenticatedLayoutWrapper } from "@/components/layout/AuthenticatedLayoutWrapper";
 
-export default async function ProfileLayout({
+export default function ProfileLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <AuthenticatedLayoutWrapper requireAuth={true}>
+    <AuthenticatedLayoutWrapper>
       {children}
     </AuthenticatedLayoutWrapper>
   );

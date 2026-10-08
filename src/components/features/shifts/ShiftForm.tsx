@@ -26,10 +26,13 @@ export function ShiftForm({
   userId,
   eventId,
   shift,
+  returnTo,
 }: {
   userId: string;
   eventId: string;
   shift: typeof shifts.$inferSelect | null | undefined;
+  /** Where to go after saving an edit; defaults to the event's work plan. */
+  returnTo?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +69,7 @@ export function ShiftForm({
       return;
     }
 
-    redirect(`/events/${eventId}`);
+    redirect(shift ? (returnTo ?? `/events/${eventId}`) : `/dashboard?event=${eventId}&ansicht=planen`);
   }
   return (
     <Form {...form}>

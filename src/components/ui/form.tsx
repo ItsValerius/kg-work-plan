@@ -157,7 +157,7 @@ function FormMessage({
     <p
       data-slot="form-message"
       id={formMessageId}
-      className={cn("text-sm font-medium text-destructive", className)}
+      className={cn("text-[15px] font-medium text-destructive", className)}
       {...props}
     >
       {body}

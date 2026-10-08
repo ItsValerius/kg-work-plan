@@ -6,8 +6,8 @@ export type Event = typeof events.$inferSelect;
 export type EventInsert = typeof events.$inferInsert;
 
 export const eventSchema = createInsertSchema(events).extend({
-  startDate: z.coerce.date(),
-  endDate: z.coerce.date(),
+  startDate: z.coerce.date<Date>(),
+  endDate: z.coerce.date<Date>(),
 });
 
 export type EventInput = z.infer<typeof eventSchema>;
@@ -15,6 +15,8 @@ export type EventInput = z.infer<typeof eventSchema>;
 export interface ParticipantCounts {
   currentParticipantsCount: number;
   requiredParticipantsCount: number;
+  /** Spots still free, summed per task, so an overstaffed task can't hide another task's gap. */
+  openSpotsCount: number;
 }
 
 export type EventParticipantCounts = Record<string, ParticipantCounts>;
@@ -29,13 +31,6 @@ export interface EventsSectionProps {
   emptyStateActionText?: string;
   showAddButton: boolean;
   isFutureEvents: boolean;
-}
-
-export interface EventCardProps {
-  event: Event;
-  userIsAdmin: boolean;
-  currentParticipantsCount: number;
-  requiredParticipantsCount: number;
 }
 
 export interface ShiftIdMapValue {

@@ -10,8 +10,11 @@ import {
   verification,
 } from "../../db/schema/index";
 import { eq } from "drizzle-orm";
+import { renderMagicLinkEmail } from "./magic-link-email";
 
-dotenv.config();
+const MAGIC_LINK_MINUTES = 15;
+
+dotenv.config({ quiet: true });
 
 // Better Auth configuration with magic link (passwordless email) authentication
 // See: https://www.better-auth.com/docs/plugins/magic-link
@@ -27,6 +30,8 @@ export const auth = betterAuth({
   }),
   plugins: [
     magicLink({
+      // Long enough for someone who checks their mail a little later; the link works once.
+      expiresIn: MAGIC_LINK_MINUTES * 60,
       sendMagicLink: async ({ email, url }) => {
         const { createTransport } = await import("nodemailer");
         const transport = createTransport({
@@ -38,13 +43,17 @@ export const auth = betterAuth({
           },
         });
 
-        const host = new URL(url).host;
+        const { subject, text, html } = renderMagicLinkEmail({
+          url,
+          baseUrl: process.env.BETTER_AUTH_URL ?? new URL(url).origin,
+          minutesValid: MAGIC_LINK_MINUTES,
+        });
         const result = await transport.sendMail({
           to: email,
           from: process.env.EMAIL_FROM,
-          subject: `Anmeldung bei ${host}`,
-          text: `Sign in to ${host}\n${url}\n\n`,
-          html: html({ url, host }),
+          subject,
+          text,
+          html,
         });
 
         const failed = result.rejected;
@@ -92,50 +101,3 @@ export const auth = betterAuth({
     ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : [])
   ],
 });
-
-function html(params: { url: string; host: string }) {
-  const { url, host } = params;
-
-  const escapedHost = host.replace(/\./g, "&#8203;.");
-
-  const brandColor = "#346df1";
-  const color = {
-    background: "#f9f9f9",
-    text: "#444",
-    mainBackground: "#fff",
-    buttonBackground: brandColor,
-    buttonBorder: brandColor,
-    buttonText: "#fff",
-  };
-
-  return `
-<body style="background: ${color.background};">
-  <table width="100%" border="0" cellspacing="20" cellpadding="0"
-    style="background: ${color.mainBackground}; max-width: 600px; margin: auto; border-radius: 10px;">
-    <tr>
-      <td align="center"
-        style="padding: 10px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${color.text};">
-        Bei <strong>${escapedHost}</strong> anmelden
-      </td>
-    </tr>
-    <tr>
-      <td align="center" style="padding: 20px 0;">
-        <table border="0" cellspacing="0" cellpadding="0">
-          <tr>
-            <td align="center" style="border-radius: 5px;" bgcolor="${color.buttonBackground}"><a href="${url}"
-                target="_blank"
-                style="font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${color.buttonText}; text-decoration: none; border-radius: 5px; padding: 10px 20px; border: 1px solid ${color.buttonBorder}; display: inline-block; font-weight: bold;">Anmelden</a></td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"
-        style="padding: 0px 0px 10px 0px; font-size: 16px; line-height: 22px; font-family: Helvetica, Arial, sans-serif; color: ${color.text};">
-       Falls du diese Anfrage nicht gestellt hast, kannst du diese E-Mail ignorieren.
-      </td>
-    </tr>
-  </table>
-</body>
-`;
-}
