@@ -58,6 +58,8 @@ export const columns: ColumnDef<ParticipantsTableFeatures, UserTasksResult>[] = 
   {
     accessorKey: "user.name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+    cell: ({ row }) =>
+      row.original.user?.name || <span className="text-muted-foreground">Ohne Namen</span>,
   },
   {
     accessorFn: (row) => row.task.shift.event.name,
