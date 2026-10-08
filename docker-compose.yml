@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16
@@ -29,6 +27,17 @@ services:
       - "54330:80"
     depends_on:
       - postgres
+
+  mailpit:
+    # Catches the magic-link emails locally; inbox at http://localhost:8025
+    image: axllent/mailpit:latest
+    container_name: kg-work-plan-mailpit
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "true"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "true"
+    ports:
+      - "1025:1025"
+      - "8025:8025"
 
 volumes:
   postgres_data:
