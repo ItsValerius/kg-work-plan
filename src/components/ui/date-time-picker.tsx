@@ -34,18 +34,20 @@ export function DateTimePicker({ date, setDate }: TimePickerProps) {
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant={"outline"}
-          className={cn(
-            "w-[280px] justify-start text-left font-normal",
-            !date && "text-muted-foreground",
-          )}
-        >
-          <CalendarIcon className="mr-2 size-4" />
-          {date ? format(date, "PPP HH:mm:ss", { locale: de }) : <span>Pick a date</span>}
-        </Button>
-      </PopoverTrigger>
+      <PopoverTrigger
+        render={
+          <Button
+            variant={"outline"}
+            className={cn(
+              "w-[280px] justify-start text-left font-normal",
+              !date && "text-muted-foreground",
+            )}
+          >
+            <CalendarIcon className="mr-2 size-4" />
+            {date ? format(date, "PPP HH:mm:ss", { locale: de }) : <span>Pick a date</span>}
+          </Button>
+        }
+      />
       <PopoverContent className="w-auto p-0">
         <Calendar
           mode="single"

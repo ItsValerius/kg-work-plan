@@ -124,24 +124,26 @@ export function EventForm({
             <FormItem className="flex flex-col">
               <FormLabel>Startdatum</FormLabel>
               <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[240px] pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground",
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP", { locale: de })
-                      ) : (
-                        <span>Wähle ein Datum</span>
-                      )}
-                      <CalendarIcon className="ml-auto size-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
+                <PopoverTrigger
+                  render={
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-[240px] pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground",
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP", { locale: de })
+                        ) : (
+                          <span>Wähle ein Datum</span>
+                        )}
+                        <CalendarIcon className="ml-auto size-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  }
+                />
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
@@ -164,24 +166,26 @@ export function EventForm({
             <FormItem className="flex flex-col">
               <FormLabel>Enddatum</FormLabel>
               <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[240px] pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground",
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP", { locale: de })
-                      ) : (
-                        <span>Wähle ein Datum</span>
-                      )}
-                      <CalendarIcon className="ml-auto size-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
+                <PopoverTrigger
+                  render={
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-[240px] pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground",
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP", { locale: de })
+                        ) : (
+                          <span>Wähle ein Datum</span>
+                        )}
+                        <CalendarIcon className="ml-auto size-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  }
+                />
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
