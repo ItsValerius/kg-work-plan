@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
-import * as LabelPrimitive from "@radix-ui/react-label"
-import { Slot } from "@radix-ui/react-slot"
+import { mergeProps } from "@base-ui/react/merge-props"
+import { useRender } from "@base-ui/react/use-render"
 import {
   Controller,
   ControllerProps,
@@ -92,7 +92,7 @@ function FormItem({
 function FormLabel({
   className,
   ...props
-}: React.ComponentProps<typeof LabelPrimitive.Root>) {
+}: React.ComponentProps<typeof Label>) {
   const { error, formItemId } = useFormField()
 
   return (
@@ -105,24 +105,33 @@ function FormLabel({
   )
 }
 
+/**
+ * Wires the single child control (input, select trigger, ...) to its label and
+ * messages. The child element itself is rendered; props and refs from a parent
+ * trigger pass straight through to it.
+ */
 function FormControl({
+  children,
+  ref,
   ...props
-}: React.ComponentProps<typeof Slot>) {
+}: React.ComponentPropsWithRef<"div"> & { children: React.ReactElement }) {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
 
-  return (
-    <Slot
-      data-slot="form-control"
-      id={formItemId}
-      aria-describedby={
-        !error
+  return useRender({
+    render: children,
+    ref,
+    props: mergeProps<"div">(
+      {
+        "data-slot": "form-control",
+        id: formItemId,
+        "aria-describedby": !error
           ? `${formDescriptionId}`
-          : `${formDescriptionId} ${formMessageId}`
-      }
-      aria-invalid={!!error}
-      {...props}
-    />
-  )
+          : `${formDescriptionId} ${formMessageId}`,
+        "aria-invalid": !!error,
+      } as React.ComponentProps<"div">,
+      props
+    ),
+  })
 }
 
 function FormDescription({
