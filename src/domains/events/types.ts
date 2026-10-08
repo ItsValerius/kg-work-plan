@@ -65,8 +65,3 @@ export interface EventsSectionProps {
   showAddButton: boolean;
   isFutureEvents: boolean;
 }
-
-export interface ShiftIdMapValue {
-  id: string;
-  startTime: Date;
-}

@@ -2,17 +2,10 @@
 
 import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 import * as domainActions from "@/domains/shifts/functions";
-import { quickAddShiftSchema, shiftSchema, type ShiftInput } from "@/domains/shifts/types";
-import { firstIssueMessage, parseOrThrow } from "@/lib/validation";
+import { quickAddShiftSchema } from "@/domains/shifts/types";
+import { firstIssueMessage } from "@/lib/validation";
 import { updateTag } from "next/cache";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
-
-export async function createOrUpdateShift(data: ShiftInput) {
-  const userId = await getAuthenticatedAdminUserId();
-  const result = await domainActions.createOrUpdateShift(parseOrThrow(shiftSchema, data), userId);
-  updateTag(WORKPLAN_TAG);
-  return result;
-}
 
 export type QuickAddShiftResult = { ok: true } | { ok: false; error: string };
 

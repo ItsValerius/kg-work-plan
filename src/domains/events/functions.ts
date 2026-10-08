@@ -3,7 +3,7 @@ import { events, shifts, tasks } from "@/db/schema";
 import { logger } from "@/lib/logger";
 import { eq } from "drizzle-orm";
 import { getEventByIdWithShiftsAndTasks } from "./queries";
-import type { EventInput, ShiftIdMapValue } from "./types";
+import type { EventInput } from "./types";
 
 export async function createOrUpdateEvent(data: EventInput, userId: string) {
   try {
@@ -63,77 +63,58 @@ export async function duplicateEvent(
       throw new Error("Event not found");
     }
 
-    const originalStartDate = new Date(originalEvent.startDate);
+    const originalStartDate = new Date(originalEvent.startDate).getTime();
     const newStartDate = new Date(startDate);
-    const newEndDate = new Date(endDate);
+    // Keep every time at the same distance from the event start.
+    const shiftTime = (time: Date) =>
+      new Date(newStartDate.getTime() + (new Date(time).getTime() - originalStartDate));
 
-    // Create the new event
-    const [newEvent] = await db
-      .insert(events)
-      .values({
-        name,
-        description: originalEvent.description,
-        startDate: newStartDate,
-        endDate: newEndDate,
-        createdById: userId,
-      })
-      .returning();
-
-    // Create mappings of old IDs to new data
-    const shiftIdMap = new Map<string, ShiftIdMapValue>();
-
-    // Duplicate shifts
-    for (const originalShift of originalEvent.shifts) {
-      const originalShiftStart = new Date(originalShift.startTime);
-      const originalShiftEnd = new Date(originalShift.endTime);
-
-      // Calculate relative time from event start
-      const relativeStartMs = originalShiftStart.getTime() - originalStartDate.getTime();
-      const relativeEndMs = originalShiftEnd.getTime() - originalStartDate.getTime();
-
-      // Apply the same relative offset to new dates
-      const newShiftStart = new Date(newStartDate.getTime() + relativeStartMs);
-      const newShiftEnd = new Date(newStartDate.getTime() + relativeEndMs);
-
-      const [newShift] = await db
-        .insert(shifts)
+    // All or nothing: a dropped connection must not leave a half-copied event.
+    const newEvent = await db.transaction(async (tx) => {
+      const [newEvent] = await tx
+        .insert(events)
         .values({
-          eventId: newEvent.id,
-          name: originalShift.name,
-          startTime: newShiftStart,
-          endTime: newShiftEnd,
+          name,
+          description: originalEvent.description,
+          startDate: newStartDate,
+          endDate: new Date(endDate),
           createdById: userId,
         })
         .returning();
 
-      shiftIdMap.set(originalShift.id, { id: newShift.id, startTime: newShiftStart });
-    }
-
-    // Duplicate tasks
-    for (const originalShift of originalEvent.shifts) {
-      const newShiftData = shiftIdMap.get(originalShift.id);
-      if (!newShiftData) continue;
-
-      for (const originalTask of originalShift.tasks) {
-        const originalTaskStart = new Date(originalTask.startTime);
-
-        // Calculate relative time from shift start
-        const originalShiftStart = new Date(originalShift.startTime);
-        const relativeTaskMs = originalTaskStart.getTime() - originalShiftStart.getTime();
-
-        // Apply relative offset to new shift start time
-        const newTaskStart = new Date(newShiftData.startTime.getTime() + relativeTaskMs);
-
-        await db.insert(tasks).values({
-          shiftId: newShiftData.id,
-          name: originalTask.name,
-          description: originalTask.description,
-          startTime: newTaskStart,
-          requiredParticipants: originalTask.requiredParticipants,
-          createdById: userId,
-        });
+      if (originalEvent.shifts.length === 0) {
+        return newEvent;
       }
-    }
+
+      // Ids are made here so tasks can point at their new shift without relying on row order.
+      const newShiftIds = originalEvent.shifts.map(() => crypto.randomUUID());
+      await tx.insert(shifts).values(
+        originalEvent.shifts.map((shift, index) => ({
+          id: newShiftIds[index],
+          eventId: newEvent.id,
+          name: shift.name,
+          startTime: shiftTime(shift.startTime),
+          endTime: shiftTime(shift.endTime),
+          createdById: userId,
+        })),
+      );
+
+      const newTasks = originalEvent.shifts.flatMap((shift, index) =>
+        shift.tasks.map((task) => ({
+          shiftId: newShiftIds[index],
+          name: task.name,
+          description: task.description,
+          startTime: shiftTime(task.startTime),
+          requiredParticipants: task.requiredParticipants,
+          createdById: userId,
+        })),
+      );
+      if (newTasks.length > 0) {
+        await tx.insert(tasks).values(newTasks);
+      }
+
+      return newEvent;
+    });
 
     logger.info("Event duplicated", {
       originalEventId: eventId,

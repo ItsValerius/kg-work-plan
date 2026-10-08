@@ -52,12 +52,3 @@ export async function getTaskByIdWithShift(taskId: string) {
     },
   });
 }
-
-export async function getTaskWithParticipants(taskId: string) {
-  return db.query.tasks.findFirst({
-    where: eq(tasks.id, taskId),
-    with: {
-      participants: true,
-    },
-  });
-}

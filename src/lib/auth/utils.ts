@@ -75,24 +75,6 @@ export function isAdmin(session?: SessionType | null): boolean | Promise<boolean
 }
 
 /**
- * Check if the current user is logged in
- * When a session is provided (including null), returns synchronously. Otherwise, fetches the session asynchronously.
- */
-export function isLoggedIn(session: SessionType | null): boolean;
-export function isLoggedIn(): Promise<boolean>;
-export function isLoggedIn(session?: SessionType | null): boolean | Promise<boolean> {
-  if (session !== undefined) {
-    // Synchronous when session is provided
-    return !!session?.user;
-  }
-  // Asynchronous when session needs to be fetched
-  return (async () => {
-    const sessionToCheck = await getSession();
-    return !!sessionToCheck?.user;
-  })();
-}
-
-/**
  * Get the authenticated user for a page; sends signed-out visitors to the sign-in page.
  */
 export async function getAuthenticatedUser(callbackUrl?: string): Promise<User> {

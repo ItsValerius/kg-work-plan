@@ -10,7 +10,8 @@
     "make-admin": "tsx scripts/make-admin.ts",
     "db:seed": "tsx scripts/seed.ts",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test": "node --import tsx --test 'src/**/*.test.ts'"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

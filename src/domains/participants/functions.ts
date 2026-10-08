@@ -1,10 +1,9 @@
 import db from "@/db";
-import { taskParticipants } from "@/db/schema";
+import { taskParticipants, tasks } from "@/db/schema";
 import { logger } from "@/lib/logger";
-import { eq, inArray } from "drizzle-orm";
-import { getParticipantById, getParticipantsByTaskId } from "./queries";
-import { getTaskWithParticipants } from "@/domains/tasks/queries";
-import { getParticipantByUserAndTask } from "./queries";
+import { and, eq, inArray, ne, sql } from "drizzle-orm";
+import { fitsCapacity } from "./capacity";
+import { getParticipantById } from "./queries";
 import {
   updateGroupSchema,
   type UpdateGroupData,
@@ -12,54 +11,71 @@ import {
   type ParticipantInput,
 } from "./types";
 
+const ALREADY_SIGNED_UP = "Benutzer bereits zur Aufgabe eingetragen.";
+
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * Locks the task row for the rest of the transaction and returns it with the number of
+ * people already on it, so concurrent sign-ups for one task are counted one after another.
+ */
+async function lockTaskAndCount(tx: Tx, taskId: string, excludeParticipantId?: string) {
+  const [task] = await tx.select().from(tasks).where(eq(tasks.id, taskId)).for("update");
+  if (!task) {
+    return null;
+  }
+  const [{ taken }] = await tx
+    .select({ taken: sql<number>`coalesce(sum(${taskParticipants.groupSize}), 0)`.mapWith(Number) })
+    .from(taskParticipants)
+    .where(
+      excludeParticipantId
+        ? and(eq(taskParticipants.taskId, taskId), ne(taskParticipants.id, excludeParticipantId))
+        : eq(taskParticipants.taskId, taskId),
+    );
+  return { task, taken };
+}
+
+/** Postgres unique violation, raw or wrapped by drizzle. */
+function isUniqueViolation(error: unknown): boolean {
+  const code = (e: unknown) => (e as { code?: string } | undefined)?.code;
+  return code(error) === "23505" || code((error as { cause?: unknown })?.cause) === "23505";
+}
+
 export async function createParticipant(data: ParticipantInput, userId: string) {
   try {
-    // Check if user is already registered
-    const existingParticipant = await getParticipantByUserAndTask(userId, data.taskId);
-    if (existingParticipant) {
-      throw new Error("Benutzer bereits zur Aufgabe eingetragen.");
-    }
+    const newTaskParticipant = await db.transaction(async (tx) => {
+      const locked = await lockTaskAndCount(tx, data.taskId);
+      if (!locked) {
+        throw new Error("Aufgabe existiert nicht.");
+      }
 
-    // Get task with participants
-    const task = await getTaskWithParticipants(data.taskId);
+      if (!fitsCapacity(locked.task.requiredParticipants, locked.taken, data.groupSize ?? 1)) {
+        throw new Error("Die Mitgliederanzahl der Gruppe ist zu groß für diese Aufgabe.");
+      }
 
-    if (!task) {
-      throw new Error("Aufgabe existiert nicht.");
-    }
-
-    // Check capacity
-    const allParticipants = await getParticipantsByTaskId(data.taskId);
-    const currentParticipantsCount = allParticipants.reduce(
-      (accumulator, participant) => accumulator + participant.groupSize,
-      0,
-    );
-
-    const requestedGroupSize = data.groupSize ?? 1;
-    if (
-      requestedGroupSize > task.requiredParticipants ||
-      requestedGroupSize + currentParticipantsCount > task.requiredParticipants
-    ) {
-      throw new Error("Die Mitgliederanzahl der Gruppe ist zu groß für diese Aufgabe.");
-    }
-
-    // Create participant
-    const newTaskParticipant = await db
-      .insert(taskParticipants)
-      .values({
-        groupName: data.groupName,
-        groupSize: data.groupSize,
-        userId: userId,
-        taskId: data.taskId,
-        createdById: userId,
-      })
-      .returning();
+      // The unique (task, user) constraint rejects a second sign-up by the same person.
+      const [created] = await tx
+        .insert(taskParticipants)
+        .values({
+          groupName: data.groupName,
+          groupSize: data.groupSize,
+          userId: userId,
+          taskId: data.taskId,
+          createdById: userId,
+        })
+        .returning();
+      return created;
+    });
 
     logger.info("Task participant created", {
       taskId: data.taskId,
       userId: userId,
     });
-    return newTaskParticipant[0];
+    return newTaskParticipant;
   } catch (error) {
+    if (isUniqueViolation(error)) {
+      throw new Error(ALREADY_SIGNED_UP);
+    }
     logger.error("Failed to create task participant", error, {
       taskId: data.taskId,
     });
@@ -89,33 +105,6 @@ export async function updateGroup(data: UpdateGroupData, userId: string) {
       throw new Error("Unauthorized");
     }
 
-    // If groupSize is being updated, check capacity constraints
-    if (validated.data.groupSize !== undefined && participant.task) {
-      // Get all participants for this task
-      const allParticipants = await getParticipantsByTaskId(participant.taskId);
-
-      // Calculate current total participants excluding the one being updated
-      const currentTotal = allParticipants.reduce(
-        (sum, p) => (p.id === participant.id ? sum : sum + (p.groupSize || 1)),
-        0,
-      );
-
-      // Check if new group size would exceed task capacity
-      const newTotal = currentTotal + validated.data.groupSize;
-      if (newTotal > participant.task.requiredParticipants) {
-        throw new Error(
-          `Die neue Gruppengröße würde die maximale Teilnehmeranzahl von ${participant.task.requiredParticipants} überschreiten.`,
-        );
-      }
-
-      // Check if group size exceeds required participants individually
-      if (validated.data.groupSize > participant.task.requiredParticipants) {
-        throw new Error(
-          `Die Gruppengröße darf die maximale Teilnehmeranzahl von ${participant.task.requiredParticipants} nicht überschreiten.`,
-        );
-      }
-    }
-
     // Update the participant
     const updateData: UpdateGroupPayload = {};
 
@@ -128,10 +117,25 @@ export async function updateGroup(data: UpdateGroupData, userId: string) {
       updateData.groupSize = validated.data.groupSize;
     }
 
-    await db
-      .update(taskParticipants)
-      .set(updateData)
-      .where(eq(taskParticipants.id, validated.data.participantId));
+    await db.transaction(async (tx) => {
+      // A bigger group must still fit next to everyone else on the task.
+      if (validated.data.groupSize !== undefined) {
+        const locked = await lockTaskAndCount(tx, participant.taskId, participant.id);
+        if (
+          locked &&
+          !fitsCapacity(locked.task.requiredParticipants, locked.taken, validated.data.groupSize)
+        ) {
+          throw new Error(
+            `Die neue Gruppengröße würde die maximale Teilnehmeranzahl von ${locked.task.requiredParticipants} überschreiten.`,
+          );
+        }
+      }
+
+      await tx
+        .update(taskParticipants)
+        .set(updateData)
+        .where(eq(taskParticipants.id, validated.data.participantId));
+    });
 
     return { success: true };
   } catch (error) {

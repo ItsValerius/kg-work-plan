@@ -40,39 +40,6 @@ export function formatTime(date: Date): string {
   });
 }
 
-/**
- * Formats a date range for display
- * @param start - Start date
- * @param end - End date
- * @param includeDate - Whether to include date in the range (default: true)
- * @returns Formatted date/time range string
- */
-export function formatDateTimeRange(start: Date, end: Date, includeDate = true): string {
-  if (includeDate) {
-    return `${formatDate(start)} - ${formatDate(end)}`;
-  }
-
-  return `${formatTime(start)} - ${formatTime(end)}`;
-}
-
-/**
- * Formats an event date range for display (used in event cards)
- * @param startDate - Event start date
- * @param endDate - Event end date
- * @returns Formatted date range string
- */
-export function formatEventDateRange(startDate: Date, endDate: Date): string {
-  const formatOptions: Intl.DateTimeFormatOptions = {
-    timeZone: "Europe/Berlin",
-  };
-
-  return (
-    startDate.toLocaleDateString("DE-de", formatOptions) +
-    " - " +
-    endDate.toLocaleDateString("DE-de", formatOptions)
-  );
-}
-
 const BERLIN = "Europe/Berlin";
 
 /**

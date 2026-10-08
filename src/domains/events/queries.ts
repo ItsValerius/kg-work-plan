@@ -33,20 +33,6 @@ export async function getEventById(eventId: string) {
   });
 }
 
-export async function getEventWithShifts(eventId: string) {
-  return db.query.events.findFirst({
-    where: eq(events.id, eventId),
-    with: {
-      shifts: {
-        orderBy: shifts.startTime,
-        with: {
-          tasks: { orderBy: tasks.startTime },
-        },
-      },
-    },
-  });
-}
-
 export async function getEventByIdWithShiftsAndTasks(eventId: string) {
   return db.query.events.findFirst({
     where: eq(events.id, eventId),

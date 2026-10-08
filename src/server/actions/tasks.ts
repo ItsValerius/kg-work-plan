@@ -2,17 +2,10 @@
 
 import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 import * as domainActions from "@/domains/tasks/functions";
-import { quickAddTaskSchema, taskSchema, type TaskInput } from "@/domains/tasks/types";
-import { firstIssueMessage, parseOrThrow } from "@/lib/validation";
+import { quickAddTaskSchema } from "@/domains/tasks/types";
+import { firstIssueMessage } from "@/lib/validation";
 import { updateTag } from "next/cache";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
-
-export async function createOrUpdateTask(data: TaskInput) {
-  const userId = await getAuthenticatedAdminUserId();
-  const result = await domainActions.createOrUpdateTask(parseOrThrow(taskSchema, data), userId);
-  updateTag(WORKPLAN_TAG);
-  return result;
-}
 
 export type QuickAddTaskResult = { ok: true } | { ok: false; error: string };
 
