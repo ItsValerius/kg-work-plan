@@ -5,7 +5,7 @@ import { HelperList } from "@/components/features/dashboard/cockpit/HelperList";
 import { PlanView } from "@/components/features/dashboard/cockpit/PlanView";
 import { DeleteEventButton } from "@/components/features/dashboard/cockpit/DeleteEventButton";
 import DuplicateButton from "@/components/shared/buttons/DuplicateButton";
-import { eventSpots } from "@/components/features/dashboard/cockpit/spots";
+import { eventSpots } from "@/domains/tasks/spots";
 import { ParticipantsTab } from "@/components/features/dashboard/participants/ParticipantsTab";
 import { DateBlock } from "@/components/features/events/DateBlock";
 import { OpenSpots } from "@/components/features/events/OpenSpots";

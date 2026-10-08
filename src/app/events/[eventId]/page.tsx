@@ -1,4 +1,5 @@
 import { DateBlock } from "@/components/features/events/DateBlock";
+import { eventSpots, sumSpots } from "@/domains/tasks/spots";
 import { OpenSpots } from "@/components/features/events/OpenSpots";
 import { TaskSheet } from "@/components/features/worksheet/TaskSheet";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -21,19 +22,6 @@ export async function generateMetadata(props: EventPageProps): Promise<Metadata>
   return { title: event ? event.name : "Veranstaltung nicht gefunden" };
 }
 
-function sumSpots(
-  tasks: { requiredParticipants: number; participants: { groupSize: number }[] }[],
-) {
-  let required = 0;
-  let open = 0;
-  for (const task of tasks) {
-    const filled = task.participants.reduce((sum, p) => sum + p.groupSize, 0);
-    required += task.requiredParticipants;
-    open += Math.max(0, task.requiredParticipants - filled);
-  }
-  return { required, open };
-}
-
 export default async function EventPage(props: EventPageProps) {
   const [params, searchParams, session] = await Promise.all([
     props.params,
@@ -47,7 +35,7 @@ export default async function EventPage(props: EventPageProps) {
   }
 
   const viewerId = session?.user?.id ?? null;
-  const eventSpots = sumSpots(event.shifts.flatMap((shift) => shift.tasks));
+  const spots = eventSpots(event);
   const multiDay = !isSameBerlinDay(event.startDate, event.endDate);
 
   return (
@@ -91,8 +79,8 @@ export default async function EventPage(props: EventPageProps) {
             </p>
           )}
           <OpenSpots
-            open={eventSpots.open}
-            required={eventSpots.required}
+            open={spots.open}
+            required={spots.required}
             className="mt-3 text-[19px] md:mt-5"
           />
         </div>

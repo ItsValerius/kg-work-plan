@@ -2,7 +2,7 @@ import type { EventWorkPlan } from "@/domains/events/queries";
 import { formatDate, formatTime } from "@/lib/datetime";
 import { HelperListActions, type CsvRow } from "./HelperListActions";
 import { RemoveHelperButton } from "./RemoveHelperButton";
-import { taskSpots } from "./spots";
+import { taskSpots } from "@/domains/tasks/spots";
 
 export function HelperList({ event }: { event: EventWorkPlan }) {
   const rows: CsvRow[] = event.shifts.flatMap((shift) =>

@@ -61,15 +61,16 @@ All env vars are listed in `.env.example` (Google sign-in is optional locally).
 ### Auth
 
 - Better Auth (`src/lib/auth/auth.ts`) with magic-link email (nodemailer) and Google; mounted at `src/app/api/auth/[...all]/route.ts`. Client side uses `src/lib/auth/client.ts`.
-- A `customSession` plugin re-reads `role` from the DB on every session fetch and normalizes `undefined` → `null`. Admin = `role === "admin"` (`src/lib/auth/roles.ts`); regular users have `null`.
-- `proxy.ts` (Next 16's replacement for `middleware.ts`) only does optimistic redirects to `/signin`; `/`, `/signin`, `/verify-request` and everything under `/events` are public. **Every protected page, layout, server action and API route must do its own check** using helpers in `src/lib/auth/utils.ts`. Those helpers throw `Error("Unauthorized")`, which API routes map to 401.
+- `role` is a Better Auth `user.additionalFields` entry (`input: false`, so sign-up can't set it) and comes with every session; `getAuthenticatedUser` normalizes missing values to `null`. Admin = `role === "admin"` (`src/lib/auth/roles.ts`); regular users have `null`.
+- Rate limits are stored in the database (`rate_limit` table) so all instances share them; the magic-link endpoint allows 20 requests per minute per IP.
+- There is no proxy: `/`, `/signin`, `/verify-request` and everything under `/events` are public, and **every protected page, layout, server action and API route must do its own check** using helpers in `src/lib/auth/utils.ts` (`getAuthenticatedUser` / `requireAdminUserId` redirect on pages; the throwing helpers raise `Error("Unauthorized")`, which API routes map to 401). A proxy would have to live in `src/proxy.ts`, next to `app/`.
 
 ### Conventions
 
 - User-facing text is German (route names too: `/meine-aufgaben`, MDX legal pages `/datenschutz`, `/nutzungsbedingungen` under the `(mdx)` route group).
 - Dates are stored in UTC; use `src/lib/datetime.ts` (`UTCDate`, formatting in `de-DE` / `Europe/Berlin`) rather than ad-hoc formatting.
 - Path alias `@/*` → `src/*`.
-- Organizer creation (events, shifts, tasks, duplicates) lives only under `/dashboard` (tab "Planen", forms at `/dashboard/events/...`); helper pages keep just edit/delete menus. Old `/events/.../new` URLs redirect there (`next.config.ts`).
+- Organizer creation (events, shifts, tasks, duplicates) lives only under `/dashboard` (tab "Planen", forms at `/dashboard/events/...`); edit and delete also live there (inline buttons in "Planen", plus the event actions). Old `/events/.../new` URLs redirect there (`next.config.ts`).
 - The sign-in email is `src/lib/auth/magic-link-email.ts` (tables + inline styles only; links valid 15 min).
 - UI follows `DESIGN.md` (the Knallköpp "Vereinskalender" family shared with the sibling kg-eventplan app) and `PRODUCT.md`; per-surface direction lives in `.impeccable/surfaces/`.
 - Server actions called from forms that must show a reason on failure return `{ ok: false, error }` instead of throwing (e.g. `signUpForTask`, `quickAddTask`), because production builds hide thrown server-action messages.

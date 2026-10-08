@@ -4,7 +4,7 @@ import { formatShortDate, formatTime, isSameBerlinDay, toBerlinInputParts } from
 import { deleteShift, deleteTask } from "@/server/actions/events";
 import { QuickAddShift } from "./QuickAddShift";
 import { QuickAddTask } from "./QuickAddTask";
-import { taskSpots } from "./spots";
+import { taskSpots } from "@/domains/tasks/spots";
 
 /**
  * The organizer's planning view: every shift with its tasks, and inline rows to add

@@ -39,7 +39,6 @@ export async function getParticipantsData(): Promise<ParticipantsData> {
         with: { event: { columns: { id: true, name: true } } },
         columns: { id: true, name: true },
       },
-      participants: true,
     },
   });
 

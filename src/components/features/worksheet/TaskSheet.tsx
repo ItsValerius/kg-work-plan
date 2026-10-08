@@ -1,4 +1,5 @@
 import type { EventWorkPlan } from "@/domains/events/queries";
+import { taskSpots } from "@/domains/tasks/spots";
 import { formatTime } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -37,9 +38,7 @@ function lineRange(from: number, to: number) {
  */
 export function TaskSheet({ eventId, shiftId, task, viewerId, justClaimed }: TaskSheetProps) {
   const isLoggedIn = viewerId !== null;
-  const filled = task.participants.reduce((sum, p) => sum + p.groupSize, 0);
-  const required = task.requiredParticipants;
-  const open = Math.max(0, required - filled);
+  const { filled, required, open } = taskSpots(task);
   const isFull = open === 0;
   const viewerIsOnSheet = task.participants.some((p) => p.userId === viewerId);
 

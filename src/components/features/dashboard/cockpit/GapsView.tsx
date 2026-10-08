@@ -3,7 +3,7 @@ import { formatTime } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
-import { taskSpots } from "./spots";
+import { taskSpots } from "@/domains/tasks/spots";
 
 export function GapsView({ event }: { event: EventWorkPlan }) {
   const shiftsWithGaps = event.shifts
