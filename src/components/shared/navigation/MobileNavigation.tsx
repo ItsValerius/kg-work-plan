@@ -26,12 +26,14 @@ export function MobileNavigation({ isAdmin }: MobileNavigationProps) {
   return (
     <div className="flex shrink-0 items-center gap-1 lg:hidden">
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetTrigger asChild>
-          <Button variant="outline" className="gap-2 px-3.5" aria-label="Menü öffnen">
-            <Menu className="size-5" />
-            <span>Menü</span>
-          </Button>
-        </SheetTrigger>
+        <SheetTrigger
+          render={
+            <Button variant="outline" className="gap-2 px-3.5" aria-label="Menü öffnen">
+              <Menu className="size-5" />
+              <span>Menü</span>
+            </Button>
+          }
+        />
         <SheetContent side="right">
           <SheetHeader>
             <SheetTitle className="sr-only">Navigation</SheetTitle>
