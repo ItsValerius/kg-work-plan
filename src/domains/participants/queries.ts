@@ -1,6 +1,6 @@
 import db from "@/db";
 import { taskParticipants } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 export async function getParticipantById(participantId: string) {
   return db.query.taskParticipants.findFirst({
@@ -8,11 +8,5 @@ export async function getParticipantById(participantId: string) {
     with: {
       task: true,
     },
-  });
-}
-
-export async function getParticipantByUserAndTask(userId: string, taskId: string) {
-  return db.query.taskParticipants.findFirst({
-    where: and(eq(taskParticipants.userId, userId), eq(taskParticipants.taskId, taskId)),
   });
 }

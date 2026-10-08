@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth/auth";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
+import { connection } from "next/server";
 import type { User } from "@/domains/users/types";
 import { isAdminRole } from "./roles";
 
@@ -10,6 +11,9 @@ import { isAdminRole } from "./roles";
  * helpers can all ask without extra database round trips.
  */
 export const getSession = cache(async () => {
+  // Better Auth checks expiry against the clock, so the lookup must wait for a real
+  // request instead of running in a per-visitor prerender.
+  await connection();
   return auth.api.getSession({
     headers: await headers(),
   });
@@ -83,5 +87,19 @@ export async function getAuthenticatedUser(callbackUrl?: string): Promise<User> 
     redirect(callbackUrl ? `/signin?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/signin");
   }
 
-  return session.user;
+  // Better Auth leaves unset optional fields undefined; the app's User type uses null.
+  const { user } = session;
+  return { ...user, image: user.image ?? null, role: user.role ?? null };
+}
+
+/**
+ * The admin's user id for an organizer page. Signed-out visitors go to sign-in and
+ * helpers back to the start page, instead of hitting an error page.
+ */
+export async function requireAdminUserId(): Promise<string> {
+  const user = await getAuthenticatedUser();
+  if (!isAdminRole(user.role)) {
+    redirect("/");
+  }
+  return user.id;
 }

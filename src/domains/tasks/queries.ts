@@ -43,12 +43,3 @@ export async function getTaskById(taskId: string) {
     where: eq(tasks.id, taskId),
   });
 }
-
-export async function getTaskByIdWithShift(taskId: string) {
-  return db.query.tasks.findFirst({
-    where: eq(tasks.id, taskId),
-    with: {
-      shift: true,
-    },
-  });
-}

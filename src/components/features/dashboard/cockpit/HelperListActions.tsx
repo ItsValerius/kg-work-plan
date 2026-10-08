@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Download, Printer } from "lucide-react";
+import { downloadCsv } from "@/lib/csv";
 
 export interface CsvRow {
   shift: string;
@@ -13,27 +14,21 @@ export interface CsvRow {
   email: string;
 }
 
-function toCsv(rows: CsvRow[]) {
-  const header = ["Schicht", "Aufgabe", "Beginn", "Name", "Gruppe", "Personen", "E-Mail"];
-  const escape = (value: string | number) => `"${String(value).replaceAll('"', '""')}"`;
-  const lines = rows.map((row) =>
-    [row.shift, row.task, row.start, row.name, row.group, row.people, row.email]
-      .map(escape)
-      .join(";"),
-  );
-  // Semicolons and a BOM so German Excel opens umlauts and columns correctly.
-  return "﻿" + [header.map(escape).join(";"), ...lines].join("\r\n");
-}
-
 export function HelperListActions({ rows, fileName }: { rows: CsvRow[]; fileName: string }) {
   function exportCsv() {
-    const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = fileName;
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadCsv(
+      fileName,
+      ["Schicht", "Aufgabe", "Beginn", "Name", "Gruppe", "Personen", "E-Mail"],
+      rows.map((row) => [
+        row.shift,
+        row.task,
+        row.start,
+        row.name,
+        row.group,
+        row.people,
+        row.email,
+      ]),
+    );
   }
 
   return (

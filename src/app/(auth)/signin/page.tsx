@@ -14,7 +14,9 @@ export default async function SignInPage(props: {
   const { callbackUrl, email } = await props.searchParams;
   const comesFromSignUp = callbackUrl?.includes("#aufgabe-") ?? false;
   // Only same-site paths are valid targets for the back link.
-  const isInternal = !!callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//");
+  // Resolve it like a browser would, so "//host" and "/\host" count as external.
+  const isInternal =
+    !!callbackUrl && URL.parse(callbackUrl, "http://intern")?.origin === "http://intern";
   const back =
     comesFromSignUp && isInternal
       ? { href: callbackUrl, label: "Zurück zur Veranstaltung" }

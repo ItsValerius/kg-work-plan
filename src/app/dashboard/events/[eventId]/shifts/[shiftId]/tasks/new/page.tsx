@@ -2,7 +2,7 @@ import { TaskForm } from "@/components/features/tasks/TaskForm";
 import { FormPageShell } from "@/components/layout/FormPageShell";
 import { getEventById } from "@/domains/events/queries";
 import { getShiftById } from "@/domains/shifts/queries";
-import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
+import { requireAdminUserId } from "@/lib/auth/utils";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 const NewTaskPage = async (props: { params: Promise<{ eventId: string; shiftId: string }> }) => {
   const params = await props.params;
   const [userId, event, shift] = await Promise.all([
-    getAuthenticatedAdminUserId(),
+    requireAdminUserId(),
     getEventById(params.eventId),
     getShiftById(params.shiftId),
   ]);

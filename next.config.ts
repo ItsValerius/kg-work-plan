@@ -28,6 +28,12 @@ const nextConfig: NextConfig = {
         destination: "/dashboard/events/:eventId/shifts/:shiftId/tasks/new",
         permanent: true,
       },
+      // The old single-task page; tasks now live on the event's work plan.
+      {
+        source: "/events/:eventId/shifts/:shiftId/tasks/:taskId",
+        destination: "/events/:eventId#aufgabe-:taskId",
+        permanent: true,
+      },
     ];
   },
 };

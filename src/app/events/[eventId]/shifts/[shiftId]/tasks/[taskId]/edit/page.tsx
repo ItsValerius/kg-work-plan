@@ -3,7 +3,7 @@ import { FormPageShell } from "@/components/layout/FormPageShell";
 import { getEventById } from "@/domains/events/queries";
 import { getShiftById } from "@/domains/shifts/queries";
 import { getTaskById } from "@/domains/tasks/queries";
-import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
+import { requireAdminUserId } from "@/lib/auth/utils";
 import { organisationBackLink } from "@/lib/edit-origin";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -17,7 +17,7 @@ const EditTaskPage = async (props: {
 }) => {
   const params = await props.params;
   const [userId, event, shift, task] = await Promise.all([
-    getAuthenticatedAdminUserId(),
+    requireAdminUserId(),
     getEventById(params.eventId),
     getShiftById(params.shiftId),
     getTaskById(params.taskId),

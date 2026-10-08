@@ -1,7 +1,7 @@
 import { ShiftForm } from "@/components/features/shifts/ShiftForm";
 import { FormPageShell } from "@/components/layout/FormPageShell";
 import { getEventById } from "@/domains/events/queries";
-import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
+import { requireAdminUserId } from "@/lib/auth/utils";
 import { formatShortDate } from "@/lib/datetime";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -12,10 +12,7 @@ export const metadata: Metadata = {
 
 const NewShiftPage = async (props: { params: Promise<{ eventId: string }> }) => {
   const params = await props.params;
-  const [userId, event] = await Promise.all([
-    getAuthenticatedAdminUserId(),
-    getEventById(params.eventId),
-  ]);
+  const [userId, event] = await Promise.all([requireAdminUserId(), getEventById(params.eventId)]);
   if (!event) notFound();
 
   return (

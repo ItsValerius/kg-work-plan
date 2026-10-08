@@ -1,6 +1,6 @@
 import { EventForm } from "@/components/features/events/EventForm";
 import { FormPageShell } from "@/components/layout/FormPageShell";
-import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
+import { requireAdminUserId } from "@/lib/auth/utils";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 const NewEventPage = async () => {
-  const userId = await getAuthenticatedAdminUserId();
+  const userId = await requireAdminUserId();
   return (
     <FormPageShell
       title="Neue Veranstaltung"

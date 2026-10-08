@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Download, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { participantsTableFeatures, type ParticipantsTableFeatures } from "./table-features";
+import { downloadCsv } from "@/lib/csv";
 
 interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<ParticipantsTableFeatures, TData>[];
@@ -175,22 +176,11 @@ export function DataTable<TData extends Identifiable>({
     });
 
     const headers = Object.keys(filteredData[0] || {});
-    const csvContent = [
-      headers.join(","),
-      ...filteredData.map((row) =>
-        headers.map((header) => `"${row[header as keyof typeof row] || ""}"`).join(","),
-      ),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `dashboard-export-${new Date().toISOString().split("T")[0]}.csv`);
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    downloadCsv(
+      `dashboard-export-${new Date().toISOString().split("T")[0]}.csv`,
+      headers,
+      filteredData.map((row) => headers.map((header) => row[header as keyof typeof row] ?? "")),
+    );
   };
 
   const hasActiveFilters =

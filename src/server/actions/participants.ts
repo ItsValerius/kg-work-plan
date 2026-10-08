@@ -3,23 +3,13 @@
 import { getAuthenticatedAdminUserId, getAuthenticatedUserId } from "@/lib/auth/utils";
 import * as domainActions from "@/domains/participants/functions";
 import {
-  participantSchema,
   signUpSchema,
   updateGroupSchema,
-  type ParticipantInput,
   type UpdateGroupData,
 } from "@/domains/participants/types";
 import { firstIssueMessage, idListSchema, idSchema, parseOrThrow } from "@/lib/validation";
 import { updateTag } from "next/cache";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
-
-export async function createParticipant(data: ParticipantInput) {
-  const userId = await getAuthenticatedUserId();
-  const input = parseOrThrow(participantSchema, data);
-  const result = await domainActions.createParticipant(input, userId);
-  updateTag(WORKPLAN_TAG);
-  return result;
-}
 
 export type SignUpResult = { ok: true } | { ok: false; error: string };
 

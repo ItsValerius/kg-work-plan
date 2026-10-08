@@ -214,6 +214,12 @@ async function main() {
     console.error("POSTGRES_URL fehlt (siehe .env.example).");
     process.exit(1);
   }
+  // Demo data must never land in a shared or production database.
+  const host = new URL(connectionString).hostname;
+  if (!["localhost", "127.0.0.1", "::1"].includes(host)) {
+    console.error(`Seed läuft nur gegen eine lokale Datenbank, nicht gegen ${host}.`);
+    process.exit(1);
+  }
 
   const client = new Client({ connectionString });
   await client.connect();
