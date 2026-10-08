@@ -54,6 +54,13 @@ interface DataTableProps<TData extends RowData> {
   onDeleteRows?: (selectedRowIds: string[]) => void | Promise<void>;
 }
 
+const GROUP_SIZE_ITEMS = [
+  { value: "1", label: "1 Person" },
+  { value: "2", label: "2 Personen" },
+  { value: "3", label: "3 Personen" },
+  { value: "4", label: "4+ Personen" },
+];
+
 type Identifiable = {
   id: string; // or whatever type your IDs are
 };
@@ -226,7 +233,7 @@ export function DataTable<TData extends Identifiable>({
             <Label>Veranstaltung</Label>
             <Select
               key={`event-${selectResetKey}`}
-              value={(table.getColumn("event")?.getFilterValue() as string) ?? ""}
+              value={(table.getColumn("event")?.getFilterValue() as string) ?? null}
               onValueChange={(value) =>
                 table.getColumn("event")?.setFilterValue(value || undefined)
               }
@@ -234,7 +241,7 @@ export function DataTable<TData extends Identifiable>({
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Alle Veranstaltungen" />
               </SelectTrigger>
-              <SelectContent position="popper" className="w-[var(--radix-select-trigger-width)]">
+              <SelectContent>
                 {events.map((event) => (
                   <SelectItem key={event.id} value={event.name}>
                     {event.name}
@@ -247,8 +254,12 @@ export function DataTable<TData extends Identifiable>({
             <div className="w-full">
               <Label>Schicht</Label>
               <Select
+                items={shifts.map((shift) => ({
+                  value: shift.name,
+                  label: `${shift.name} (${shift.eventName})`,
+                }))}
                 key={`shift-${selectResetKey}`}
-                value={(table.getColumn("task.shift.name")?.getFilterValue() as string) ?? ""}
+                value={(table.getColumn("task.shift.name")?.getFilterValue() as string) ?? null}
                 onValueChange={(value) =>
                   table.getColumn("task.shift.name")?.setFilterValue(value || undefined)
                 }
@@ -256,7 +267,7 @@ export function DataTable<TData extends Identifiable>({
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Alle Schichten" />
                 </SelectTrigger>
-                <SelectContent position="popper" className="w-[var(--radix-select-trigger-width)]">
+                <SelectContent>
                   {shifts.map((shift) => (
                     <SelectItem key={shift.id} value={shift.name}>
                       {shift.name} ({shift.eventName})
@@ -270,8 +281,12 @@ export function DataTable<TData extends Identifiable>({
             <div className="w-full">
               <Label>Aufgabe</Label>
               <Select
+                items={tasks.map((task) => ({
+                  value: task.name,
+                  label: `${task.name} (${task.shiftName})`,
+                }))}
                 key={`task-${selectResetKey}`}
-                value={(table.getColumn("task.name")?.getFilterValue() as string) ?? ""}
+                value={(table.getColumn("task.name")?.getFilterValue() as string) ?? null}
                 onValueChange={(value) =>
                   table.getColumn("task.name")?.setFilterValue(value || undefined)
                 }
@@ -279,7 +294,7 @@ export function DataTable<TData extends Identifiable>({
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Alle Aufgaben" />
                 </SelectTrigger>
-                <SelectContent position="popper" className="w-[var(--radix-select-trigger-width)]">
+                <SelectContent>
                   {tasks.map((task) => (
                     <SelectItem key={task.id} value={task.name}>
                       {task.name} ({task.shiftName})
@@ -292,8 +307,9 @@ export function DataTable<TData extends Identifiable>({
           <div className="w-full">
             <Label>Gruppengröße</Label>
             <Select
+              items={GROUP_SIZE_ITEMS}
               key={`groupSize-${selectResetKey}`}
-              value={(table.getColumn("groupSize")?.getFilterValue() as string) ?? ""}
+              value={(table.getColumn("groupSize")?.getFilterValue() as string) ?? null}
               onValueChange={(value) =>
                 table.getColumn("groupSize")?.setFilterValue(value || undefined)
               }
@@ -301,7 +317,7 @@ export function DataTable<TData extends Identifiable>({
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Alle Größen" />
               </SelectTrigger>
-              <SelectContent position="popper" className="w-[var(--radix-select-trigger-width)]">
+              <SelectContent>
                 <SelectItem value="1">1 Person</SelectItem>
                 <SelectItem value="2">2 Personen</SelectItem>
                 <SelectItem value="3">3 Personen</SelectItem>
@@ -329,15 +345,17 @@ export function DataTable<TData extends Identifiable>({
               <span className="sm:inline">CSV exportieren</span>
             </Button>
             <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="destructive"
-                  className="w-full sm:w-auto"
-                  disabled={selectedCount === 0}
-                >
-                  Austragen ({selectedCount})
-                </Button>
-              </AlertDialogTrigger>
+              <AlertDialogTrigger
+                render={
+                  <Button
+                    variant="destructive"
+                    className="w-full sm:w-auto"
+                    disabled={selectedCount === 0}
+                  >
+                    Austragen ({selectedCount})
+                  </Button>
+                }
+              />
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>
@@ -428,7 +446,7 @@ export function DataTable<TData extends Identifiable>({
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder={table.state.pagination.pageSize} />
                 </SelectTrigger>
-                <SelectContent position="popper" side="top" className="w-[70px]">
+                <SelectContent side="top" className="w-[84px]">
                   {[10, 20, 30, 40, 50].map((pageSize) => (
                     <SelectItem key={pageSize} value={`${pageSize}`}>
                       {pageSize}
