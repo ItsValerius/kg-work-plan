@@ -2,13 +2,21 @@
 
 import { getAuthenticatedAdminUserId, getAuthenticatedUserId } from "@/lib/auth/utils";
 import * as domainActions from "@/domains/participants/functions";
-import type { ParticipantInput, UpdateGroupData } from "@/domains/participants/types";
+import {
+  participantSchema,
+  signUpSchema,
+  updateGroupSchema,
+  type ParticipantInput,
+  type UpdateGroupData,
+} from "@/domains/participants/types";
+import { firstIssueMessage, idListSchema, idSchema, parseOrThrow } from "@/lib/validation";
 import { updateTag } from "next/cache";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
 
 export async function createParticipant(data: ParticipantInput) {
   const userId = await getAuthenticatedUserId();
-  const result = await domainActions.createParticipant(data, userId);
+  const input = parseOrThrow(participantSchema, data);
+  const result = await domainActions.createParticipant(input, userId);
   updateTag(WORKPLAN_TAG);
   return result;
 }
@@ -19,7 +27,7 @@ export type SignUpResult = { ok: true } | { ok: false; error: string };
  * Sign-up from the event sheet. Returns the reason instead of throwing, because
  * production builds hide thrown server-action messages from the browser.
  */
-export async function signUpForTask(input: {
+export async function signUpForTask(raw: {
   taskId: string;
   groupName?: string;
   groupSize?: number;
@@ -31,11 +39,13 @@ export async function signUpForTask(input: {
     return { ok: false, error: "Bitte melde dich zuerst an." };
   }
 
-  const groupName = input.groupName?.trim() || undefined;
-  const groupSize = input.groupSize ?? 1;
-  if (!Number.isInteger(groupSize) || groupSize < 1) {
-    return { ok: false, error: "Bitte gib an, wie viele Personen ihr seid." };
+  const parsed = signUpSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { ok: false, error: firstIssueMessage(parsed.error) };
   }
+  const input = parsed.data;
+  const groupName = input.groupName || undefined;
+  const groupSize = input.groupSize;
 
   try {
     await domainActions.createParticipant(
@@ -61,19 +71,19 @@ export async function signUpForTask(input: {
 
 export async function updateGroup(data: UpdateGroupData) {
   const userId = await getAuthenticatedUserId();
-  const result = await domainActions.updateGroup(data, userId);
+  const result = await domainActions.updateGroup(parseOrThrow(updateGroupSchema, data), userId);
   updateTag(WORKPLAN_TAG);
   return result;
 }
 
 export async function removeUserFromTaskAction(selectedRowIds: string[]) {
   const userId = await getAuthenticatedAdminUserId();
-  await domainActions.removeUserFromTaskAction(selectedRowIds, userId);
+  await domainActions.removeUserFromTaskAction(parseOrThrow(idListSchema, selectedRowIds), userId);
   updateTag(WORKPLAN_TAG);
 }
 
 export async function removeParticipant(participantId: string) {
   const userId = await getAuthenticatedUserId();
-  await domainActions.removeParticipant(participantId, userId);
+  await domainActions.removeParticipant(parseOrThrow(idSchema, participantId), userId);
   updateTag(WORKPLAN_TAG);
 }

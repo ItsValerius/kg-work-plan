@@ -5,17 +5,25 @@ import { logger } from "@/lib/logger";
 import { NextRequest } from "next/server";
 import { updateUserProfile } from "@/domains/users/functions";
 import { getAuthenticatedUserId } from "@/lib/auth/utils";
+import { userUpdateSchema } from "@/domains/users/types";
 
 export async function POST(request: NextRequest) {
   try {
     const authenticatedUserId = await getAuthenticatedUserId();
 
-    const body = await request.json();
-    if (authenticatedUserId !== body.id) {
+    const parsed = userUpdateSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return ApiErrorResponse.validationError("Bitte prüfe deine Eingaben.", parsed.error.issues);
+    }
+    if (authenticatedUserId !== parsed.data.id) {
       return ApiErrorResponse.unauthorized("Du kannst nur dein eigenes Profil ändern.");
     }
 
-    const updatedUser = await updateUserProfile(body.id, body.name, authenticatedUserId);
+    const updatedUser = await updateUserProfile(
+      parsed.data.id,
+      parsed.data.name,
+      authenticatedUserId,
+    );
 
     // Route handlers cannot use updateTag; expire: 0 makes the next read fresh.
     revalidateTag(WORKPLAN_TAG, { expire: 0 });

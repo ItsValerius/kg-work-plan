@@ -2,13 +2,14 @@
 
 import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 import * as domainActions from "@/domains/tasks/functions";
-import type { TaskInput } from "@/domains/tasks/types";
+import { quickAddTaskSchema, taskSchema, type TaskInput } from "@/domains/tasks/types";
+import { firstIssueMessage, parseOrThrow } from "@/lib/validation";
 import { updateTag } from "next/cache";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
 
 export async function createOrUpdateTask(data: TaskInput) {
   const userId = await getAuthenticatedAdminUserId();
-  const result = await domainActions.createOrUpdateTask(data, userId);
+  const result = await domainActions.createOrUpdateTask(parseOrThrow(taskSchema, data), userId);
   updateTag(WORKPLAN_TAG);
   return result;
 }
@@ -19,7 +20,7 @@ export type QuickAddTaskResult = { ok: true } | { ok: false; error: string };
  * Adds a task straight from the event's work plan. Validation problems come back as
  * data, because production builds hide thrown server-action messages.
  */
-export async function quickAddTask(input: {
+export async function quickAddTask(raw: {
   shiftId: string;
   name: string;
   startTime: Date;
@@ -32,22 +33,19 @@ export async function quickAddTask(input: {
     return { ok: false, error: "Nur Organisatoren können Aufgaben anlegen." };
   }
 
-  const name = input.name.trim();
-  if (!name) return { ok: false, error: "Bitte gib der Aufgabe einen Namen." };
-  if (!Number.isInteger(input.requiredParticipants) || input.requiredParticipants < 1) {
-    return { ok: false, error: "Es muss mindestens eine Person gebraucht werden." };
+  const parsed = quickAddTaskSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { ok: false, error: firstIssueMessage(parsed.error) };
   }
-  if (Number.isNaN(new Date(input.startTime).getTime())) {
-    return { ok: false, error: "Bitte gib eine gültige Uhrzeit an." };
-  }
+  const input = parsed.data;
 
   try {
     await domainActions.createOrUpdateTask(
       {
-        name,
+        name: input.name,
         description: "",
         shiftId: input.shiftId,
-        startTime: new Date(input.startTime),
+        startTime: input.startTime,
         requiredParticipants: input.requiredParticipants,
         createdById: userId,
       },

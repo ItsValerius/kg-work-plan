@@ -36,7 +36,7 @@ import { toast } from "sonner";
 
 const duplicateSchema = z
   .object({
-    name: z.string().min(1, "Name ist erforderlich"),
+    name: z.string().trim().min(1, "Bitte gib der Veranstaltung einen Namen."),
     startDate: z.date({
       error: (issue) =>
         issue.input === undefined ? "Startdatum ist erforderlich" : "Ungültiges Startdatum",

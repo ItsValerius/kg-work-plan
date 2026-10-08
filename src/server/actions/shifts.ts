@@ -2,13 +2,14 @@
 
 import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 import * as domainActions from "@/domains/shifts/functions";
-import type { ShiftInput } from "@/domains/shifts/types";
+import { quickAddShiftSchema, shiftSchema, type ShiftInput } from "@/domains/shifts/types";
+import { firstIssueMessage, parseOrThrow } from "@/lib/validation";
 import { updateTag } from "next/cache";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
 
 export async function createOrUpdateShift(data: ShiftInput) {
   const userId = await getAuthenticatedAdminUserId();
-  const result = await domainActions.createOrUpdateShift(data, userId);
+  const result = await domainActions.createOrUpdateShift(parseOrThrow(shiftSchema, data), userId);
   updateTag(WORKPLAN_TAG);
   return result;
 }
@@ -19,7 +20,7 @@ export type QuickAddShiftResult = { ok: true } | { ok: false; error: string };
  * Adds a shift from the organizer's planning view. Validation problems come back as
  * data, because production builds hide thrown server-action messages.
  */
-export async function quickAddShift(input: {
+export async function quickAddShift(raw: {
   eventId: string;
   name: string;
   startTime: Date;
@@ -32,18 +33,21 @@ export async function quickAddShift(input: {
     return { ok: false, error: "Nur Organisatoren können Schichten anlegen." };
   }
 
-  const name = input.name.trim();
-  const start = new Date(input.startTime);
-  const end = new Date(input.endTime);
-  if (!name) return { ok: false, error: "Bitte gib der Schicht einen Namen." };
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
-    return { ok: false, error: "Bitte gib gültige Uhrzeiten an." };
+  const parsed = quickAddShiftSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { ok: false, error: firstIssueMessage(parsed.error) };
   }
-  if (end <= start) return { ok: false, error: "Das Ende muss nach dem Beginn liegen." };
+  const input = parsed.data;
 
   try {
     await domainActions.createOrUpdateShift(
-      { eventId: input.eventId, name, startTime: start, endTime: end, createdById: userId },
+      {
+        eventId: input.eventId,
+        name: input.name,
+        startTime: input.startTime,
+        endTime: input.endTime,
+        createdById: userId,
+      },
       userId,
     );
   } catch {
