@@ -6,6 +6,7 @@
 
 - `src/components/ui/checkbox.tsx`: Radix Root/Indicator → `CheckboxPrimitive.Root`/`Indicator`; props typed as `CheckboxPrimitive.Root.Props`. Class rewrites: `data-[state=checked]:` → `data-checked:`; `disabled:` → `data-disabled:` (Base UI's Root renders a `<span>` + hidden input, so `:disabled` variants would be dead code); added `data-indeterminate:` styling and a `Minus` icon for the mixed state (Radix rendered nothing distinct for it before).
 - `src/components/features/dashboard/participants/columns.tsx` (select-all header): `checked={all || (some && "indeterminate")}` → `checked={all}` + `indeterminate={some && !all}` (Base UI split the two). Row checkboxes unchanged (`onCheckedChange={(v) => …(!!v)}` stays valid).
+- Follow-up fix (commit "fix(ui): checkbox box size…"): Base UI's Root is an inline `<span>`, so it got `inline-flex items-center justify-center` to take its `size-5` box (it rendered as a thin line before).
 - Leftover scan: `grep -n "radix-ui\|@radix-ui" src/components/ui/checkbox.tsx` → clean.
 
 ## Left alone

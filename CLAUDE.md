@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-A volunteer work-plan app (German UI): admins create **events → shifts → tasks**, and users sign up for tasks (alone or as a named group with a size) via `taskParticipants`. Next.js 16 App Router, React 19, Drizzle ORM on Postgres (Neon serverless driver), Better Auth, shadcn/ui + Tailwind v4.
+A volunteer work-plan app (German UI): admins create **events → shifts → tasks**, and users sign up for tasks (alone or as a named group with a size) via `taskParticipants`. Next.js 16 App Router, React 19, Drizzle ORM on Postgres (Neon serverless driver), Better Auth, shadcn/ui on Base UI (`@base-ui/react`) + Tailwind v4.
 
 ## Commands
 

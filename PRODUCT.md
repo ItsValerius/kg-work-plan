@@ -25,7 +25,7 @@ web
 ## Capabilities and Constraints
 
 - German-language UI throughout (routes too: `/meine-aufgaben`, `/datenschutz`, `/nutzungsbedingungen`).
-- Next.js App Router, shadcn/ui on Radix + Tailwind v4, Drizzle/Postgres, Better Auth; deployed on Vercel.
+- Next.js App Router, shadcn/ui on Base UI + Tailwind v4, Drizzle/Postgres, Better Auth; deployed on Vercel.
 - Event listings are public; signing up, "Meine Aufgaben", profile and the dashboard require sign-in; management requires the admin role.
 - Known pain points (confirmed by the owner): the app looks generic rather than like the club; organizer admin work is tedious; sign-in and sign-up feel clunky; helpers can't quickly see where help is still needed.
 

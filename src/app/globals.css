@@ -209,13 +209,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Radix scroll lock must not shift the page sideways. */
-  body[data-scroll-locked][data-scroll-locked] {
-    overflow: auto !important;
-  }
-  body[data-scroll-locked] {
-    margin-right: 0 !important;
-  }
 
   .skip-to-content {
     @apply sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60] focus:rounded-md focus:bg-primary focus:px-4 focus:py-3 focus:font-semibold focus:text-primary-foreground;

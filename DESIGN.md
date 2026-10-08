@@ -266,7 +266,7 @@ Organizers get the same sheet seen from the Vorstand's side: an event folder. A 
 
 The density is generous on purpose. The users include older members on phones, so body text is 16px, lead text 17px, buttons 15px semibold and every control is at least 44px tall. The display face adds the celebration. Controls stay plain, clearly labelled and familiar.
 
-This app deliberately differs from its parent in four places. Body text is 16px instead of 15px, and buttons are 15px semibold instead of 13px, for legibility. Components are shadcn on Radix, not Base UI. A sticky header with the crest, wordmark and navigation is kept, while kg-eventplan removed its nav. Dark tokens exist, but nothing in this app switches to them.
+This app deliberately differs from its parent in three places. Body text is 16px instead of 15px, and buttons are 15px semibold instead of 13px, for legibility. A sticky header with the crest, wordmark and navigation is kept, while kg-eventplan removed its nav. Dark tokens exist, but nothing in this app switches to them.
 
 **Key Characteristics:**
 
