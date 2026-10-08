@@ -23,7 +23,7 @@ import { eventSchema } from "@/domains/events/types";
 import { AlertCircle, CalendarIcon, Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 export function EventForm({
@@ -50,6 +50,8 @@ export function EventForm({
       createdById: userId,
     },
   });
+
+  const startDate = useWatch({ control: form.control, name: "startDate" });
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof eventSchema>) {
@@ -112,7 +114,7 @@ export function EventForm({
               <FormControl>
                 <Input placeholder="Aufbau..." {...field} />
               </FormControl>
-              <FormDescription>Das ist eine Kurze Beschreibung der Veranstaltung.</FormDescription>
+              <FormDescription>Das ist eine kurze Beschreibung der Veranstaltung.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -148,7 +150,13 @@ export function EventForm({
                   <Calendar
                     mode="single"
                     selected={field.value}
-                    onSelect={field.onChange}
+                    onSelect={(date) => {
+                      field.onChange(date);
+                      // The end follows a start moved past it instead of turning into an error.
+                      if (date && form.getValues("endDate") < date) {
+                        form.setValue("endDate", date, { shouldValidate: true });
+                      }
+                    }}
                     disabled={(date) => date < startOfDay(new Date())}
                     autoFocus
                   />
@@ -191,7 +199,7 @@ export function EventForm({
                     mode="single"
                     selected={field.value}
                     onSelect={field.onChange}
-                    disabled={(date) => date < startOfDay(new Date())}
+                    disabled={(date) => date < startOfDay(startDate ?? new Date())}
                     autoFocus
                   />
                 </PopoverContent>

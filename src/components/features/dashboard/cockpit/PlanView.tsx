@@ -1,6 +1,4 @@
-import { ShiftAdminActions } from "@/components/features/admin/ShiftAdminActions";
-import { TaskAdminActions } from "@/components/features/admin/TaskAdminActions";
-import { getProgressBarColor } from "@/components/features/tasks/utils";
+import { EditDeleteActions } from "@/components/features/admin/EditDeleteActions";
 import type { EventWorkPlan } from "@/domains/events/queries";
 import { formatShortDate, formatTime, isSameBerlinDay, toBerlinInputParts } from "@/lib/datetime";
 import { deleteShift, deleteTask } from "@/server/actions/events";
@@ -43,10 +41,12 @@ export function PlanView({ event }: { event: EventWorkPlan }) {
                   </span>
                 )}
               </h3>
-              <div className="-mt-1 [&>div]:static">
-                <ShiftAdminActions
-                  eventId={event.id}
-                  shiftId={shift.id}
+              <div className="-mt-2">
+                <EditDeleteActions
+                  id={shift.id}
+                  name={shift.name}
+                  kind="Schicht"
+                  editHref={`/events/${event.id}/shifts/${shift.id}/edit`}
                   deleteAction={deleteShift}
                 />
               </div>
@@ -55,7 +55,6 @@ export function PlanView({ event }: { event: EventWorkPlan }) {
             <ul>
               {shift.tasks.map((task) => {
                 const { filled, required, open } = taskSpots(task);
-                const percent = required > 0 ? (filled / required) * 100 : 0;
                 return (
                   <li
                     key={task.id}
@@ -75,20 +74,13 @@ export function PlanView({ event }: { event: EventWorkPlan }) {
                         {filled}/{required}
                       </span>
                     </span>
-                    <span className="[&>div]:static">
-                      <TaskAdminActions
-                        eventId={event.id}
-                        shiftId={shift.id}
-                        taskId={task.id}
-                        deleteAction={deleteTask}
-                        task={task}
-                        participants={task.participants}
-                        isLoggedIn
-                        isFull={open === 0}
-                        progressPercentage={percent}
-                        progressBarColor={getProgressBarColor(percent, open === 0)}
-                      />
-                    </span>
+                    <EditDeleteActions
+                      id={task.id}
+                      name={task.name}
+                      kind="Aufgabe"
+                      editHref={`/events/${event.id}/shifts/${shift.id}/tasks/${task.id}/edit`}
+                      deleteAction={deleteTask}
+                    />
                   </li>
                 );
               })}
