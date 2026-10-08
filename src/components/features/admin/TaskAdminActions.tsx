@@ -6,6 +6,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLinkItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -64,21 +65,22 @@ export function TaskAdminActions({
   return (
     <div className="absolute top-3 right-3 z-10 md:top-4 md:right-4">
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 opacity-60 transition-opacity hover:opacity-100 focus-visible:ring-0 focus-visible:outline-hidden"
-            aria-label="Task-Optionen"
-          >
-            <MoreVertical className="size-4" />
-          </Button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 opacity-60 transition-opacity hover:opacity-100 focus-visible:ring-0 focus-visible:outline-hidden"
+              aria-label="Task-Optionen"
+            >
+              <MoreVertical className="size-4" />
+            </Button>
+          }
+        />
         <DropdownMenuContent align="end" className="focus:outline-hidden">
           <DropdownMenuItem
             className="cursor-pointer"
-            onSelect={(e) => {
-              e.preventDefault();
+            onClick={() => {
               setDetailsOpen(true);
             }}
           >
@@ -86,20 +88,17 @@ export function TaskAdminActions({
             Details
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link
-              href={`/events/${eventId}/shifts/${shiftId}/tasks/${taskId}/edit`}
-              className="flex cursor-pointer items-center"
-            >
-              <Pencil className="mr-2 size-4" />
-              Bearbeiten
-            </Link>
-          </DropdownMenuItem>
+          <DropdownMenuLinkItem
+            render={<Link href={`/events/${eventId}/shifts/${shiftId}/tasks/${taskId}/edit`} />}
+            className="cursor-pointer"
+          >
+            <Pencil className="mr-2 size-4" />
+            Bearbeiten
+          </DropdownMenuLinkItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="cursor-pointer text-destructive focus:text-destructive"
-            onSelect={(e) => {
-              e.preventDefault();
+            onClick={() => {
               setDeleteOpen(true);
             }}
           >
