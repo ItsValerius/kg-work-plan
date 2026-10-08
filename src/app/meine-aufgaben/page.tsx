@@ -2,7 +2,7 @@ import { DateBlock } from "@/components/features/events/DateBlock";
 import { PageContainer } from "@/components/layout/PageContainer";
 import RemoveUserFromTaskButton from "@/components/shared/buttons/RemoveUserFromTaskButton";
 import { EditGroupDialog } from "@/components/shared/dialogs/EditGroupDialog";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { getUserTasks } from "@/domains/tasks/queries";
 import type { UserTask } from "@/domains/tasks/types";
 import { getAuthenticatedUser } from "@/lib/auth/utils";
@@ -40,9 +40,7 @@ function TaskMeta({ task, showStart = true }: { task: UserTask; showStart?: bool
 function TaskActions({ task }: { task: UserTask }) {
   return (
     <div className="-ml-3 flex flex-wrap items-center gap-x-1">
-      <Button asChild variant="link" className="min-h-11 px-3">
-        <Link href={`/events/${task.eventId}#aufgabe-${task.id}`}>Zum Arbeitsplan</Link>
-      </Button>
+      <Link href={`/events/${task.eventId}#aufgabe-${task.id}`} className={cn(buttonVariants({ variant: "link" }), "min-h-11 px-3")}>Zum Arbeitsplan</Link>
       <EditGroupDialog
         participantId={task.participantId}
         currentGroupName={task.groupName}
@@ -122,12 +120,10 @@ const MeineAufgabenPage = async () => {
           <p className="mt-2 max-w-[60ch] text-[17px] text-muted-foreground">
             Bei den Veranstaltungen siehst du, welche Aufgaben noch freie Plätze haben. Ein Klick auf „Hier eintragen“ genügt.
           </p>
-          <Button asChild className="mt-6">
-            <Link href="/events">
+          <Link href="/events" className={cn(buttonVariants(), "mt-6")}>
               Zu den Veranstaltungen
               <ChevronRight aria-hidden="true" />
             </Link>
-          </Button>
         </div>
       )}
 

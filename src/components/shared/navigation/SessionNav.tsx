@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { getSession, hasSessionCookie, isAdmin } from "@/lib/auth/utils";
 import Link from "next/link";
 import { DesktopNavigation } from "./DesktopNavigation";
@@ -12,9 +12,7 @@ export async function SessionNav() {
     // Unknown session state (database unreachable): offer no auth control at all.
     if (await hasSessionCookie()) return null;
     return (
-      <Button asChild variant="outline">
-        <Link href="/signin">Anmelden</Link>
-      </Button>
+      <Link href="/signin" className={buttonVariants({ variant: "outline" })}>Anmelden</Link>
     );
   }
 

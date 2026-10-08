@@ -1,4 +1,5 @@
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 import type { EventsSectionProps } from "@/domains/events/types";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -51,9 +52,7 @@ export const EventsSection = ({
                         <p className="mt-1 text-[17px] text-muted-foreground">{emptyStateActionText}</p>
                     )}
                     {canShowAddButton && (
-                        <Button asChild className="mt-6">
-                            <Link href="/dashboard/events/new">In der Organisation anlegen</Link>
-                        </Button>
+                        <Link href="/dashboard/events/new" className={cn(buttonVariants(), "mt-6")}>In der Organisation anlegen</Link>
                     )}
                 </div>
             ) : (

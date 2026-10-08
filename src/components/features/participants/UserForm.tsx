@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -86,9 +86,7 @@ export function UserForm({
         toast.success(
           <div className="flex gap-2">
             Du hast dich erfolgreich für {taskName} angemeldet.
-            <Button asChild>
-              <Link href="/meine-aufgaben">Aufgabenübersicht</Link>
-            </Button>
+            <Link href="/meine-aufgaben" className={buttonVariants()}>Aufgabenübersicht</Link>
           </div>,
           {
             richColors: true,

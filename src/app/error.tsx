@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { logger } from "@/lib/logger";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,9 +22,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
       {error.digest && <p className="mt-3 text-sm text-muted-foreground">Fehlercode für Rückfragen: {error.digest}</p>}
       <div className="mt-8 flex flex-wrap gap-3">
         <Button onClick={reset}>Noch einmal versuchen</Button>
-        <Button asChild variant="outline">
-          <Link href="/events">Zu den Veranstaltungen</Link>
-        </Button>
+        <Link href="/events" className={buttonVariants({ variant: "outline" })}>Zu den Veranstaltungen</Link>
       </div>
     </main>
   );

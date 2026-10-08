@@ -1,12 +1,11 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 
 const LinkButton = ({ url, text, className }: { url: string; text: string; className?: string }) => {
   return (
-    <Button asChild variant="link" className={className}>
-      <Link href={url}>{text}</Link>
-    </Button>
+    <Link href={url} className={cn(buttonVariants({ variant: "link" }), className)}>{text}</Link>
   );
 };
 

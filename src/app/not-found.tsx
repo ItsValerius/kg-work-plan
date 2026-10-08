@@ -1,4 +1,5 @@
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,9 +11,7 @@ export default function NotFound() {
       <p className="mt-3 text-[17px] text-muted-foreground">
         Diese Seite gibt es nicht (mehr). Vielleicht wurde die Veranstaltung oder Aufgabe gelöscht.
       </p>
-      <Button asChild className="mt-8 self-start">
-        <Link href="/events">Zu den Veranstaltungen</Link>
-      </Button>
+      <Link href="/events" className={cn(buttonVariants(), "mt-8 self-start")}>Zu den Veranstaltungen</Link>
     </main>
   );
 }

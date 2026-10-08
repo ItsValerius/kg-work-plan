@@ -1,7 +1,7 @@
 "use client";
 
 import { logger } from "@/lib/logger";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { Component, ReactNode } from "react";
 
@@ -79,9 +79,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
                         )}
                         <div className="mt-6 flex flex-wrap gap-3">
                             <Button onClick={this.handleReset}>Noch einmal versuchen</Button>
-                            <Button asChild variant="outline">
-                                <Link href="/events">Zu den Veranstaltungen</Link>
-                            </Button>
+                            <Link href="/events" className={buttonVariants({ variant: "outline" })}>Zu den Veranstaltungen</Link>
                         </div>
                     </div>
                 </div>

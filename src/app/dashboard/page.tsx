@@ -10,7 +10,7 @@ import { ParticipantsTab } from "@/components/features/dashboard/participants/Pa
 import { DateBlock } from "@/components/features/events/DateBlock";
 import { OpenSpots } from "@/components/features/events/OpenSpots";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   getEventWorkPlan,
   getFutureEvents,
@@ -69,18 +69,14 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
       <div className="flex flex-wrap items-end justify-between gap-4 print:hidden">
         <h1 className="text-[48px] md:text-[clamp(56px,5.7vw,80px)]">Organisation</h1>
         <div className="flex flex-wrap gap-2.5">
-          <Button asChild variant="outline">
-            <Link href="/dashboard?ansicht=alle" aria-current={view === "alle" ? "page" : undefined}>
+          <Link href="/dashboard?ansicht=alle" aria-current={view === "alle" ? "page" : undefined} className={buttonVariants({ variant: "outline" })}>
               <Users aria-hidden="true" />
               Alle Helfer
             </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/dashboard/events/new">
+          <Link href="/dashboard/events/new" className={buttonVariants()}>
               <Plus aria-hidden="true" />
               Neue Veranstaltung
             </Link>
-          </Button>
         </div>
       </div>
 
@@ -117,9 +113,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
                 <p className="mt-2 text-[17px] text-muted-foreground">
                   Lege die erste Veranstaltung an, dann erscheinen hier ihre Lücken und die Helferliste.
                 </p>
-                <Button asChild className="mt-5">
-                  <Link href="/dashboard/events/new">Veranstaltung anlegen</Link>
-                </Button>
+                <Link href="/dashboard/events/new" className={cn(buttonVariants(), "mt-5")}>Veranstaltung anlegen</Link>
               </div>
             ) : (
               <article aria-labelledby="cockpit-titel" className="mt-6 md:mt-0">
@@ -132,18 +126,14 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
                     <p className="mt-1 hidden text-[17px] print:block">{formatShortDate(event.startDate)}</p>
                     {spots && <OpenSpots open={spots.open} required={spots.required} className="mt-2 text-[17px] print:hidden" />}
                     <div className="mt-4 flex flex-wrap gap-2.5 print:hidden">
-                      <Button asChild variant="outline" size="sm">
-                        <Link href={`/events/${event.id}`}>
+                      <Link href={`/events/${event.id}`} className={buttonVariants({ variant: "outline", size: "sm" })}>
                           <ArrowUpRight aria-hidden="true" />
                           Arbeitsplan öffnen
                         </Link>
-                      </Button>
-                      <Button asChild variant="outline" size="sm">
-                        <Link href={`/events/${event.id}/edit`}>
+                      <Link href={`/events/${event.id}/edit`} className={buttonVariants({ variant: "outline", size: "sm" })}>
                           <Pencil aria-hidden="true" />
                           Bearbeiten
                         </Link>
-                      </Button>
                       <DuplicateButton
                         eventId={event.id}
                         eventName={event.name}

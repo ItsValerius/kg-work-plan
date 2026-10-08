@@ -2,7 +2,7 @@ import { getSession } from "@/lib/auth/utils";
 import { getEventById } from "@/domains/events/queries";
 import { getTaskByIdWithShift } from "@/domains/tasks/queries";
 import { getParticipantByUserAndTask } from "@/domains/participants/queries";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -79,12 +79,10 @@ const TaskDetailsPage = async (props: TaskDetailsPageProps) => {
             />
           </CardContent>
         </Card>
-        <Button asChild variant={"outline"}>
-          <Link href={`/events/${params.eventId}`}>
+        <Link href={`/events/${params.eventId}`} className={buttonVariants({ variant: "outline" })}>
             <ArrowLeft />
             Zurück
           </Link>
-        </Button>
       </div>
     </PageContainer>
   );

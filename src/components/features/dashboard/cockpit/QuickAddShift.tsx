@@ -1,6 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { quickAddShift } from "@/server/actions/shifts";
@@ -40,9 +41,7 @@ export function QuickAddShift({ eventId, eventDay, suggestedStart, startOpen = f
           <Plus aria-hidden="true" />
           Schicht hinzufügen
         </Button>
-        <Button asChild variant="link" className="px-2 text-muted-foreground">
-          <Link href={`/dashboard/events/${eventId}/shifts/new`}>an einem anderen Tag …</Link>
-        </Button>
+        <Link href={`/dashboard/events/${eventId}/shifts/new`} className={cn(buttonVariants({ variant: "link" }), "px-2 text-muted-foreground")}>an einem anderen Tag …</Link>
       </div>
     );
   }

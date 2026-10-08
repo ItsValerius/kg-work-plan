@@ -1,6 +1,7 @@
 import type { EventWorkPlan } from "@/domains/events/queries";
 import { formatTime } from "@/lib/datetime";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { taskSpots } from "./spots";
 
@@ -17,9 +18,7 @@ export function GapsView({ event }: { event: EventWorkPlan }) {
       <div className="rounded-lg bg-muted p-6">
         <p className="text-[17px] font-semibold">Für diese Veranstaltung gibt es noch keine Aufgaben.</p>
         <p className="mt-1 text-muted-foreground">Leg unter „Planen“ Schichten und Aufgaben an.</p>
-        <Button asChild className="mt-4">
-          <Link href={`/dashboard?event=${event.id}&ansicht=planen`}>Jetzt planen</Link>
-        </Button>
+        <Link href={`/dashboard?event=${event.id}&ansicht=planen`} className={cn(buttonVariants(), "mt-4")}>Jetzt planen</Link>
       </div>
     );
   }

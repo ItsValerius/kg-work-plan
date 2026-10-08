@@ -1,6 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { quickAddTask } from "@/server/actions/tasks";
@@ -38,9 +39,7 @@ export function QuickAddTask({ eventId, shiftId, shiftDay, shiftStart }: QuickAd
           <Plus aria-hidden="true" />
           Aufgabe hinzufügen
         </Button>
-        <Button asChild variant="link" size="sm" className="px-2 text-muted-foreground">
-          <Link href={`/dashboard/events/${eventId}/shifts/${shiftId}/tasks/new`}>mit Beschreibung …</Link>
-        </Button>
+        <Link href={`/dashboard/events/${eventId}/shifts/${shiftId}/tasks/new`} className={cn(buttonVariants({ variant: "link", size: "sm" }), "px-2 text-muted-foreground")}>mit Beschreibung …</Link>
       </div>
     );
   }
