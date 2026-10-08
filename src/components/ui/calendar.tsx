@@ -3,16 +3,24 @@
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker } from "react-day-picker";
+import { de } from "react-day-picker/locale";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
-function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
+function Calendar({
+  className,
+  classNames,
+  showOutsideDays = true,
+  locale = de,
+  ...props
+}: CalendarProps) {
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
+      locale={locale}
       className={cn("p-3", className)}
       classNames={{
         months: "relative flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
@@ -22,11 +30,11 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         nav: "absolute inset-x-1 top-1 z-10 flex items-center justify-between",
         button_previous: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+          "size-8 min-h-0 bg-transparent p-0 opacity-50 hover:opacity-100",
         ),
         button_next: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+          "size-8 min-h-0 bg-transparent p-0 opacity-50 hover:opacity-100",
         ),
         month_grid: "w-full border-collapse space-y-1",
         weekdays: "flex",

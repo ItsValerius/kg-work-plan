@@ -17,7 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { events } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
+import { format, startOfDay } from "date-fns";
 import { de } from "date-fns/locale";
 import { eventSchema } from "@/domains/events/types";
 import { AlertCircle, CalendarIcon, Loader2 } from "lucide-react";
@@ -149,7 +149,7 @@ export function EventForm({
                     mode="single"
                     selected={field.value}
                     onSelect={field.onChange}
-                    disabled={(date) => date < new Date()}
+                    disabled={(date) => date < startOfDay(new Date())}
                     autoFocus
                   />
                 </PopoverContent>
@@ -191,7 +191,7 @@ export function EventForm({
                     mode="single"
                     selected={field.value}
                     onSelect={field.onChange}
-                    disabled={(date) => date < new Date()}
+                    disabled={(date) => date < startOfDay(new Date())}
                     autoFocus
                   />
                 </PopoverContent>

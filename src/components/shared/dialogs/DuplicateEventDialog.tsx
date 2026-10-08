@@ -123,7 +123,7 @@ export function DuplicateEventDialog({
         <DialogHeader>
           <DialogTitle>Veranstaltung duplizieren</DialogTitle>
           <DialogDescription>
-            Geben Sie den Namen und die Daten für die neue Veranstaltung ein.
+            Gib den Namen und die Daten für die neue Veranstaltung ein.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
