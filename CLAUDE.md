@@ -18,6 +18,7 @@ Use pnpm (`packageManager: pnpm@10`).
 pnpm dev                 # next dev --turbopack
 pnpm build               # production build (also the main type check)
 pnpm lint                # eslint . (flat config in eslint.config.mjs)
+pnpm format              # Prettier (+ Tailwind class sorting); pnpm format:check in CI
 docker compose up -d     # Postgres (54320) + Neon wsproxy (54330) + Mailpit (SMTP 1025, inbox http://localhost:8025)
 pnpm make-admin <email>  # give an address the admin role locally (creates the account if missing)
 pnpm db:seed             # load a demo season (dates relative to today); rerun to reset it, real accounts stay
