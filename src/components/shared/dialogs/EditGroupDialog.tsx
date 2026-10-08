@@ -41,7 +41,7 @@ export function EditGroupDialog({
   participantId: string;
   currentGroupName: string | null;
   currentGroupSize: number;
-  trigger?: React.ReactNode;
+  trigger?: React.ReactElement;
 }) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -93,14 +93,16 @@ export function EditGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="outline" size="sm">
-            <Pencil className="mr-2 size-4" />
-            Bearbeiten
-          </Button>
-        )}
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          trigger || (
+            <Button variant="outline" size="sm">
+              <Pencil className="mr-2 size-4" />
+              Bearbeiten
+            </Button>
+          )
+        }
+      />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Gruppeninformationen bearbeiten</DialogTitle>

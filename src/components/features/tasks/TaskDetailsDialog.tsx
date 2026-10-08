@@ -27,7 +27,7 @@ interface TaskDetailsDialogProps {
   isFull: boolean;
   progressPercentage: number;
   progressBarColor: string;
-  trigger?: React.ReactNode;
+  trigger?: React.ReactElement;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
@@ -50,18 +50,20 @@ export function TaskDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      {trigger && <DialogTrigger render={trigger} />}
       {!trigger && open === undefined && onOpenChange === undefined && (
-        <DialogTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
-            aria-label="Aufgabendetails anzeigen"
-          >
-            <Info className="size-4" />
-          </Button>
-        </DialogTrigger>
+        <DialogTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+              aria-label="Aufgabendetails anzeigen"
+            >
+              <Info className="size-4" />
+            </Button>
+          }
+        />
       )}
       <DialogContent className="max-h-[90vh] w-[calc(100vw-2rem)] max-w-2xl overflow-y-auto p-4 sm:max-h-[85vh] sm:w-full sm:p-6">
         <DialogHeader className="pb-4 sm:pb-6">
