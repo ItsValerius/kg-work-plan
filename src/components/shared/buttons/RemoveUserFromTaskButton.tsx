@@ -47,7 +47,10 @@ const RemoveUserFromTaskButton = ({ taskId, taskName }: RemoveUserFromTaskButton
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" className="px-3 text-destructive hover:bg-destructive-surface hover:text-destructive">
+        <Button
+          variant="ghost"
+          className="px-3 text-destructive hover:bg-destructive-surface hover:text-destructive"
+        >
           Austragen
         </Button>
       </AlertDialogTrigger>

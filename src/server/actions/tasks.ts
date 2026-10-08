@@ -51,10 +51,13 @@ export async function quickAddTask(input: {
         requiredParticipants: input.requiredParticipants,
         createdById: userId,
       },
-      userId
+      userId,
     );
   } catch {
-    return { ok: false, error: "Die Aufgabe konnte nicht gespeichert werden. Bitte versuche es noch einmal." };
+    return {
+      ok: false,
+      error: "Die Aufgabe konnte nicht gespeichert werden. Bitte versuche es noch einmal.",
+    };
   }
 
   updateTag(WORKPLAN_TAG);

@@ -86,11 +86,13 @@ export function UserForm({
         toast.success(
           <div className="flex gap-2">
             Du hast dich erfolgreich für {taskName} angemeldet.
-            <Link href="/meine-aufgaben" className={buttonVariants()}>Aufgabenübersicht</Link>
+            <Link href="/meine-aufgaben" className={buttonVariants()}>
+              Aufgabenübersicht
+            </Link>
           </div>,
           {
             richColors: true,
-          }
+          },
         );
         router.refresh();
       } catch (error) {
@@ -124,7 +126,9 @@ export function UserForm({
     });
   }
 
-  async function onSubmit(values: z.infer<typeof participantSchema> | z.infer<typeof updateFormSchema>) {
+  async function onSubmit(
+    values: z.infer<typeof participantSchema> | z.infer<typeof updateFormSchema>,
+  ) {
     if (isUpdateMode) {
       await onUpdate(values as z.infer<typeof updateFormSchema>);
     } else {
@@ -137,9 +141,7 @@ export function UserForm({
         <Alert variant="destructive">
           <AlertCircle className="size-4" />
           <AlertTitle>Fehler</AlertTitle>
-          <AlertDescription>
-            {form.formState.errors.root.message}
-          </AlertDescription>
+          <AlertDescription>{form.formState.errors.root.message}</AlertDescription>
         </Alert>
       )}
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -150,7 +152,11 @@ export function UserForm({
             <FormItem>
               <FormLabel>Gruppen Name</FormLabel>
               <FormControl>
-                <Input placeholder="Max Mustermann & Freunde..." {...field} value={field.value || ""} />
+                <Input
+                  placeholder="Max Mustermann & Freunde..."
+                  {...field}
+                  value={field.value || ""}
+                />
               </FormControl>
               <FormDescription>Der Name der Gruppe.</FormDescription>
               <FormMessage />
@@ -186,21 +192,21 @@ export function UserForm({
                   }}
                 />
               </FormControl>
-              <FormDescription>
-                Die Anzahl der Gruppenmitglieder.
-              </FormDescription>
+              <FormDescription>Die Anzahl der Gruppenmitglieder.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <Button
             type="submit"
             disabled={isSubmitting || isRemoving || form.formState.isSubmitting}
             className="w-full sm:w-auto"
           >
-            {(isSubmitting || form.formState.isSubmitting) && <Loader2 className="mr-2 size-4 animate-spin" />}
+            {(isSubmitting || form.formState.isSubmitting) && (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            )}
             {isUpdateMode ? "Aktualisieren" : "Anmelden"}
           </Button>
           {isUpdateMode && (

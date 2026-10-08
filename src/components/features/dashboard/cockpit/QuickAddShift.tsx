@@ -26,7 +26,12 @@ function addHours(time: string, hours: number) {
 }
 
 /** Inline row for adding a shift: name, start and end on the event's day. */
-export function QuickAddShift({ eventId, eventDay, suggestedStart, startOpen = false }: QuickAddShiftProps) {
+export function QuickAddShift({
+  eventId,
+  eventDay,
+  suggestedStart,
+  startOpen = false,
+}: QuickAddShiftProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(startOpen);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +46,12 @@ export function QuickAddShift({ eventId, eventDay, suggestedStart, startOpen = f
           <Plus aria-hidden="true" />
           Schicht hinzufügen
         </Button>
-        <Link href={`/dashboard/events/${eventId}/shifts/new`} className={cn(buttonVariants({ variant: "link" }), "px-2 text-muted-foreground")}>an einem anderen Tag …</Link>
+        <Link
+          href={`/dashboard/events/${eventId}/shifts/new`}
+          className={cn(buttonVariants({ variant: "link" }), "px-2 text-muted-foreground")}
+        >
+          an einem anderen Tag …
+        </Link>
       </div>
     );
   }
@@ -71,23 +81,48 @@ export function QuickAddShift({ eventId, eventDay, suggestedStart, startOpen = f
     <form
       ref={formRef}
       action={submit}
-      className="animate-reveal grid gap-3 rounded-lg border-[1.5px] border-primary bg-surface-open p-4 sm:grid-cols-[1fr_136px_136px_auto] sm:items-end"
+      className="grid animate-reveal gap-3 rounded-lg border-[1.5px] border-primary bg-surface-open p-4 sm:grid-cols-[1fr_136px_136px_auto] sm:items-end"
     >
       <div className="grid gap-2.5">
         <Label htmlFor={`${id}-name`}>Neue Schicht</Label>
-        <Input id={`${id}-name`} name="name" placeholder="z. B. Aufbau" required autoFocus className="bg-background" />
+        <Input
+          id={`${id}-name`}
+          name="name"
+          placeholder="z. B. Aufbau"
+          required
+          autoFocus
+          className="bg-background"
+        />
       </div>
       <div className="grid gap-2.5">
         <Label htmlFor={`${id}-start`}>Beginn</Label>
-        <Input id={`${id}-start`} name="start" type="time" defaultValue={suggestedStart} required className="bg-background tabular" />
+        <Input
+          id={`${id}-start`}
+          name="start"
+          type="time"
+          defaultValue={suggestedStart}
+          required
+          className="tabular bg-background"
+        />
       </div>
       <div className="grid gap-2.5">
         <Label htmlFor={`${id}-end`}>Ende</Label>
-        <Input id={`${id}-end`} name="end" type="time" defaultValue={addHours(suggestedStart, 3)} required className="bg-background tabular" />
+        <Input
+          id={`${id}-end`}
+          name="end"
+          type="time"
+          defaultValue={addHours(suggestedStart, 3)}
+          required
+          className="tabular bg-background"
+        />
       </div>
       <div className="flex gap-2">
         <Button type="submit" disabled={isPending}>
-          {isPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Plus aria-hidden="true" />}
+          {isPending ? (
+            <Loader2 className="animate-spin" aria-hidden="true" />
+          ) : (
+            <Plus aria-hidden="true" />
+          )}
           {isPending ? "Wird angelegt …" : "Anlegen"}
         </Button>
         <Button type="button" variant="ghost" onClick={() => setIsOpen(false)} disabled={isPending}>
@@ -95,7 +130,10 @@ export function QuickAddShift({ eventId, eventDay, suggestedStart, startOpen = f
         </Button>
       </div>
       {error && (
-        <p role="alert" className="rounded-md border border-destructive/30 bg-destructive-surface px-3 py-2.5 text-[15px] text-destructive sm:col-span-4">
+        <p
+          role="alert"
+          className="rounded-md border border-destructive/30 bg-destructive-surface px-3 py-2.5 text-[15px] text-destructive sm:col-span-4"
+        >
           {error}
         </p>
       )}

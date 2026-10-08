@@ -53,7 +53,7 @@ export async function duplicateEvent(
   name: string,
   startDate: Date,
   endDate: Date,
-  userId: string
+  userId: string,
 ) {
   try {
     // Fetch the original event with all shifts and tasks
@@ -116,7 +116,7 @@ export async function duplicateEvent(
 
       for (const originalTask of originalShift.tasks) {
         const originalTaskStart = new Date(originalTask.startTime);
-        
+
         // Calculate relative time from shift start
         const originalShiftStart = new Date(originalShift.startTime);
         const relativeTaskMs = originalTaskStart.getTime() - originalShiftStart.getTime();
@@ -161,10 +161,7 @@ export async function deleteTask(taskId: string) {
 
 export async function deleteShift(shiftId: string) {
   try {
-    const deletedShift = await db
-      .delete(shifts)
-      .where(eq(shifts.id, shiftId))
-      .returning();
+    const deletedShift = await db.delete(shifts).where(eq(shifts.id, shiftId)).returning();
 
     return deletedShift[0];
   } catch (error) {

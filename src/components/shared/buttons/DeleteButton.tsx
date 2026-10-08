@@ -42,8 +42,8 @@ const DeleteButton = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Bist du dir sicher?</AlertDialogTitle>
           <AlertDialogDescription>
-            Das Löschen von Veranstaltungen, Schichten und Aufgaben kann nicht
-            wieder Rückgängig gemacht werden.
+            Das Löschen von Veranstaltungen, Schichten und Aufgaben kann nicht wieder Rückgängig
+            gemacht werden.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -52,10 +52,7 @@ const DeleteButton = ({
             asChild
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            <Button
-              disabled={isPending}
-              onClick={() => startTransition(() => deleteAction(id))}
-            >
+            <Button disabled={isPending} onClick={() => startTransition(() => deleteAction(id))}>
               Löschen
             </Button>
           </AlertDialogAction>
@@ -66,4 +63,3 @@ const DeleteButton = ({
 };
 
 export default DeleteButton;
-

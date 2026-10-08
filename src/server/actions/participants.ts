@@ -40,7 +40,7 @@ export async function signUpForTask(input: {
   try {
     await domainActions.createParticipant(
       { taskId: input.taskId, groupName, groupSize, createdById: userId },
-      userId
+      userId,
     );
   } catch (error) {
     if (error instanceof Error && error.message === "Benutzer bereits zur Aufgabe eingetragen.") {

@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @plugin "@tailwindcss/typography";
 @import "tw-animate-css";
 
@@ -203,7 +203,7 @@
   }
   h1,
   h2 {
-    @apply font-display font-bold leading-[1.03] tracking-[-0.02em] text-balance;
+    @apply font-display leading-[1.03] font-bold tracking-[-0.02em] text-balance;
   }
   .tabular {
     font-variant-numeric: tabular-nums;

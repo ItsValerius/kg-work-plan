@@ -10,10 +10,10 @@ import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 export async function POST(request: NextRequest) {
   try {
     const userId = await getAuthenticatedAdminUserId();
-    
+
     const body = await request.json();
     const task = taskSchema.safeParse(body);
-    
+
     if (!task.success) {
       logger.warn("Invalid task data", { issues: task.error.issues });
       return ApiErrorResponse.validationError("Bitte prüfe deine Eingaben.", task.error.issues);
@@ -25,11 +25,17 @@ export async function POST(request: NextRequest) {
       revalidateTag(WORKPLAN_TAG, { expire: 0 });
       return Response.json(newTask);
     } catch (error) {
-      logger.error("Die Aufgabe konnte nicht gespeichert werden. Bitte versuch es noch einmal.", error);
+      logger.error(
+        "Die Aufgabe konnte nicht gespeichert werden. Bitte versuch es noch einmal.",
+        error,
+      );
       if (error instanceof Error && error.message === "Unauthorized") {
         return ApiErrorResponse.unauthorized();
       }
-      return ApiErrorResponse.internalError("Die Aufgabe konnte nicht gespeichert werden. Bitte versuch es noch einmal.", error);
+      return ApiErrorResponse.internalError(
+        "Die Aufgabe konnte nicht gespeichert werden. Bitte versuch es noch einmal.",
+        error,
+      );
     }
   } catch (error) {
     if (error instanceof Error && error.message === "Unauthorized") {

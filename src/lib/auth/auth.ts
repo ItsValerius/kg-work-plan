@@ -3,12 +3,7 @@ import { magicLink, customSession } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import * as dotenv from "dotenv";
 import db from "@/db/index";
-import {
-  accounts,
-  sessions,
-  users,
-  verification,
-} from "../../db/schema/index";
+import { accounts, sessions, users, verification } from "../../db/schema/index";
 import { eq } from "drizzle-orm";
 import { renderMagicLinkEmail } from "./magic-link-email";
 
@@ -97,7 +92,7 @@ export const auth = betterAuth({
     updateAge: 60 * 60 * 24, // 1 day
   },
   trustedOrigins: [
-    "http://localhost:3000", 
-    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : [])
+    "http://localhost:3000",
+    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
   ],
 });

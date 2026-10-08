@@ -11,7 +11,7 @@ interface DesktopNavigationProps {
 export function DesktopNavigation({ isAdmin }: DesktopNavigationProps) {
   const items = isAdmin ? [...navItems, adminNavItem] : navItems;
   return (
-    <div className="hidden lg:flex items-center">
+    <div className="hidden items-center lg:flex">
       <NavItems items={items} />
       <div className="ml-2 border-l pl-2">
         <LogoutButton showText />

@@ -10,13 +10,16 @@ import { getAuthenticatedUserId } from "@/lib/auth/utils";
 export async function POST(request: NextRequest) {
   try {
     const userId = await getAuthenticatedUserId();
-    
+
     const body = await request.json();
     const taskParticipant = participantSchema.safeParse(body);
-    
+
     if (!taskParticipant.success) {
       logger.warn("Invalid task participant data", { issues: taskParticipant.error.issues });
-      return ApiErrorResponse.validationError("Bitte prüfe deine Eingaben.", taskParticipant.error.issues);
+      return ApiErrorResponse.validationError(
+        "Bitte prüfe deine Eingaben.",
+        taskParticipant.error.issues,
+      );
     }
 
     try {
@@ -37,7 +40,10 @@ export async function POST(request: NextRequest) {
           return ApiErrorResponse.validationError(error.message);
         }
       }
-      return ApiErrorResponse.internalError("Das Eintragen hat nicht geklappt. Bitte versuch es noch einmal.", error);
+      return ApiErrorResponse.internalError(
+        "Das Eintragen hat nicht geklappt. Bitte versuch es noch einmal.",
+        error,
+      );
     }
   } catch (error) {
     if (error instanceof Error && error.message === "Unauthorized") {

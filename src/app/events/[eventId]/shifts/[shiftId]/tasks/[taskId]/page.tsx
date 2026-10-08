@@ -3,13 +3,7 @@ import { getEventById } from "@/domains/events/queries";
 import { getTaskByIdWithShift } from "@/domains/tasks/queries";
 import { getParticipantByUserAndTask } from "@/domains/participants/queries";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -21,9 +15,7 @@ interface TaskDetailsPageProps {
   params: Promise<{ eventId: string; shiftId: string; taskId: string }>;
 }
 
-export async function generateMetadata(
-  props: TaskDetailsPageProps
-): Promise<Metadata> {
+export async function generateMetadata(props: TaskDetailsPageProps): Promise<Metadata> {
   const params = await props.params;
   const task = await getTaskByIdWithShift(params.taskId);
 
@@ -56,8 +48,8 @@ const TaskDetailsPage = async (props: TaskDetailsPageProps) => {
   if (!event || !task) return notFound();
   return (
     <PageContainer variant="wide">
-      <div className="flex my-auto w-full items-center justify-center flex-col gap-4">
-        <Card className="w-full max-w-xl mx-auto">
+      <div className="my-auto flex w-full flex-col items-center justify-center gap-4">
+        <Card className="mx-auto w-full max-w-xl">
           <CardHeader>
             <CardTitle>
               <h1>
@@ -66,8 +58,7 @@ const TaskDetailsPage = async (props: TaskDetailsPageProps) => {
               </h1>
             </CardTitle>
             <CardDescription>
-              Du musst die Felder unten nur Ausfüllen, falls du dich als Gruppe
-              eintragen möchtest.
+              Du musst die Felder unten nur Ausfüllen, falls du dich als Gruppe eintragen möchtest.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -80,9 +71,9 @@ const TaskDetailsPage = async (props: TaskDetailsPageProps) => {
           </CardContent>
         </Card>
         <Link href={`/events/${params.eventId}`} className={buttonVariants({ variant: "outline" })}>
-            <ArrowLeft />
-            Zurück
-          </Link>
+          <ArrowLeft />
+          Zurück
+        </Link>
       </div>
     </PageContainer>
   );

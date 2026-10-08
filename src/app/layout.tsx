@@ -26,9 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
-      <body
-        className={barlow.variable}
-      >
+      <body className={barlow.variable}>
         <a href="#main-content" className="skip-to-content">
           Zum Hauptinhalt springen
         </a>

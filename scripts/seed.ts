@@ -27,9 +27,15 @@ function berlin(days: number, time: string): string {
   const [hour, minute] = time.split(":").map(Number);
   const day = new Date();
   day.setUTCDate(day.getUTCDate() + days);
-  const guess = new Date(Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(), hour, minute));
+  const guess = new Date(
+    Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(), hour, minute),
+  );
   const berlinHour = Number(
-    new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Berlin", hour: "2-digit", hourCycle: "h23" }).format(guess)
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/Berlin",
+      hour: "2-digit",
+      hourCycle: "h23",
+    }).format(guess),
   );
   return new Date(guess.getTime() - (berlinHour - hour) * 3_600_000).toISOString();
 }
@@ -49,9 +55,23 @@ const helpers = [
   ["nicole", "Nicole Frenken"],
 ] as const;
 
-type TaskSeed = { name: string; description?: string; at: string; need: number; helpers?: (string | [string, string, number])[] };
+type TaskSeed = {
+  name: string;
+  description?: string;
+  at: string;
+  need: number;
+  helpers?: (string | [string, string, number])[];
+};
 type ShiftSeed = { name: string; from: string; to: string; tasks: TaskSeed[] };
-type EventSeed = { key: string; name: string; description: string; days: number; from: string; to: string; shifts: ShiftSeed[] };
+type EventSeed = {
+  key: string;
+  name: string;
+  description: string;
+  days: number;
+  from: string;
+  to: string;
+  shifts: ShiftSeed[];
+};
 
 // Helpers are listed by key; a tuple signs up a group: [key, group name, size].
 const season: EventSeed[] = [
@@ -68,8 +88,20 @@ const season: EventSeed[] = [
         from: "08:00",
         to: "11:00",
         tasks: [
-          { name: "Tische und Bänke stellen", description: "Treffpunkt am Hallentor", at: "08:00", need: 6, helpers: ["juergen", ["heinz", "Familie Jansen", 3]] },
-          { name: "Getränke kühlen", description: "Kühlwagen befüllen", at: "08:30", need: 2, helpers: ["marlies", "tim"] },
+          {
+            name: "Tische und Bänke stellen",
+            description: "Treffpunkt am Hallentor",
+            at: "08:00",
+            need: 6,
+            helpers: ["juergen", ["heinz", "Familie Jansen", 3]],
+          },
+          {
+            name: "Getränke kühlen",
+            description: "Kühlwagen befüllen",
+            at: "08:30",
+            need: 2,
+            helpers: ["marlies", "tim"],
+          },
           { name: "Deko aufhängen", at: "09:00", need: 3, helpers: ["gaby"] },
         ],
       },
@@ -79,7 +111,13 @@ const season: EventSeed[] = [
         to: "15:00",
         tasks: [
           { name: "Bierstand", at: "11:00", need: 4, helpers: ["anna", "sabine"] },
-          { name: "Kuchentheke", description: "Kaffee und Kuchen verkaufen", at: "11:00", need: 3, helpers: ["peter"] },
+          {
+            name: "Kuchentheke",
+            description: "Kaffee und Kuchen verkaufen",
+            at: "11:00",
+            need: 3,
+            helpers: ["peter"],
+          },
           { name: "Kasse", at: "11:00", need: 2, helpers: ["nicole", "willi"] },
         ],
       },
@@ -105,7 +143,13 @@ const season: EventSeed[] = [
         to: "15:00",
         tasks: [
           { name: "Kasse", at: "10:00", need: 2, helpers: ["lena"] },
-          { name: "Grillstand", description: "Würstchen und Pommes", at: "11:00", need: 3, helpers: [["klaus", "Kegelclub Alle Neune", 3]] },
+          {
+            name: "Grillstand",
+            description: "Würstchen und Pommes",
+            at: "11:00",
+            need: 3,
+            helpers: [["klaus", "Kegelclub Alle Neune", 3]],
+          },
         ],
       },
       {
@@ -129,8 +173,19 @@ const season: EventSeed[] = [
         from: "10:00",
         to: "15:00",
         tasks: [
-          { name: "Wagenengel", description: "Begleitung neben dem Prinzenwagen", at: "10:00", need: 10, helpers: ["tim", "anna", "willi"] },
-          { name: "Wurfmaterial verteilen", at: "09:30", need: 4, helpers: [["gaby", "Familie Mertens", 4]] },
+          {
+            name: "Wagenengel",
+            description: "Begleitung neben dem Prinzenwagen",
+            at: "10:00",
+            need: 10,
+            helpers: ["tim", "anna", "willi"],
+          },
+          {
+            name: "Wurfmaterial verteilen",
+            at: "09:30",
+            need: 4,
+            helpers: [["gaby", "Familie Mertens", 4]],
+          },
         ],
       },
     ],
@@ -169,13 +224,14 @@ async function main() {
     await client.query(`delete from ${T.event} where id like 'demo-%'`);
     await client.query(`delete from ${T.user} where id like 'demo-%'`);
 
-    await client.query(`insert into ${T.user} (id, name, email, "emailVerified") values ('demo-orga', 'Demo Organisation', 'orga@demo.example', true)`);
+    await client.query(
+      `insert into ${T.user} (id, name, email, "emailVerified") values ('demo-orga', 'Demo Organisation', 'orga@demo.example', true)`,
+    );
     for (const [key, name] of helpers) {
-      await client.query(`insert into ${T.user} (id, name, email, "emailVerified") values ($1, $2, $3, true)`, [
-        `demo-${key}`,
-        name,
-        `${key}@demo.example`,
-      ]);
+      await client.query(
+        `insert into ${T.user} (id, name, email, "emailVerified") values ($1, $2, $3, true)`,
+        [`demo-${key}`, name, `${key}@demo.example`],
+      );
     }
 
     let signups = 0;
@@ -183,26 +239,53 @@ async function main() {
       const eventId = `demo-${event.key}`;
       await client.query(
         `insert into ${T.event} (id, name, description, start_date, end_date, created_at, created_by_id) values ($1, $2, $3, $4, $5, now(), 'demo-orga')`,
-        [eventId, event.name, event.description, berlin(event.days, event.from), berlin(event.days, event.to)]
+        [
+          eventId,
+          event.name,
+          event.description,
+          berlin(event.days, event.from),
+          berlin(event.days, event.to),
+        ],
       );
       for (const [shiftIndex, shift] of event.shifts.entries()) {
         const shiftId = `${eventId}-s${shiftIndex}`;
         await client.query(
           `insert into ${T.shift} (id, event_id, name, start_time, end_time, created_by_id) values ($1, $2, $3, $4, $5, 'demo-orga')`,
-          [shiftId, eventId, shift.name, berlin(event.days, shift.from), berlin(event.days, shift.to)]
+          [
+            shiftId,
+            eventId,
+            shift.name,
+            berlin(event.days, shift.from),
+            berlin(event.days, shift.to),
+          ],
         );
         for (const [taskIndex, task] of shift.tasks.entries()) {
           const taskId = `${shiftId}-t${taskIndex}`;
           await client.query(
             `insert into ${T.task} (id, shift_id, name, description, required_participants, created_by_id, start_time) values ($1, $2, $3, $4, $5, 'demo-orga', $6)`,
-            [taskId, shiftId, task.name, task.description ?? "", task.need, berlin(event.days, task.at)]
+            [
+              taskId,
+              shiftId,
+              task.name,
+              task.description ?? "",
+              task.need,
+              berlin(event.days, task.at),
+            ],
           );
           for (const [helperIndex, helper] of (task.helpers ?? []).entries()) {
-            const [key, groupName, groupSize] = typeof helper === "string" ? [helper, null, 1] : helper;
+            const [key, groupName, groupSize] =
+              typeof helper === "string" ? [helper, null, 1] : helper;
             await client.query(
               `insert into ${T.participant} (id, task_id, user_id, group_name, group_size, created_by_id, created_at)
                values ($1, $2, $3, $4, $5, $3, now() - make_interval(hours => $6))`,
-              [`demo-${taskId}-p${helperIndex}`, taskId, `demo-${key}`, groupName, groupSize, 48 - helperIndex]
+              [
+                `demo-${taskId}-p${helperIndex}`,
+                taskId,
+                `demo-${key}`,
+                groupName,
+                groupSize,
+                48 - helperIndex,
+              ],
             );
             signups++;
           }
@@ -210,7 +293,9 @@ async function main() {
       }
     }
     await client.query("commit");
-    console.log(`Demo-Saison geladen: ${season.length} Veranstaltungen, ${helpers.length} Helfer, ${signups} Anmeldungen.`);
+    console.log(
+      `Demo-Saison geladen: ${season.length} Veranstaltungen, ${helpers.length} Helfer, ${signups} Anmeldungen.`,
+    );
   } catch (error) {
     await client.query("rollback");
     throw error;

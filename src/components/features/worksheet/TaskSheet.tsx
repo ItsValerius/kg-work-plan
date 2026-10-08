@@ -61,9 +61,12 @@ export function TaskSheet({ eventId, shiftId, task, viewerId, justClaimed }: Tas
       aria-labelledby={`aufgabe-${task.id}-titel`}
       className="relative scroll-mt-24 border-t-2 border-foreground/80"
     >
-      <header className="flex items-start justify-between gap-4 border-b pb-3 pt-3 md:pt-4">
+      <header className="flex items-start justify-between gap-4 border-b pt-3 pb-3 md:pt-4">
         <div className="min-w-0">
-          <h3 id={`aufgabe-${task.id}-titel`} className="text-xl font-semibold leading-snug tracking-[-0.015em]">
+          <h3
+            id={`aufgabe-${task.id}-titel`}
+            className="text-xl leading-snug font-semibold tracking-[-0.015em]"
+          >
             {task.name}
           </h3>
           <p className="mt-1 text-[15px] text-muted-foreground">
@@ -73,12 +76,14 @@ export function TaskSheet({ eventId, shiftId, task, viewerId, justClaimed }: Tas
         </div>
         <p
           className={cn(
-            "shrink-0 text-right leading-none tabular",
-            isFull ? "text-muted-foreground" : "text-primary"
+            "tabular shrink-0 text-right leading-none",
+            isFull ? "text-muted-foreground" : "text-primary",
           )}
         >
           <span className="font-display text-[30px] font-bold">{filled}</span>
-          <span className="font-display text-[20px] font-bold text-muted-foreground">/{required}</span>
+          <span className="font-display text-[20px] font-bold text-muted-foreground">
+            /{required}
+          </span>
           <span className="mt-1 block text-[12px] font-semibold uppercase">
             {isFull ? "voll" : `${open} frei`}
           </span>
@@ -92,13 +97,13 @@ export function TaskSheet({ eventId, shiftId, task, viewerId, justClaimed }: Tas
             className={cn(
               "grid grid-cols-[44px_1fr_auto] items-center gap-x-2 border-b py-3 md:grid-cols-[52px_1fr_auto]",
               isOwn && "-mx-2 rounded-md border-transparent bg-accent px-2",
-              isOwn && justClaimed && "animate-claim"
+              isOwn && justClaimed && "animate-claim",
             )}
           >
             <span
               className={cn(
-                "font-display text-[22px] font-bold leading-none tabular",
-                isOwn ? "text-primary-dark" : "text-muted-foreground"
+                "tabular font-display text-[22px] leading-none font-bold",
+                isOwn ? "text-primary-dark" : "text-muted-foreground",
               )}
               aria-label={`Platz ${lineRange(from, to)}`}
             >
@@ -106,10 +111,15 @@ export function TaskSheet({ eventId, shiftId, task, viewerId, justClaimed }: Tas
             </span>
             <span className="min-w-0">
               {isLoggedIn ? (
-                <span className={cn("flex items-center gap-2 text-[17px]", isOwn && "font-semibold text-primary-dark")}>
+                <span
+                  className={cn(
+                    "flex items-center gap-2 text-[17px]",
+                    isOwn && "font-semibold text-primary-dark",
+                  )}
+                >
                   <span className="truncate">{name}</span>
                   {isOwn && (
-                    <span className="shrink-0 rounded-sm bg-primary px-1.5 py-0.5 text-[12px] font-semibold leading-none text-primary-foreground">
+                    <span className="shrink-0 rounded-sm bg-primary px-1.5 py-0.5 text-[12px] leading-none font-semibold text-primary-foreground">
                       du
                     </span>
                   )}
@@ -118,7 +128,12 @@ export function TaskSheet({ eventId, shiftId, task, viewerId, justClaimed }: Tas
                 <span className="block text-[17px] text-muted-foreground">belegt</span>
               )}
               {participant.groupSize > 1 && (
-                <span className={cn("block text-sm", isOwn ? "text-primary-dark" : "text-muted-foreground")}>
+                <span
+                  className={cn(
+                    "block text-sm",
+                    isOwn ? "text-primary-dark" : "text-muted-foreground",
+                  )}
+                >
                   Gruppe · {participant.groupSize} Personen
                 </span>
               )}
@@ -150,7 +165,10 @@ export function TaskSheet({ eventId, shiftId, task, viewerId, justClaimed }: Tas
             key={`frei-${index}`}
             className="grid grid-cols-[44px_1fr] items-center gap-x-2 border-b border-dashed py-3 md:grid-cols-[52px_1fr]"
           >
-            <span className="font-display text-[22px] font-bold leading-none text-input tabular" aria-hidden="true">
+            <span
+              className="tabular font-display text-[22px] leading-none font-bold text-input"
+              aria-hidden="true"
+            >
               {firstQuietLine + index}
             </span>
             <span className="text-[15px] text-muted-foreground">frei</span>
@@ -159,12 +177,15 @@ export function TaskSheet({ eventId, shiftId, task, viewerId, justClaimed }: Tas
 
         {foldedEmptyCount > 0 && (
           <li className="py-3 pl-[44px] text-[15px] text-muted-foreground md:pl-[52px]">
-            + {foldedEmptyCount} {foldedEmptyCount === 1 ? "weiterer freier Platz" : "weitere freie Plätze"}
+            + {foldedEmptyCount}{" "}
+            {foldedEmptyCount === 1 ? "weiterer freier Platz" : "weitere freie Plätze"}
           </li>
         )}
 
         {isFull && entries.length === 0 && (
-          <li className="py-3 text-[15px] text-muted-foreground">Für diese Aufgabe werden keine Helfer gebraucht.</li>
+          <li className="py-3 text-[15px] text-muted-foreground">
+            Für diese Aufgabe werden keine Helfer gebraucht.
+          </li>
         )}
       </ol>
     </article>

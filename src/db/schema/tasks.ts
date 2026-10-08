@@ -46,7 +46,7 @@ export const taskParticipants = pgTable(
   },
   (table) => ({
     unique_task_user: unique().on(table.taskId, table.userId),
-  })
+  }),
 );
 
 export const tasksRelations = relations(tasks, ({ one, many }) => ({
@@ -57,16 +57,13 @@ export const tasksRelations = relations(tasks, ({ one, many }) => ({
   participants: many(taskParticipants),
 }));
 
-export const taskParticipantsRelations = relations(
-  taskParticipants,
-  ({ one }) => ({
-    task: one(tasks, {
-      fields: [taskParticipants.taskId],
-      references: [tasks.id],
-    }),
-    user: one(users, {
-      fields: [taskParticipants.userId],
-      references: [users.id],
-    }),
-  })
-);
+export const taskParticipantsRelations = relations(taskParticipants, ({ one }) => ({
+  task: one(tasks, {
+    fields: [taskParticipants.taskId],
+    references: [tasks.id],
+  }),
+  user: one(users, {
+    fields: [taskParticipants.userId],
+    references: [users.id],
+  }),
+}));

@@ -7,7 +7,7 @@ import { UTCDate } from "@date-fns/utc";
 /**
  * Gets the start of today (UTC) minus 1 hour
  * This is used to determine which events are "future" vs "past"
- * 
+ *
  * Memoized calculation - call this once per request/page load
  */
 export function getStartOfToday(): Date {
@@ -47,11 +47,7 @@ export function formatTime(date: Date): string {
  * @param includeDate - Whether to include date in the range (default: true)
  * @returns Formatted date/time range string
  */
-export function formatDateTimeRange(
-  start: Date,
-  end: Date,
-  includeDate = true
-): string {
+export function formatDateTimeRange(start: Date, end: Date, includeDate = true): string {
   if (includeDate) {
     return `${formatDate(start)} - ${formatDate(end)}`;
   }
@@ -128,5 +124,8 @@ export function toBerlinInputParts(date: Date) {
     hourCycle: "h23",
   }).formatToParts(date);
   const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
-  return { day: `${get("year")}-${get("month")}-${get("day")}`, time: `${get("hour")}:${get("minute")}` };
+  return {
+    day: `${get("year")}-${get("month")}-${get("day")}`,
+    time: `${get("hour")}:${get("minute")}`,
+  };
 }

@@ -15,8 +15,8 @@ export function HelperList({ event }: { event: EventWorkPlan }) {
         group: p.groupName ?? "",
         people: p.groupSize,
         email: p.user?.email ?? "",
-      }))
-    )
+      })),
+    ),
   );
   const fileName = `helferliste-${event.name.toLowerCase().replace(/[^a-z0-9äöüß]+/g, "-")}-${formatDate(event.startDate).replaceAll(".", "-")}.csv`;
 
@@ -24,35 +24,55 @@ export function HelperList({ event }: { event: EventWorkPlan }) {
     <div className="grid gap-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-muted-foreground print:hidden">
-          {rows.length === 0 ? "Noch niemand eingetragen." : `${rows.length} Einträge · druckfertig für den Tag`}
+          {rows.length === 0
+            ? "Noch niemand eingetragen."
+            : `${rows.length} Einträge · druckfertig für den Tag`}
         </p>
         <HelperListActions rows={rows} fileName={fileName} />
       </div>
 
       {event.shifts.map((shift) => (
-        <section key={shift.id} aria-labelledby={`liste-${shift.id}`} className="break-inside-avoid-page">
-          <h3 id={`liste-${shift.id}`} className="flex items-baseline gap-3 border-b-2 border-foreground/80 pb-2">
-            <span className="font-display text-[22px] font-bold leading-none text-primary tabular print:text-foreground">
+        <section
+          key={shift.id}
+          aria-labelledby={`liste-${shift.id}`}
+          className="break-inside-avoid-page"
+        >
+          <h3
+            id={`liste-${shift.id}`}
+            className="flex items-baseline gap-3 border-b-2 border-foreground/80 pb-2"
+          >
+            <span className="tabular font-display text-[22px] leading-none font-bold text-primary print:text-foreground">
               {formatTime(shift.startTime)}–{formatTime(shift.endTime)}
             </span>
             <span className="text-lg font-semibold">{shift.name}</span>
           </h3>
 
-          {shift.tasks.length === 0 && <p className="py-3 text-muted-foreground">Keine Aufgaben.</p>}
+          {shift.tasks.length === 0 && (
+            <p className="py-3 text-muted-foreground">Keine Aufgaben.</p>
+          )}
 
           {shift.tasks.map((task) => {
             const { open, filled, required } = taskSpots(task);
             return (
-              <div key={task.id} className="border-b py-4 break-inside-avoid">
+              <div key={task.id} className="break-inside-avoid border-b py-4">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4">
                   <h4 className="font-semibold">
-                    {task.name} <span className="font-normal text-muted-foreground">· ab {formatTime(task.startTime)} Uhr</span>
+                    {task.name}{" "}
+                    <span className="font-normal text-muted-foreground">
+                      · ab {formatTime(task.startTime)} Uhr
+                    </span>
                   </h4>
-                  <span className={open > 0 ? "text-primary print:text-foreground" : "text-muted-foreground"}>
-                    <span className="font-display text-[22px] font-bold leading-none tabular">
+                  <span
+                    className={
+                      open > 0 ? "text-primary print:text-foreground" : "text-muted-foreground"
+                    }
+                  >
+                    <span className="tabular font-display text-[22px] leading-none font-bold">
                       {filled}/{required}
                     </span>
-                    <span className="ml-1.5 text-[15px] font-semibold">{open > 0 ? `${open} frei` : "voll"}</span>
+                    <span className="ml-1.5 text-[15px] font-semibold">
+                      {open > 0 ? `${open} frei` : "voll"}
+                    </span>
                   </span>
                 </div>
                 <ul className="mt-2 text-[15px]">
@@ -74,23 +94,35 @@ export function HelperList({ event }: { event: EventWorkPlan }) {
                             {p.user?.email && (
                               <>
                                 {" · "}
-                                <a href={`mailto:${p.user.email}`} className="text-primary underline-offset-4 hover:underline">
+                                <a
+                                  href={`mailto:${p.user.email}`}
+                                  className="text-primary underline-offset-4 hover:underline"
+                                >
                                   {p.user.email}
                                 </a>
                               </>
                             )}
                           </span>
                         </span>
-                        <span className="hidden truncate text-muted-foreground sm:block">{group}</span>
+                        <span className="hidden truncate text-muted-foreground sm:block">
+                          {group}
+                        </span>
                         <span className="hidden truncate sm:block">
                           {p.user?.email && (
-                            <a href={`mailto:${p.user.email}`} className="text-primary underline-offset-4 hover:underline print:text-foreground">
+                            <a
+                              href={`mailto:${p.user.email}`}
+                              className="text-primary underline-offset-4 hover:underline print:text-foreground"
+                            >
                               {p.user.email}
                             </a>
                           )}
                         </span>
                         <span className="justify-self-end">
-                          <RemoveHelperButton participantId={p.id} helperName={name} taskName={task.name} />
+                          <RemoveHelperButton
+                            participantId={p.id}
+                            helperName={name}
+                            taskName={task.name}
+                          />
                         </span>
                       </li>
                     );
@@ -109,7 +141,9 @@ export function HelperList({ event }: { event: EventWorkPlan }) {
                     </li>
                   ))}
                   {open > 3 && (
-                    <li className="py-2 text-muted-foreground print:hidden">+ {open - 3} weitere freie Plätze</li>
+                    <li className="py-2 text-muted-foreground print:hidden">
+                      + {open - 3} weitere freie Plätze
+                    </li>
                   )}
                 </ul>
               </div>

@@ -19,12 +19,7 @@ const SubmitButton = ({
 }) => {
   const { pending } = useFormStatus();
   return (
-    <Button
-      disabled={pending}
-      type="submit"
-      className="w-full"
-      variant={variant}
-    >
+    <Button disabled={pending} type="submit" className="w-full" variant={variant}>
       {pending ? (
         <>
           <Loader2 className="animate-spin" aria-hidden="true" />
@@ -41,4 +36,3 @@ const SubmitButton = ({
 };
 
 export default SubmitButton;
-

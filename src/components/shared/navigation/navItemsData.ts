@@ -24,4 +24,3 @@ export const adminNavItem: NavItem = {
   label: "Organisation",
   icon: LayoutDashboard,
 };
-

@@ -4,4 +4,3 @@ export const providerMap = [
   { id: "email", name: "Email" },
   { id: "google", name: "Google" },
 ] as const;
-

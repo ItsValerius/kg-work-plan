@@ -69,14 +69,18 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
       <div className="flex flex-wrap items-end justify-between gap-4 print:hidden">
         <h1 className="text-[48px] md:text-[clamp(56px,5.7vw,80px)]">Organisation</h1>
         <div className="flex flex-wrap gap-2.5">
-          <Link href="/dashboard?ansicht=alle" aria-current={view === "alle" ? "page" : undefined} className={buttonVariants({ variant: "outline" })}>
-              <Users aria-hidden="true" />
-              Alle Helfer
-            </Link>
+          <Link
+            href="/dashboard?ansicht=alle"
+            aria-current={view === "alle" ? "page" : undefined}
+            className={buttonVariants({ variant: "outline" })}
+          >
+            <Users aria-hidden="true" />
+            Alle Helfer
+          </Link>
           <Link href="/dashboard/events/new" className={buttonVariants()}>
-              <Plus aria-hidden="true" />
-              Neue Veranstaltung
-            </Link>
+            <Plus aria-hidden="true" />
+            Neue Veranstaltung
+          </Link>
         </div>
       </div>
 
@@ -111,9 +115,12 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
               <div className="rounded-lg bg-muted p-6 md:p-8">
                 <h2 className="text-[32px]">Noch keine Veranstaltungen</h2>
                 <p className="mt-2 text-[17px] text-muted-foreground">
-                  Lege die erste Veranstaltung an, dann erscheinen hier ihre Lücken und die Helferliste.
+                  Lege die erste Veranstaltung an, dann erscheinen hier ihre Lücken und die
+                  Helferliste.
                 </p>
-                <Link href="/dashboard/events/new" className={cn(buttonVariants(), "mt-5")}>Veranstaltung anlegen</Link>
+                <Link href="/dashboard/events/new" className={cn(buttonVariants(), "mt-5")}>
+                  Veranstaltung anlegen
+                </Link>
               </div>
             ) : (
               <article aria-labelledby="cockpit-titel" className="mt-6 md:mt-0">
@@ -123,17 +130,31 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
                     <h2 id="cockpit-titel" className="text-[44px] wrap-break-word md:text-[48px]">
                       {event.name}
                     </h2>
-                    <p className="mt-1 hidden text-[17px] print:block">{formatShortDate(event.startDate)}</p>
-                    {spots && <OpenSpots open={spots.open} required={spots.required} className="mt-2 text-[17px] print:hidden" />}
+                    <p className="mt-1 hidden text-[17px] print:block">
+                      {formatShortDate(event.startDate)}
+                    </p>
+                    {spots && (
+                      <OpenSpots
+                        open={spots.open}
+                        required={spots.required}
+                        className="mt-2 text-[17px] print:hidden"
+                      />
+                    )}
                     <div className="mt-4 flex flex-wrap gap-2.5 print:hidden">
-                      <Link href={`/events/${event.id}`} className={buttonVariants({ variant: "outline", size: "sm" })}>
-                          <ArrowUpRight aria-hidden="true" />
-                          Arbeitsplan öffnen
-                        </Link>
-                      <Link href={`/events/${event.id}/edit`} className={buttonVariants({ variant: "outline", size: "sm" })}>
-                          <Pencil aria-hidden="true" />
-                          Bearbeiten
-                        </Link>
+                      <Link
+                        href={`/events/${event.id}`}
+                        className={buttonVariants({ variant: "outline", size: "sm" })}
+                      >
+                        <ArrowUpRight aria-hidden="true" />
+                        Arbeitsplan öffnen
+                      </Link>
+                      <Link
+                        href={`/events/${event.id}/edit`}
+                        className={buttonVariants({ variant: "outline", size: "sm" })}
+                      >
+                        <Pencil aria-hidden="true" />
+                        Bearbeiten
+                      </Link>
                       <DuplicateButton
                         eventId={event.id}
                         eventName={event.name}
@@ -161,7 +182,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
                       aria-current={view === id ? "page" : undefined}
                       className={cn(
                         "relative -mb-px flex min-h-12 items-center border-b-[3px] border-transparent px-4 font-semibold text-muted-foreground transition-colors hover:text-foreground",
-                        view === id && "border-primary text-primary"
+                        view === id && "border-primary text-primary",
                       )}
                     >
                       {label}

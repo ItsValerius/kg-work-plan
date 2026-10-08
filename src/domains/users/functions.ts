@@ -7,12 +7,7 @@ export async function removeUserFromTask(taskId: string, userId: string) {
   try {
     await db
       .delete(taskParticipants)
-      .where(
-        and(
-          eq(taskParticipants.userId, userId),
-          eq(taskParticipants.taskId, taskId)
-        )
-      );
+      .where(and(eq(taskParticipants.userId, userId), eq(taskParticipants.taskId, taskId)));
     return;
   } catch (error) {
     logger.error("Failed to remove task participant", error, { taskId, userId });

@@ -31,12 +31,12 @@ async function main() {
        values ($1, $2, 'admin', true)
        on conflict (email) do update set role = 'admin', "updatedAt" = now()
        returning (xmax = 0) as created`,
-      [crypto.randomUUID(), email]
+      [crypto.randomUUID(), email],
     );
     console.log(
       result.rows[0].created
         ? `${email} angelegt und zum Admin gemacht. Jetzt unter /signin mit dieser Adresse anmelden.`
-        : `${email} ist jetzt Admin.`
+        : `${email} ist jetzt Admin.`,
     );
   } finally {
     await client.end();

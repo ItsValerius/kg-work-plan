@@ -62,19 +62,19 @@ export async function getEventByIdWithShiftsAndTasks(eventId: string) {
 
 function countOpenSpots(
   eventTasks: { id: string; requiredParticipants: number }[],
-  participants: { taskId: string; groupSize: number }[]
+  participants: { taskId: string; groupSize: number }[],
 ): number {
   const filledByTask = new Map<string, number>();
   for (const participant of participants) {
     filledByTask.set(
       participant.taskId,
-      (filledByTask.get(participant.taskId) ?? 0) + participant.groupSize
+      (filledByTask.get(participant.taskId) ?? 0) + participant.groupSize,
     );
   }
   return eventTasks.reduce(
     (open, task) =>
       open + Math.max(0, task.requiredParticipants - (filledByTask.get(task.id) ?? 0)),
-    0
+    0,
   );
 }
 
@@ -110,7 +110,7 @@ export async function getEventWorkPlan(eventId: string) {
 export type EventWorkPlan = NonNullable<Awaited<ReturnType<typeof getEventWorkPlan>>>;
 
 export async function getMissingUsersPerEvents(
-  eventIds: string[]
+  eventIds: string[],
 ): Promise<EventParticipantCounts> {
   "use cache";
   cacheLife("workplan");
@@ -134,11 +134,12 @@ export async function getMissingUsersPerEvents(
 
   // Get all tasks for all shifts
   const allShiftIds = allShifts.map((s) => s.id);
-  const allTasks = allShiftIds.length > 0
-    ? await db.query.tasks.findMany({
-        where: inArray(tasks.shiftId, allShiftIds),
-      })
-    : [];
+  const allTasks =
+    allShiftIds.length > 0
+      ? await db.query.tasks.findMany({
+          where: inArray(tasks.shiftId, allShiftIds),
+        })
+      : [];
 
   // Group tasks by eventId (via shiftId -> eventId mapping)
   const shiftIdToEventId = new Map<string, string>();
@@ -159,11 +160,12 @@ export async function getMissingUsersPerEvents(
 
   // Get all participants for all tasks
   const allTaskIds = allTasks.map((t) => t.id);
-  const allParticipants = allTaskIds.length > 0
-    ? await db.query.taskParticipants.findMany({
-        where: inArray(taskParticipants.taskId, allTaskIds),
-      })
-    : [];
+  const allParticipants =
+    allTaskIds.length > 0
+      ? await db.query.taskParticipants.findMany({
+          where: inArray(taskParticipants.taskId, allTaskIds),
+        })
+      : [];
 
   // Group participants by taskId, then by eventId
   const taskIdToEventId = new Map<string, string>();
@@ -194,11 +196,11 @@ export async function getMissingUsersPerEvents(
 
     const currentParticipantsCount = eventParticipants.reduce(
       (accumulator, participant) => accumulator + participant.groupSize,
-      0
+      0,
     );
     const requiredParticipantsCount = eventTasks.reduce(
       (accumulator, task) => accumulator + task.requiredParticipants,
-      0
+      0,
     );
 
     const openSpotsCount = countOpenSpots(eventTasks, eventParticipants);

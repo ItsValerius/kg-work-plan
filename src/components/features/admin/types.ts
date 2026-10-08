@@ -35,4 +35,3 @@ export interface TaskAdminActionsProps {
   progressPercentage: number;
   progressBarColor: string;
 }
-

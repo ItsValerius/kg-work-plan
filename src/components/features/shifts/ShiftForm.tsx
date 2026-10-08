@@ -69,7 +69,9 @@ export function ShiftForm({
       return;
     }
 
-    redirect(shift ? (returnTo ?? `/events/${eventId}`) : `/dashboard?event=${eventId}&ansicht=planen`);
+    redirect(
+      shift ? (returnTo ?? `/events/${eventId}`) : `/dashboard?event=${eventId}&ansicht=planen`,
+    );
   }
   return (
     <Form {...form}>

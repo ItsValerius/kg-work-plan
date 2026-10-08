@@ -39,7 +39,11 @@ export function DeleteEventButton({ eventId, eventName }: { eventId: string; eve
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="px-3 text-destructive hover:bg-destructive-surface hover:text-destructive">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="px-3 text-destructive hover:bg-destructive-surface hover:text-destructive"
+        >
           <Trash2 aria-hidden="true" />
           Löschen
         </Button>
@@ -48,8 +52,8 @@ export function DeleteEventButton({ eventId, eventName }: { eventId: string; eve
         <AlertDialogHeader>
           <AlertDialogTitle>„{eventName}“ löschen?</AlertDialogTitle>
           <AlertDialogDescription>
-            Alle Schichten, Aufgaben und Anmeldungen dieser Veranstaltung werden ebenfalls gelöscht. Das lässt
-            sich nicht rückgängig machen.
+            Alle Schichten, Aufgaben und Anmeldungen dieser Veranstaltung werden ebenfalls gelöscht.
+            Das lässt sich nicht rückgängig machen.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

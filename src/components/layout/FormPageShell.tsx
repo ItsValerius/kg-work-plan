@@ -12,7 +12,13 @@ interface FormPageShellProps {
 }
 
 /** Shared frame for the organizer's create/edit forms. */
-export function FormPageShell({ title, context, backHref, backLabel, children }: FormPageShellProps) {
+export function FormPageShell({
+  title,
+  context,
+  backHref,
+  backLabel,
+  children,
+}: FormPageShellProps) {
   return (
     <PageContainer>
       <div className="mx-auto max-w-2xl">

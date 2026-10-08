@@ -66,9 +66,7 @@ export function UserDataForm({ user }: { user: User }) {
         <Alert variant="destructive">
           <AlertCircle className="size-4" />
           <AlertTitle>Fehler</AlertTitle>
-          <AlertDescription>
-            {form.formState.errors.root.message}
-          </AlertDescription>
+          <AlertDescription>{form.formState.errors.root.message}</AlertDescription>
         </Alert>
       )}
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

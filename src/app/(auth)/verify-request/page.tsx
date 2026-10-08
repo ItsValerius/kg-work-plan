@@ -28,7 +28,8 @@ const VerifyRequestPage = async (props: VerifyRequestPageProps) => {
           Wir haben dir eine E-Mail mit einem Anmeldelink geschickt
           {email ? (
             <>
-              {" "}an <strong className="break-all font-semibold text-foreground">{email}</strong>.
+              {" "}
+              an <strong className="font-semibold break-all text-foreground">{email}</strong>.
             </>
           ) : (
             "."
@@ -38,7 +39,7 @@ const VerifyRequestPage = async (props: VerifyRequestPageProps) => {
         <ol className="mt-8 grid gap-4">
           {steps.map((step, index) => (
             <li key={step} className="grid grid-cols-[36px_1fr] items-baseline gap-2 text-[17px]">
-              <span className="font-display text-[26px] font-bold leading-none text-primary tabular">
+              <span className="tabular font-display text-[26px] leading-none font-bold text-primary">
                 {index + 1}
               </span>
               <span>{step}</span>

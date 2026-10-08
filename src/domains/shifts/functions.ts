@@ -25,7 +25,11 @@ export async function createOrUpdateShift(data: ShiftInput, userId: string) {
       })
       .returning();
 
-    logger.info("Shift created/updated", { shiftId: newShift[0].id, eventId: data.eventId, userId });
+    logger.info("Shift created/updated", {
+      shiftId: newShift[0].id,
+      eventId: data.eventId,
+      userId,
+    });
     return newShift[0];
   } catch (error) {
     logger.error("Failed to create/update shift", error, { eventId: data.eventId });

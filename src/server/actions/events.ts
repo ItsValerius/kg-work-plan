@@ -26,7 +26,7 @@ export async function duplicateEvent(
   eventId: string,
   name: string,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ) {
   const userId = await getAuthenticatedAdminUserId();
   const result = await domainActions.duplicateEvent(eventId, name, startDate, endDate, userId);

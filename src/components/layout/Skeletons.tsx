@@ -77,7 +77,10 @@ function SheetSkeleton({ lines }: { lines: number }) {
         <Bar className="h-8 w-12" />
       </div>
       {Array.from({ length: lines }).map((_, i) => (
-        <div key={i} className="grid grid-cols-[44px_1fr] items-center border-b border-dashed py-3.5 md:grid-cols-[52px_1fr]">
+        <div
+          key={i}
+          className="grid grid-cols-[44px_1fr] items-center border-b border-dashed py-3.5 md:grid-cols-[52px_1fr]"
+        >
           <Bar className="h-5 w-5" />
           <Bar className={i === lines - 1 ? "h-11 w-full rounded-lg" : "h-4 w-40"} />
         </div>
@@ -99,7 +102,7 @@ export function EventPlanSkeleton() {
         </div>
       </div>
       {[3, 2].map((lines, i) => (
-        <div key={i} className="grid gap-x-10 gap-y-4 pb-8 pt-5 md:grid-cols-[264px_1fr] md:py-10">
+        <div key={i} className="grid gap-x-10 gap-y-4 pt-5 pb-8 md:grid-cols-[264px_1fr] md:py-10">
           <div className="rounded-lg bg-muted px-4 py-4 md:self-start md:px-5 md:py-6">
             <Bar className="h-8 w-40" />
             <Bar className="mt-3 h-7 w-28" />
@@ -140,7 +143,7 @@ export function DashboardSkeleton() {
       <div className="mt-8 grid gap-8 md:grid-cols-[280px_1fr] md:gap-10">
         <div className="hidden rounded-lg bg-muted p-2 md:block md:self-start">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="grid grid-cols-[64px_1fr] items-center gap-3 py-3 pl-2 pr-3">
+            <div key={i} className="grid grid-cols-[64px_1fr] items-center gap-3 py-3 pr-3 pl-2">
               <Bar className="h-8 w-10" />
               <span className="grid gap-1.5">
                 <Bar className="h-4 w-32" />

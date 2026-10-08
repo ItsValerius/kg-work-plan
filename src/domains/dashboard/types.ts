@@ -15,7 +15,7 @@ export interface TaskFilterOption extends FilterOption {
   shiftName: string;
 }
 
-export type ParticipantsUserTask = (typeof taskParticipants.$inferSelect) & {
+export type ParticipantsUserTask = typeof taskParticipants.$inferSelect & {
   user: { name: string | null; email: string | null } | null;
   task: {
     name: string;

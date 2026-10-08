@@ -43,10 +43,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Download, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
-import {
-  participantsTableFeatures,
-  type ParticipantsTableFeatures,
-} from "./table-features";
+import { participantsTableFeatures, type ParticipantsTableFeatures } from "./table-features";
 
 interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<ParticipantsTableFeatures, TData>[];
@@ -70,12 +67,8 @@ export function DataTable<TData extends Identifiable>({
   onDeleteRows,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>(
-    {}
-  );
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [selectResetKey, setSelectResetKey] = React.useState(0);
 
@@ -115,9 +108,7 @@ export function DataTable<TData extends Identifiable>({
         rowData.task?.shift?.event?.name || "",
       ];
 
-      return searchableFields.some((field) =>
-        String(field).toLowerCase().includes(searchValue)
-      );
+      return searchableFields.some((field) => String(field).toLowerCase().includes(searchValue));
     },
     initialState: {
       pagination: {
@@ -138,7 +129,9 @@ export function DataTable<TData extends Identifiable>({
       try {
         await onDeleteRows(selectedRowIds);
         toast.success(
-          selectedRowIds.length === 1 ? "1 Eintrag ausgetragen." : `${selectedRowIds.length} Einträge ausgetragen.`
+          selectedRowIds.length === 1
+            ? "1 Eintrag ausgetragen."
+            : `${selectedRowIds.length} Einträge ausgetragen.`,
         );
         setRowSelection({});
         setConfirmOpen(false);
@@ -163,8 +156,8 @@ export function DataTable<TData extends Identifiable>({
       return {
         Name: rowData.user?.name || "",
         Email: rowData.user?.email || "",
-        "Gruppenname": rowData.groupName || "",
-        "Gruppengröße": rowData.groupSize || "",
+        Gruppenname: rowData.groupName || "",
+        Gruppengröße: rowData.groupSize || "",
         Aufgabe: rowData.task?.name || "",
         Zeit: rowData.task?.startTime
           ? new Date(rowData.task.startTime).toLocaleString("de-DE")
@@ -178,7 +171,7 @@ export function DataTable<TData extends Identifiable>({
     const csvContent = [
       headers.join(","),
       ...filteredData.map((row) =>
-        headers.map((header) => `"${row[header as keyof typeof row] || ""}"`).join(",")
+        headers.map((header) => `"${row[header as keyof typeof row] || ""}"`).join(","),
       ),
     ].join("\n");
 
@@ -226,16 +219,14 @@ export function DataTable<TData extends Identifiable>({
             className="w-full"
           />
         </div>
-        
+
         {/* Filter grid - responsive */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="w-full">
             <Label>Veranstaltung</Label>
             <Select
               key={`event-${selectResetKey}`}
-              value={
-                (table.getColumn("event")?.getFilterValue() as string) ?? ""
-              }
+              value={(table.getColumn("event")?.getFilterValue() as string) ?? ""}
               onValueChange={(value) =>
                 table.getColumn("event")?.setFilterValue(value || undefined)
               }
@@ -257,9 +248,7 @@ export function DataTable<TData extends Identifiable>({
               <Label>Schicht</Label>
               <Select
                 key={`shift-${selectResetKey}`}
-                value={
-                  (table.getColumn("task.shift.name")?.getFilterValue() as string) ?? ""
-                }
+                value={(table.getColumn("task.shift.name")?.getFilterValue() as string) ?? ""}
                 onValueChange={(value) =>
                   table.getColumn("task.shift.name")?.setFilterValue(value || undefined)
                 }
@@ -282,9 +271,7 @@ export function DataTable<TData extends Identifiable>({
               <Label>Aufgabe</Label>
               <Select
                 key={`task-${selectResetKey}`}
-                value={
-                  (table.getColumn("task.name")?.getFilterValue() as string) ?? ""
-                }
+                value={(table.getColumn("task.name")?.getFilterValue() as string) ?? ""}
                 onValueChange={(value) =>
                   table.getColumn("task.name")?.setFilterValue(value || undefined)
                 }
@@ -306,9 +293,7 @@ export function DataTable<TData extends Identifiable>({
             <Label>Gruppengröße</Label>
             <Select
               key={`groupSize-${selectResetKey}`}
-              value={
-                (table.getColumn("groupSize")?.getFilterValue() as string) ?? ""
-              }
+              value={(table.getColumn("groupSize")?.getFilterValue() as string) ?? ""}
               onValueChange={(value) =>
                 table.getColumn("groupSize")?.setFilterValue(value || undefined)
               }
@@ -325,15 +310,15 @@ export function DataTable<TData extends Identifiable>({
             </Select>
           </div>
         </div>
-        
+
         {/* Action buttons - stack on mobile */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
           {hasActiveFilters && (
             <Button variant="secondary" onClick={clearAllFilters} className="w-full sm:w-auto">
               Filter zurücksetzen
             </Button>
           )}
-          <div className="flex flex-col sm:flex-row gap-2 sm:ml-auto w-full sm:w-auto">
+          <div className="flex w-full flex-col gap-2 sm:ml-auto sm:w-auto sm:flex-row">
             <Button
               variant="outline"
               onClick={handleExport}
@@ -345,14 +330,20 @@ export function DataTable<TData extends Identifiable>({
             </Button>
             <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" className="w-full sm:w-auto" disabled={selectedCount === 0}>
+                <Button
+                  variant="destructive"
+                  className="w-full sm:w-auto"
+                  disabled={selectedCount === 0}
+                >
                   Austragen ({selectedCount})
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>
-                    {selectedCount === 1 ? "1 Eintrag austragen?" : `${selectedCount} Einträge austragen?`}
+                    {selectedCount === 1
+                      ? "1 Eintrag austragen?"
+                      : `${selectedCount} Einträge austragen?`}
                   </AlertDialogTitle>
                   <AlertDialogDescription>
                     Die Plätze werden wieder frei. Sag den Personen am besten kurz Bescheid.
@@ -389,10 +380,7 @@ export function DataTable<TData extends Identifiable>({
                     <TableHead key={header.id} className="whitespace-nowrap">
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}
@@ -402,26 +390,17 @@ export function DataTable<TData extends Identifiable>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getAllCells().map((cell) => (
                     <TableCell key={cell.id} className="whitespace-nowrap">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   Keine Anmeldungen.
                 </TableCell>
               </TableRow>
@@ -429,14 +408,14 @@ export function DataTable<TData extends Identifiable>({
           </TableBody>
         </Table>
       </div>
-      
+
       {/* Pagination - mobile-optimized */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2">
-        <div className="text-sm text-muted-foreground text-center sm:text-left">
+      <div className="flex flex-col gap-4 px-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-center text-sm text-muted-foreground sm:text-left">
           {table.getFilteredSelectedRowModel().rows.length} von{" "}
           {table.getFilteredRowModel().rows.length} ausgewählt
         </div>
-        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-8">
+        <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
           <div className="flex items-center gap-2">
             <p className="text-sm font-medium whitespace-nowrap">Zeilen</p>
             <div className="w-[84px]">
@@ -466,7 +445,8 @@ export function DataTable<TData extends Identifiable>({
             <div className="flex items-center gap-1">
               <Button
                 variant="outline"
-                size="icon" className="hidden sm:flex"
+                size="icon"
+                className="hidden sm:flex"
                 onClick={() => table.setPageIndex(0)}
                 disabled={!table.getCanPreviousPage()}
               >
@@ -493,7 +473,8 @@ export function DataTable<TData extends Identifiable>({
               </Button>
               <Button
                 variant="outline"
-                size="icon" className="hidden sm:flex"
+                size="icon"
+                className="hidden sm:flex"
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                 disabled={!table.getCanNextPage()}
               >

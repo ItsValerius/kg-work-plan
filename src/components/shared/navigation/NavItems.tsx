@@ -34,7 +34,7 @@ export function NavItems({ items, mobile = false, onItemClick }: NavItemsProps) 
               "flex items-center gap-2.5 font-semibold transition-colors",
               mobile
                 ? "min-h-12 rounded-md px-3 text-[17px] hover:bg-muted aria-[current=page]:bg-accent aria-[current=page]:text-primary-dark"
-                : "relative h-16 px-3 text-[15px] text-foreground hover:text-primary after:absolute after:inset-x-3 after:bottom-0 after:h-[3px] after:rounded-t-sm after:bg-primary after:opacity-0 after:transition-opacity aria-[current=page]:text-primary aria-[current=page]:after:opacity-100"
+                : "relative h-16 px-3 text-[15px] text-foreground after:absolute after:inset-x-3 after:bottom-0 after:h-[3px] after:rounded-t-sm after:bg-primary after:opacity-0 after:transition-opacity hover:text-primary aria-[current=page]:text-primary aria-[current=page]:after:opacity-100",
             )}
           >
             <Icon className={mobile ? "size-5" : "size-4"} aria-hidden="true" />

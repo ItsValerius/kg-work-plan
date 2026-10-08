@@ -17,7 +17,9 @@ function toCsv(rows: CsvRow[]) {
   const header = ["Schicht", "Aufgabe", "Beginn", "Name", "Gruppe", "Personen", "E-Mail"];
   const escape = (value: string | number) => `"${String(value).replaceAll('"', '""')}"`;
   const lines = rows.map((row) =>
-    [row.shift, row.task, row.start, row.name, row.group, row.people, row.email].map(escape).join(";")
+    [row.shift, row.task, row.start, row.name, row.group, row.people, row.email]
+      .map(escape)
+      .join(";"),
   );
   // Semicolons and a BOM so German Excel opens umlauts and columns correctly.
   return "﻿" + [header.map(escape).join(";"), ...lines].join("\r\n");

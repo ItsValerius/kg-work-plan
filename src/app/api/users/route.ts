@@ -25,6 +25,9 @@ export async function POST(request: NextRequest) {
       return ApiErrorResponse.unauthorized();
     }
     logger.error("Failed to update user profile", error);
-    return ApiErrorResponse.internalError("Dein Profil konnte nicht gespeichert werden. Bitte versuch es noch einmal.", error);
+    return ApiErrorResponse.internalError(
+      "Dein Profil konnte nicht gespeichert werden. Bitte versuch es noch einmal.",
+      error,
+    );
   }
 }

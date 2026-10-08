@@ -1,10 +1,4 @@
-import {
-  boolean,
-  timestamp,
-  text,
-  primaryKey,
-  integer,
-} from "drizzle-orm/pg-core";
+import { boolean, timestamp, text, primaryKey, integer } from "drizzle-orm/pg-core";
 import { pgTable } from "../util";
 
 // Better Auth User Schema
@@ -91,5 +85,5 @@ export const authenticators = pgTable(
     compositePK: primaryKey({
       columns: [authenticator.userId, authenticator.credentialID],
     }),
-  })
+  }),
 );

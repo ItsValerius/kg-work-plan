@@ -4,10 +4,10 @@ dotenv.config({ quiet: true });
 
 // Use connection URL in production, otherwise use individual env vars
 
-      const connectionUrl = process.env.POSTGRES_URL || process.env.DATABASE_URL;
-      if (!connectionUrl) {
-        throw new Error("POSTGRES_URL or DATABASE_URL is required");
-      }
+const connectionUrl = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+if (!connectionUrl) {
+  throw new Error("POSTGRES_URL or DATABASE_URL is required");
+}
 
 const config: Config = {
   schema: "src/db/schema",

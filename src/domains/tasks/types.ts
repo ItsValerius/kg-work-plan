@@ -10,7 +10,7 @@ export const taskSchema = createInsertSchema(tasks).extend({
   // are still converted at runtime.
   startTime: z.preprocess<Date, z.ZodDate, Date>(
     (arg) => (typeof arg === "string" ? new Date(arg) : arg),
-    z.date()
+    z.date(),
   ),
 });
 

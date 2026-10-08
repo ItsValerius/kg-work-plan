@@ -44,10 +44,13 @@ export async function quickAddShift(input: {
   try {
     await domainActions.createOrUpdateShift(
       { eventId: input.eventId, name, startTime: start, endTime: end, createdById: userId },
-      userId
+      userId,
     );
   } catch {
-    return { ok: false, error: "Die Schicht konnte nicht gespeichert werden. Bitte versuche es noch einmal." };
+    return {
+      ok: false,
+      error: "Die Schicht konnte nicht gespeichert werden. Bitte versuche es noch einmal.",
+    };
   }
 
   updateTag(WORKPLAN_TAG);

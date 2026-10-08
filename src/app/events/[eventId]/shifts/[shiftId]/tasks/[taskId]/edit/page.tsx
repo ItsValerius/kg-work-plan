@@ -33,7 +33,13 @@ const EditTaskPage = async (props: {
       backHref={back.href}
       backLabel={back.label}
     >
-      <TaskForm userId={userId} eventId={event.id} shiftId={shift.id} task={task} returnTo={back.href} />
+      <TaskForm
+        userId={userId}
+        eventId={event.id}
+        shiftId={shift.id}
+        task={task}
+        returnTo={back.href}
+      />
     </FormPageShell>
   );
 };

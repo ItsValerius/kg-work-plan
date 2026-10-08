@@ -11,9 +11,7 @@ export const metadata: Metadata = {
   title: "Schicht bearbeiten",
 };
 
-const EditShiftPage = async (props: {
-  params: Promise<{ eventId: string; shiftId: string }>;
-}) => {
+const EditShiftPage = async (props: { params: Promise<{ eventId: string; shiftId: string }> }) => {
   const params = await props.params;
   const [event, shift, userIsAdmin] = await Promise.all([
     getEventById(params.eventId),

@@ -42,8 +42,7 @@ export const columns: ColumnDef<ParticipantsTableFeatures, UserTasksResult>[] = 
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -59,29 +58,21 @@ export const columns: ColumnDef<ParticipantsTableFeatures, UserTasksResult>[] = 
   },
   {
     accessorKey: "user.name",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
   },
   {
     accessorFn: (row) => row.task.shift.event.name,
     id: "event",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Veranstaltung" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Veranstaltung" />,
   },
   {
     accessorKey: "user.email",
     id: "email",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="E-Mail" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="E-Mail" />,
   },
   {
     accessorKey: "groupSize",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Gruppe" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Gruppe" />,
     cell: ({ row }) => {
       const size = row.original.groupSize;
       const name = row.original.groupName;
@@ -100,9 +91,7 @@ export const columns: ColumnDef<ParticipantsTableFeatures, UserTasksResult>[] = 
   {
     accessorFn: (row) => row.task.name,
     id: "task.name",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Aufgabe" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Aufgabe" />,
     cell: ({ row }) => {
       const time = new Date(row.original.task.startTime).toLocaleTimeString("de-DE", {
         timeZone: "Europe/Berlin",
@@ -111,7 +100,7 @@ export const columns: ColumnDef<ParticipantsTableFeatures, UserTasksResult>[] = 
       });
       return (
         <span>
-          {row.original.task.name} <span className="text-muted-foreground tabular">· {time}</span>
+          {row.original.task.name} <span className="tabular text-muted-foreground">· {time}</span>
         </span>
       );
     },
@@ -119,8 +108,6 @@ export const columns: ColumnDef<ParticipantsTableFeatures, UserTasksResult>[] = 
   {
     accessorFn: (row) => row.task.shift.name,
     id: "task.shift.name",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Schicht" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Schicht" />,
   },
 ];

@@ -17,23 +17,23 @@ export function DateBlock({ date, size = "md", muted = false, className }: DateB
   return (
     <div
       className={cn(
-        "flex items-center gap-2 tabular",
+        "tabular flex items-center gap-2",
         muted ? "text-muted-foreground" : "text-primary",
-        className
+        className,
       )}
     >
       <span
         className={cn(
-          "font-display font-bold leading-none tracking-[-0.02em]",
-          size === "lg" ? "text-[56px] md:text-[72px]" : "text-[40px] md:text-[44px]"
+          "font-display leading-none font-bold tracking-[-0.02em]",
+          size === "lg" ? "text-[56px] md:text-[72px]" : "text-[40px] md:text-[44px]",
         )}
       >
         {day}
       </span>
       <span
         className={cn(
-          "flex flex-col font-semibold uppercase leading-tight",
-          size === "lg" ? "text-[13px] md:text-[15px]" : "text-[12px]"
+          "flex flex-col leading-tight font-semibold uppercase",
+          size === "lg" ? "text-[13px] md:text-[15px]" : "text-[12px]",
         )}
       >
         <span>{weekday}</span>

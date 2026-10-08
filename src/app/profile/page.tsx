@@ -16,7 +16,7 @@ const ProfilePage = async () => {
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
           Mein Profil
         </h1>
-        <small className="text-sm font-medium leading-none"></small>
+        <small className="text-sm leading-none font-medium"></small>
       </div>
       <UserDataForm user={user} />
     </PageContainer>

@@ -43,7 +43,10 @@ export function ClaimLine({
   const groupNameId = useId();
 
   const lineNumberCell = (
-    <span className="font-display text-[22px] font-bold leading-none text-primary tabular" aria-hidden="true">
+    <span
+      className="tabular font-display text-[22px] leading-none font-bold text-primary"
+      aria-hidden="true"
+    >
       {lineNumber}
     </span>
   );
@@ -61,7 +64,9 @@ export function ClaimLine({
             <PenLine className="size-4" aria-hidden="true" />
             Hier eintragen
           </span>
-          <span className="pl-[26px] text-sm font-normal text-muted-foreground sm:pl-0">Anmeldung nötig</span>
+          <span className="pl-[26px] text-sm font-normal text-muted-foreground sm:pl-0">
+            Anmeldung nötig
+          </span>
         </Link>
       </li>
     );
@@ -90,7 +95,9 @@ export function ClaimLine({
         action: { label: "Meine Aufgaben", onClick: () => router.push("/meine-aufgaben") },
       });
       setIsOpen(false);
-      router.replace(`/events/${eventId}?eingetragen=${taskId}#aufgabe-${taskId}`, { scroll: false });
+      router.replace(`/events/${eventId}?eingetragen=${taskId}#aufgabe-${taskId}`, {
+        scroll: false,
+      });
       router.refresh();
     });
   }
@@ -121,7 +128,11 @@ export function ClaimLine({
             {!asGroup ? (
               <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
                 <Button onClick={() => submit(false)} disabled={isPending} autoFocus>
-                  {isPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : <PenLine aria-hidden="true" />}
+                  {isPending ? (
+                    <Loader2 className="animate-spin" aria-hidden="true" />
+                  ) : (
+                    <PenLine aria-hidden="true" />
+                  )}
                   {isPending ? "Wird eingetragen …" : "Allein eintragen"}
                 </Button>
                 {openSpots > 1 && (
@@ -155,9 +166,16 @@ export function ClaimLine({
                 </div>
                 <div className="grid gap-1.5">
                   <span className="text-sm font-semibold" id={`${groupNameId}-size`}>
-                    Wie viele seid ihr? <span className="font-normal text-muted-foreground">(noch {openSpots} frei)</span>
+                    Wie viele seid ihr?{" "}
+                    <span className="font-normal text-muted-foreground">
+                      (noch {openSpots} frei)
+                    </span>
                   </span>
-                  <div className="flex items-center gap-3" role="group" aria-labelledby={`${groupNameId}-size`}>
+                  <div
+                    className="flex items-center gap-3"
+                    role="group"
+                    aria-labelledby={`${groupNameId}-size`}
+                  >
                     <Button
                       type="button"
                       variant="outline"
@@ -169,7 +187,7 @@ export function ClaimLine({
                       <Minus aria-hidden="true" />
                     </Button>
                     <output
-                      className="min-w-12 text-center font-display text-[32px] font-bold leading-none tabular"
+                      className="tabular min-w-12 text-center font-display text-[32px] leading-none font-bold"
                       aria-live="polite"
                     >
                       {groupSize}
@@ -189,10 +207,19 @@ export function ClaimLine({
                 </div>
                 <div className="flex flex-col gap-2.5 sm:flex-row">
                   <Button type="submit" disabled={isPending}>
-                    {isPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Users aria-hidden="true" />}
+                    {isPending ? (
+                      <Loader2 className="animate-spin" aria-hidden="true" />
+                    ) : (
+                      <Users aria-hidden="true" />
+                    )}
                     {isPending ? "Wird eingetragen …" : `Gruppe mit ${groupSize} eintragen`}
                   </Button>
-                  <Button type="button" variant="ghost" onClick={() => setAsGroup(false)} disabled={isPending}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setAsGroup(false)}
+                    disabled={isPending}
+                  >
                     Zurück
                   </Button>
                 </div>
@@ -200,7 +227,10 @@ export function ClaimLine({
             )}
 
             {error && (
-              <p role="alert" className="mt-4 rounded-md border border-destructive/30 bg-destructive-surface px-3 py-2.5 text-[15px] text-destructive">
+              <p
+                role="alert"
+                className="mt-4 rounded-md border border-destructive/30 bg-destructive-surface px-3 py-2.5 text-[15px] text-destructive"
+              >
                 {error}
               </p>
             )}

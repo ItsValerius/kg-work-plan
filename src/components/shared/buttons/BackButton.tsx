@@ -8,10 +8,7 @@ import { cn } from "@/lib/utils";
 export default function BackButton({ className }: { className?: string }) {
   const router = useRouter();
   const handleBackNavigation = () => {
-    if (
-      document.referrer &&
-      document.referrer.includes(window.location.origin)
-    ) {
+    if (document.referrer && document.referrer.includes(window.location.origin)) {
       // If the referrer is from the same site, go back
       router.back();
     } else {
@@ -20,14 +17,9 @@ export default function BackButton({ className }: { className?: string }) {
     }
   };
   return (
-    <Button
-      variant={"outline"}
-      onClick={handleBackNavigation}
-      className={cn(className, "")}
-    >
+    <Button variant={"outline"} onClick={handleBackNavigation} className={cn(className, "")}>
       <ArrowLeft />
       Zurück
     </Button>
   );
 }
-

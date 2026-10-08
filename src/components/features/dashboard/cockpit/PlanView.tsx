@@ -33,16 +33,22 @@ export function PlanView({ event }: { event: EventWorkPlan }) {
           <section key={shift.id} aria-labelledby={`plan-${shift.id}`}>
             <div className="flex items-start justify-between gap-4 border-b-2 border-foreground/80 pb-2">
               <h3 id={`plan-${shift.id}`} className="flex flex-wrap items-baseline gap-x-3">
-                <span className="font-display text-[22px] font-bold leading-none text-primary tabular">
+                <span className="tabular font-display text-[22px] leading-none font-bold text-primary">
                   {formatTime(shift.startTime)}–{formatTime(shift.endTime)}
                 </span>
                 <span className="text-lg font-semibold">{shift.name}</span>
                 {multiDay && (
-                  <span className="text-[15px] font-normal text-muted-foreground">{formatShortDate(shift.startTime)}</span>
+                  <span className="text-[15px] font-normal text-muted-foreground">
+                    {formatShortDate(shift.startTime)}
+                  </span>
                 )}
               </h3>
               <div className="-mt-1 [&>div]:static">
-                <ShiftAdminActions eventId={event.id} shiftId={shift.id} deleteAction={deleteShift} />
+                <ShiftAdminActions
+                  eventId={event.id}
+                  shiftId={shift.id}
+                  deleteAction={deleteShift}
+                />
               </div>
             </div>
 
@@ -51,16 +57,21 @@ export function PlanView({ event }: { event: EventWorkPlan }) {
                 const { filled, required, open } = taskSpots(task);
                 const percent = required > 0 ? (filled / required) * 100 : 0;
                 return (
-                  <li key={task.id} className="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 border-b py-3">
+                  <li
+                    key={task.id}
+                    className="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 border-b py-3"
+                  >
                     <span className="min-w-0">
                       <span className="block font-semibold">{task.name}</span>
                       <span className="block text-[15px] text-muted-foreground">
                         ab {formatTime(task.startTime)} Uhr
-                        {task.description && task.description.trim() !== "" && <> · {task.description}</>}
+                        {task.description && task.description.trim() !== "" && (
+                          <> · {task.description}</>
+                        )}
                       </span>
                     </span>
                     <span className={open > 0 ? "text-primary" : "text-muted-foreground"}>
-                      <span className="font-display text-[22px] font-bold leading-none tabular">
+                      <span className="tabular font-display text-[22px] leading-none font-bold">
                         {filled}/{required}
                       </span>
                     </span>

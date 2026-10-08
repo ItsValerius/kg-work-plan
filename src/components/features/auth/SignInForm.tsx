@@ -139,8 +139,11 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
   return (
     <div className="grid gap-4">
       {error && !emailError && (
-        <div role="alert" className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive-surface p-3 text-[15px] text-destructive">
-          <AlertCircle className="size-4 mt-0.5 shrink-0" />
+        <div
+          role="alert"
+          className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive-surface p-3 text-[15px] text-destructive"
+        >
+          <AlertCircle className="mt-0.5 size-4 shrink-0" />
           <p>{error}</p>
         </div>
       )}
@@ -153,7 +156,9 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
           {provider.id === "email" ? (
             <>
               <div className="grid gap-2">
-                <Label htmlFor="email" className="text-[15px] font-semibold">Deine E-Mail-Adresse</Label>
+                <Label htmlFor="email" className="text-[15px] font-semibold">
+                  Deine E-Mail-Adresse
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -174,21 +179,27 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
                   }}
                 />
                 {emailError && (
-                  <p id="email-error" className="flex items-center gap-1.5 text-sm text-destructive" role="alert">
+                  <p
+                    id="email-error"
+                    className="flex items-center gap-1.5 text-sm text-destructive"
+                    role="alert"
+                  >
                     <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                     {emailError}
                   </p>
                 )}
               </div>
-              <SubmitButton name={provider.name} label="Anmeldelink schicken" pendingLabel="Wird gesendet …" />
+              <SubmitButton
+                name={provider.name}
+                label="Anmeldelink schicken"
+                pendingLabel="Wird gesendet …"
+              />
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="bg-muted px-3 text-muted-foreground">
-                    oder
-                  </span>
+                  <span className="bg-muted px-3 text-muted-foreground">oder</span>
                 </div>
               </div>
             </>
@@ -213,4 +224,3 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
     </div>
   );
 }
-

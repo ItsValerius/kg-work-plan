@@ -10,7 +10,11 @@ export const metadata: Metadata = {
 const NewEventPage = async () => {
   const userId = await getAuthenticatedAdminUserId();
   return (
-    <FormPageShell title="Neue Veranstaltung" backHref="/dashboard" backLabel="Zurück zur Organisation">
+    <FormPageShell
+      title="Neue Veranstaltung"
+      backHref="/dashboard"
+      backLabel="Zurück zur Organisation"
+    >
       <EventForm userId={userId} event={null} />
     </FormPageShell>
   );

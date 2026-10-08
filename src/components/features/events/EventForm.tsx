@@ -13,11 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { events } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -102,9 +98,7 @@ export function EventForm({
               <FormControl>
                 <Input placeholder="Biwak..." {...field} />
               </FormControl>
-              <FormDescription>
-                Das ist der Name der Veranstaltung
-              </FormDescription>
+              <FormDescription>Das ist der Name der Veranstaltung</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -118,9 +112,7 @@ export function EventForm({
               <FormControl>
                 <Input placeholder="Aufbau..." {...field} />
               </FormControl>
-              <FormDescription>
-                Das ist eine Kurze Beschreibung der Veranstaltung.
-              </FormDescription>
+              <FormDescription>Das ist eine Kurze Beschreibung der Veranstaltung.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -138,7 +130,7 @@ export function EventForm({
                       variant={"outline"}
                       className={cn(
                         "w-[240px] pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
+                        !field.value && "text-muted-foreground",
                       )}
                     >
                       {field.value ? (
@@ -160,9 +152,7 @@ export function EventForm({
                   />
                 </PopoverContent>
               </Popover>
-              <FormDescription>
-                Das Startdatum der Veranstaltung.
-              </FormDescription>
+              <FormDescription>Das Startdatum der Veranstaltung.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -180,7 +170,7 @@ export function EventForm({
                       variant={"outline"}
                       className={cn(
                         "w-[240px] pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
+                        !field.value && "text-muted-foreground",
                       )}
                     >
                       {field.value ? (

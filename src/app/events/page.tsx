@@ -44,5 +44,4 @@ const EventsPage = async () => {
   );
 };
 
-
 export default EventsPage;

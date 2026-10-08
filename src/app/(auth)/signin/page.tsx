@@ -34,7 +34,14 @@ export default async function SignInPage(props: {
           {back.label}
         </Link>
         <div className="flex items-center gap-4 md:block">
-          <Image src="/logo.png" alt="" width={112} height={112} priority className="hidden md:block md:size-28" />
+          <Image
+            src="/logo.png"
+            alt=""
+            width={112}
+            height={112}
+            priority
+            className="hidden md:block md:size-28"
+          />
           <h1 className="text-[48px] md:mt-6 md:text-[62px]">Anmelden</h1>
         </div>
         <p className="mt-4 max-w-[46ch] text-[17px] leading-relaxed text-muted-foreground">
@@ -50,8 +57,8 @@ export default async function SignInPage(props: {
         </p>
         <SignInForm callbackUrl={callbackUrl} initialEmail={email} />
         <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-          Deine E-Mail-Adresse brauchen wir, um Missbrauch zu vermeiden. Ansonsten schreiben wir dir nur bei
-          Änderungen oder Rückfragen zu deiner Anmeldung.
+          Deine E-Mail-Adresse brauchen wir, um Missbrauch zu vermeiden. Ansonsten schreiben wir dir
+          nur bei Änderungen oder Rückfragen zu deiner Anmeldung.
         </p>
       </div>
     </main>

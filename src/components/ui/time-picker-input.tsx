@@ -10,8 +10,7 @@ import {
   setDateByType,
 } from "./time-picker-utils";
 
-export interface TimePickerInputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface TimePickerInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   picker: TimePickerType;
   date: Date | undefined;
   setDate: (date: Date | undefined) => void;
@@ -63,8 +62,7 @@ function TimePickerInput({
      * The second entered digit will break the condition and the value will be set to 10-12.
      */
     if (picker === "12hours") {
-      if (flag && calculatedValue.slice(1, 2) === "1" && prevIntKey === "0")
-        return "0" + key;
+      if (flag && calculatedValue.slice(1, 2) === "1" && prevIntKey === "0") return "0" + key;
     }
 
     return !flag ? "0" + key : calculatedValue.slice(1, 2) + key;
@@ -100,7 +98,7 @@ function TimePickerInput({
       name={name || picker}
       className={cn(
         "w-[48px] text-center font-mono text-base tabular-nums caret-transparent focus:bg-accent focus:text-accent-foreground [&::-webkit-inner-spin-button]:appearance-none",
-        className
+        className,
       )}
       value={value || calculatedValue}
       onChange={(e) => {

@@ -4,7 +4,11 @@ type Task = EventWorkPlan["shifts"][number]["tasks"][number];
 
 export function taskSpots(task: Task) {
   const filled = task.participants.reduce((sum, p) => sum + p.groupSize, 0);
-  return { filled, required: task.requiredParticipants, open: Math.max(0, task.requiredParticipants - filled) };
+  return {
+    filled,
+    required: task.requiredParticipants,
+    open: Math.max(0, task.requiredParticipants - filled),
+  };
 }
 
 export function eventSpots(event: EventWorkPlan) {

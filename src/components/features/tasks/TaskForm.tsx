@@ -56,16 +56,13 @@ export function TaskForm({
   async function onSubmit(values: z.infer<typeof taskSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    const response = await fetch(
-      `/api/events/${eventId}/shifts/${shiftId}/tasks`,
-      {
-        method: "POST",
-        body: JSON.stringify(values),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await fetch(`/api/events/${eventId}/shifts/${shiftId}/tasks`, {
+      method: "POST",
+      body: JSON.stringify(values),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
     if (!response.ok) {
       const data = await response.json();
       setError(data.error);
@@ -73,7 +70,9 @@ export function TaskForm({
 
       return;
     }
-    redirect(task ? (returnTo ?? `/events/${eventId}`) : `/dashboard?event=${eventId}&ansicht=planen`);
+    redirect(
+      task ? (returnTo ?? `/events/${eventId}`) : `/dashboard?event=${eventId}&ansicht=planen`,
+    );
   }
   return (
     <Form {...form}>
@@ -109,9 +108,7 @@ export function TaskForm({
               <FormControl>
                 <Input placeholder="Erste Spüle Links..." {...field} />
               </FormControl>
-              <FormDescription>
-                Eine kurze Beschreibung der Aufgabe.{" "}
-              </FormDescription>
+              <FormDescription>Eine kurze Beschreibung der Aufgabe. </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -143,9 +140,7 @@ export function TaskForm({
                   onChange={(event) => field.onChange(+event.target.value)}
                 />
               </FormControl>
-              <FormDescription>
-                Die Mindestens benötigte Anzahl an Helfern.
-              </FormDescription>
+              <FormDescription>Die Mindestens benötigte Anzahl an Helfern.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

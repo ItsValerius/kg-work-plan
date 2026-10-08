@@ -30,7 +30,12 @@ const EditEventPage = async (props: EditEventPageProps) => {
 
   const back = organisationBackLink(event.id, "luecken");
   return (
-    <FormPageShell title="Veranstaltung bearbeiten" context={event.name} backHref={back.href} backLabel={back.label}>
+    <FormPageShell
+      title="Veranstaltung bearbeiten"
+      context={event.name}
+      backHref={back.href}
+      backLabel={back.label}
+    >
       <EventForm userId={user.id} event={event} returnTo={back.href} />
     </FormPageShell>
   );

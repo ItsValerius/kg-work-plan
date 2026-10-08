@@ -4,9 +4,9 @@ import NavigationBar from "@/components/shared/navigation/NavigationBar";
 import { ReactNode } from "react";
 
 interface AuthenticatedLayoutWrapperProps {
-    children: ReactNode;
-    showLogoOnly?: boolean;
-    wrapInErrorBoundary?: boolean;
+  children: ReactNode;
+  showLogoOnly?: boolean;
+  wrapInErrorBoundary?: boolean;
 }
 
 /**
@@ -15,17 +15,17 @@ interface AuthenticatedLayoutWrapperProps {
  * sign-in check it themselves via getAuthenticatedUser().
  */
 export function AuthenticatedLayoutWrapper({
-    children,
-    showLogoOnly = false,
-    wrapInErrorBoundary = false,
+  children,
+  showLogoOnly = false,
+  wrapInErrorBoundary = false,
 }: AuthenticatedLayoutWrapperProps) {
-    return (
-        <div className="flex min-h-screen flex-col">
-            <NavigationBar showLogoOnly={showLogoOnly} />
-            <div className={showLogoOnly ? "flex flex-1 items-center" : "flex-1"}>
-                {wrapInErrorBoundary ? <ErrorBoundary>{children}</ErrorBoundary> : children}
-            </div>
-            <Footer />
-        </div>
-    );
+  return (
+    <div className="flex min-h-screen flex-col">
+      <NavigationBar showLogoOnly={showLogoOnly} />
+      <div className={showLogoOnly ? "flex flex-1 items-center" : "flex-1"}>
+        {wrapInErrorBoundary ? <ErrorBoundary>{children}</ErrorBoundary> : children}
+      </div>
+      <Footer />
+    </div>
+  );
 }

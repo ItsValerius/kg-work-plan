@@ -40,7 +40,12 @@ function TaskMeta({ task, showStart = true }: { task: UserTask; showStart?: bool
 function TaskActions({ task }: { task: UserTask }) {
   return (
     <div className="-ml-3 flex flex-wrap items-center gap-x-1">
-      <Link href={`/events/${task.eventId}#aufgabe-${task.id}`} className={cn(buttonVariants({ variant: "link" }), "min-h-11 px-3")}>Zum Arbeitsplan</Link>
+      <Link
+        href={`/events/${task.eventId}#aufgabe-${task.id}`}
+        className={cn(buttonVariants({ variant: "link" }), "min-h-11 px-3")}
+      >
+        Zum Arbeitsplan
+      </Link>
       <EditGroupDialog
         participantId={task.participantId}
         currentGroupName={task.groupName}
@@ -75,17 +80,22 @@ const MeineAufgabenPage = async () => {
       </p>
 
       {next && (
-        <section aria-labelledby="naechster-einsatz" className="mt-10 rounded-xl border-[1.5px] border-primary bg-accent/40 p-5 md:p-8">
+        <section
+          aria-labelledby="naechster-einsatz"
+          className="mt-10 rounded-xl border-[1.5px] border-primary bg-accent/40 p-5 md:p-8"
+        >
           <h2 id="naechster-einsatz" className="text-[28px] text-primary-dark md:text-[32px]">
             Dein nächster Einsatz
           </h2>
           <div className="mt-5 grid gap-x-8 gap-y-4 md:grid-cols-[auto_1fr]">
             <DateBlock date={taskDate(next)} size="lg" />
             <div className="min-w-0">
-              <p className="font-display text-[34px] font-bold leading-none text-primary tabular md:text-[40px]">
+              <p className="tabular font-display text-[34px] leading-none font-bold text-primary md:text-[40px]">
                 {formatTime(taskDate(next))} Uhr
               </p>
-              <h3 className="mt-2 text-[22px] font-semibold leading-snug md:text-2xl">{next.name}</h3>
+              <h3 className="mt-2 text-[22px] leading-snug font-semibold md:text-2xl">
+                {next.name}
+              </h3>
               <p className="mt-1 text-[17px]">
                 {next.eventName} · {formatShortDate(taskDate(next))}
               </p>
@@ -118,19 +128,23 @@ const MeineAufgabenPage = async () => {
         <div className="mt-10 rounded-xl border bg-muted px-6 py-10 md:px-10">
           <h2 className="text-[32px]">Wo wirst du gebraucht?</h2>
           <p className="mt-2 max-w-[60ch] text-[17px] text-muted-foreground">
-            Bei den Veranstaltungen siehst du, welche Aufgaben noch freie Plätze haben. Ein Klick auf „Hier eintragen“ genügt.
+            Bei den Veranstaltungen siehst du, welche Aufgaben noch freie Plätze haben. Ein Klick
+            auf „Hier eintragen“ genügt.
           </p>
           <Link href="/events" className={cn(buttonVariants(), "mt-6")}>
-              Zu den Veranstaltungen
-              <ChevronRight aria-hidden="true" />
-            </Link>
+            Zu den Veranstaltungen
+            <ChevronRight aria-hidden="true" />
+          </Link>
         </div>
       )}
 
       {past.length > 0 && (
         <details className="group mt-14 border-t pt-6">
           <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-[17px] font-semibold text-muted-foreground hover:text-foreground [&::-webkit-details-marker]:hidden">
-            <ChevronRight className="size-5 transition-transform group-open:rotate-90" aria-hidden="true" />
+            <ChevronRight
+              className="size-5 transition-transform group-open:rotate-90"
+              aria-hidden="true"
+            />
             Vergangene Einsätze ({past.length})
           </summary>
           <ol className="mt-4 border-t">
@@ -149,7 +163,12 @@ function TaskRow({ task, isPast = false }: { task: UserTask; isPast?: boolean })
     <li className="grid grid-cols-[88px_1fr] gap-x-4 border-b py-5 md:grid-cols-[120px_1fr_auto] md:items-center md:gap-x-8">
       <DateBlock date={taskDate(task)} muted={isPast} className="pl-1 md:pl-3" />
       <div className="min-w-0">
-        <h3 className={cn("text-lg font-semibold leading-snug md:text-xl", isPast && "text-muted-foreground")}>
+        <h3
+          className={cn(
+            "text-lg leading-snug font-semibold md:text-xl",
+            isPast && "text-muted-foreground",
+          )}
+        >
           {task.name}
         </h3>
         <p className="text-[15px]">{task.eventName}</p>

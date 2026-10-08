@@ -20,7 +20,9 @@ export const getSession = cache(async () => {
  * without a session means the state is unknown rather than signed out.
  */
 export async function hasSessionCookie(): Promise<boolean> {
-  return (await cookies()).getAll().some((cookie) => cookie.name.endsWith("better-auth.session_token"));
+  return (await cookies())
+    .getAll()
+    .some((cookie) => cookie.name.endsWith("better-auth.session_token"));
 }
 
 /**

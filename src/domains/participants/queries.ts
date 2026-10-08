@@ -28,9 +28,6 @@ export async function getParticipantsByTaskId(taskId: string) {
 
 export async function getParticipantByUserAndTask(userId: string, taskId: string) {
   return db.query.taskParticipants.findFirst({
-    where: and(
-      eq(taskParticipants.userId, userId),
-      eq(taskParticipants.taskId, taskId)
-    ),
+    where: and(eq(taskParticipants.userId, userId), eq(taskParticipants.taskId, taskId)),
   });
 }

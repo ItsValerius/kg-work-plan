@@ -10,7 +10,7 @@ import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 export async function POST(request: NextRequest) {
   try {
     const userId = await getAuthenticatedAdminUserId();
-    
+
     const body = await request.json();
     const event = eventSchema.safeParse(body);
 
@@ -25,11 +25,17 @@ export async function POST(request: NextRequest) {
       revalidateTag(WORKPLAN_TAG, { expire: 0 });
       return Response.json(newEvent);
     } catch (error) {
-      logger.error("Die Veranstaltung konnte nicht gespeichert werden. Bitte versuch es noch einmal.", error);
+      logger.error(
+        "Die Veranstaltung konnte nicht gespeichert werden. Bitte versuch es noch einmal.",
+        error,
+      );
       if (error instanceof Error && error.message === "Unauthorized") {
         return ApiErrorResponse.unauthorized();
       }
-      return ApiErrorResponse.internalError("Die Veranstaltung konnte nicht gespeichert werden. Bitte versuch es noch einmal.", error);
+      return ApiErrorResponse.internalError(
+        "Die Veranstaltung konnte nicht gespeichert werden. Bitte versuch es noch einmal.",
+        error,
+      );
     }
   } catch (error) {
     if (error instanceof Error && error.message === "Unauthorized") {

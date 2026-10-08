@@ -12,7 +12,10 @@ export const metadata: Metadata = {
 
 const NewShiftPage = async (props: { params: Promise<{ eventId: string }> }) => {
   const params = await props.params;
-  const [userId, event] = await Promise.all([getAuthenticatedAdminUserId(), getEventById(params.eventId)]);
+  const [userId, event] = await Promise.all([
+    getAuthenticatedAdminUserId(),
+    getEventById(params.eventId),
+  ]);
   if (!event) notFound();
 
   return (

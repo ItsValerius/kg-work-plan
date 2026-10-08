@@ -1,19 +1,17 @@
-import { Button as ButtonPrimitive } from "@base-ui/react/button"
-import { cva, type VariantProps } from "class-variance-authority"
+import { Button as ButtonPrimitive } from "@base-ui/react/button";
+import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2.5 whitespace-nowrap rounded-lg text-[15px] font-semibold transition-colors duration-150 disabled:pointer-events-none disabled:opacity-55 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2.5 rounded-lg text-[15px] font-semibold whitespace-nowrap transition-colors duration-150 disabled:pointer-events-none disabled:opacity-55 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary-dark",
         destructive: "bg-danger text-white hover:bg-destructive",
-        outline:
-          "border border-input bg-background text-foreground hover:bg-muted",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/70",
+        outline: "border border-input bg-background text-foreground hover:bg-muted",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/70",
         ghost: "text-foreground hover:bg-muted",
         link: "h-auto px-0 text-primary underline-offset-4 hover:underline",
       },
@@ -28,10 +26,10 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
-)
+  },
+);
 
-export type ButtonProps = ButtonPrimitive.Props & VariantProps<typeof buttonVariants>
+export type ButtonProps = ButtonPrimitive.Props & VariantProps<typeof buttonVariants>;
 
 /**
  * Renders a real <button>. For a link that should look like a button, style the link
@@ -44,7 +42,7 @@ function Button({ className, variant, size, ...props }: ButtonProps) {
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
-  )
+  );
 }
 
-export { Button, buttonVariants }
+export { Button, buttonVariants };

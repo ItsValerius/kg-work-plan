@@ -62,13 +62,13 @@ export function TaskAdminActions({
   };
 
   return (
-    <div className="absolute top-3 md:top-4 right-3 md:right-4 z-10">
+    <div className="absolute top-3 right-3 z-10 md:top-4 md:right-4">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 opacity-60 hover:opacity-100 transition-opacity focus-visible:outline-hidden focus-visible:ring-0"
+            className="h-8 w-8 opacity-60 transition-opacity hover:opacity-100 focus-visible:ring-0 focus-visible:outline-hidden"
             aria-label="Task-Optionen"
           >
             <MoreVertical className="size-4" />
@@ -89,7 +89,7 @@ export function TaskAdminActions({
           <DropdownMenuItem asChild>
             <Link
               href={`/events/${eventId}/shifts/${shiftId}/tasks/${taskId}/edit`}
-              className="flex items-center cursor-pointer"
+              className="flex cursor-pointer items-center"
             >
               <Pencil className="mr-2 size-4" />
               Bearbeiten
@@ -97,7 +97,7 @@ export function TaskAdminActions({
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="text-destructive focus:text-destructive cursor-pointer"
+            className="cursor-pointer text-destructive focus:text-destructive"
             onSelect={(e) => {
               e.preventDefault();
               setDeleteOpen(true);
@@ -141,4 +141,3 @@ export function TaskAdminActions({
     </div>
   );
 }
-
