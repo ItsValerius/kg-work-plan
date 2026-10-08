@@ -1,0 +1,1 @@
+DROP TABLE "kg-work-plan_authenticator" CASCADE;

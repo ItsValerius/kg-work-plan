@@ -1,5 +1,5 @@
 import { createAuthClient } from "better-auth/react";
-import { magicLinkClient, customSessionClient } from "better-auth/client/plugins";
+import { magicLinkClient, inferAdditionalFields } from "better-auth/client/plugins";
 import type { auth } from "@/lib/auth/auth";
 
 export const authClient = createAuthClient({
@@ -9,8 +9,7 @@ export const authClient = createAuthClient({
       : undefined,
   plugins: [
     magicLinkClient(),
-    // Enable type inference for custom session fields
-    // See: https://www.better-auth.com/docs/concepts/session-management#customizing-session-response
-    customSessionClient<typeof auth>(),
+    // Types the user's role on the client.
+    inferAdditionalFields<typeof auth>(),
   ],
 });

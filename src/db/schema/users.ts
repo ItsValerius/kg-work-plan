@@ -1,4 +1,4 @@
-import { boolean, timestamp, text, primaryKey, integer } from "drizzle-orm/pg-core";
+import { bigint, boolean, timestamp, text, integer } from "drizzle-orm/pg-core";
 import { pgTable } from "../util";
 
 // Better Auth User Schema
@@ -64,26 +64,12 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
 });
 
-// Keep old verificationTokens export for backward compatibility during migration
-export const verificationTokens = verification;
-
-export const authenticators = pgTable(
-  "authenticator",
-  {
-    credentialID: text("credentialID").notNull().unique(),
-    userId: text("userId")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    providerAccountId: text("providerAccountId").notNull(),
-    credentialPublicKey: text("credentialPublicKey").notNull(),
-    counter: integer("counter").notNull(),
-    credentialDeviceType: text("credentialDeviceType").notNull(),
-    credentialBackedUp: boolean("credentialBackedUp").notNull(),
-    transports: text("transports"),
-  },
-  (authenticator) => ({
-    compositePK: primaryKey({
-      columns: [authenticator.userId, authenticator.credentialID],
-    }),
-  }),
-);
+// Better Auth's rate-limit counters; in the database so every server instance shares them.
+export const rateLimit = pgTable("rate_limit", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  key: text("key").notNull().unique(),
+  count: integer("count").notNull(),
+  lastRequest: bigint("lastRequest", { mode: "number" }).notNull(),
+});

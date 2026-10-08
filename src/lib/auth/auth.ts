@@ -1,10 +1,9 @@
 import { betterAuth } from "better-auth";
-import { magicLink, customSession } from "better-auth/plugins";
+import { magicLink } from "better-auth/plugins/magic-link";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import * as dotenv from "dotenv";
 import db from "@/db/index";
-import { accounts, sessions, users, verification } from "../../db/schema/index";
-import { eq } from "drizzle-orm";
+import { accounts, rateLimit, sessions, users, verification } from "../../db/schema/index";
 import { renderMagicLinkEmail } from "./magic-link-email";
 
 const MAGIC_LINK_MINUTES = 15;
@@ -21,12 +20,15 @@ export const auth = betterAuth({
       session: sessions,
       account: accounts,
       verification: verification,
+      rateLimit: rateLimit,
     },
   }),
   plugins: [
     magicLink({
       // Long enough for someone who checks their mail a little later; the link works once.
       expiresIn: MAGIC_LINK_MINUTES * 60,
+      // Counted per IP; phones on mobile data often share one, so allow a burst of helpers.
+      rateLimit: { window: 60, max: 20 },
       sendMagicLink: async ({ email, url }) => {
         const { createTransport } = await import("nodemailer");
         const transport = createTransport({
@@ -57,30 +59,15 @@ export const auth = betterAuth({
         }
       },
     }),
-    // Customize session response to normalize user fields (undefined → null)
-    // See: https://www.better-auth.com/docs/concepts/session-management#customizing-session-response
-    customSession(async ({ user, session }) => {
-      // Better Auth's Drizzle adapter may not automatically select all custom fields
-      // So we explicitly fetch the role field from the database to ensure it's included
-      const userWithRole = await db.query.users.findFirst({
-        where: eq(users.id, user.id),
-      });
-
-      const role = userWithRole?.role ?? null;
-
-      // Normalize undefined values to null to match Drizzle schema types
-      // Drizzle schema expects string | null, but better-auth may return undefined
-      return {
-        user: {
-          ...user,
-          name: user.name ?? null,
-          image: user.image ?? null,
-          role,
-        },
-        session,
-      };
-    }),
   ],
+  user: {
+    // Returned with every session; input: false keeps sign-up from setting it.
+    additionalFields: {
+      role: { type: "string", required: false, input: false },
+    },
+  },
+  // Shared counters, so the magic-link limit holds across server instances.
+  rateLimit: { storage: "database" },
   socialProviders: {
     google: {
       clientId: process.env.AUTH_GOOGLE_ID!,
