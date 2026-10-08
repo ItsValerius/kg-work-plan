@@ -63,6 +63,8 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
+  // Controlled so React's reset after a form action doesn't wipe a rejected address.
+  const [email, setEmail] = useState(initialEmail ?? "");
 
   const handleEmailSignIn = async (formData: FormData) => {
     setIsLoading(true);
@@ -167,12 +169,13 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
                   inputMode="email"
                   required
                   name="email"
-                  defaultValue={initialEmail}
+                  value={email}
                   disabled={isLoading}
                   aria-invalid={!!emailError}
                   aria-describedby={emailError ? "email-error" : undefined}
                   className="h-12 text-[17px]"
-                  onChange={() => {
+                  onChange={(event) => {
+                    setEmail(event.target.value);
                     // Clear error when user starts typing
                     if (emailError) setEmailError(null);
                     if (error) setError(null);

@@ -1,5 +1,6 @@
 "use client";
 
+import type * as React from "react";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,7 +57,11 @@ export function QuickAddShift({
     );
   }
 
-  function submit(formData: FormData) {
+  // onSubmit rather than <form action>: React resets an action form after every
+  // submission, which would wipe the input when the server rejects it.
+  function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
     setError(null);
     const name = String(formData.get("name") ?? "");
     startTransition(async () => {
@@ -80,7 +85,7 @@ export function QuickAddShift({
   return (
     <form
       ref={formRef}
-      action={submit}
+      onSubmit={submit}
       className="grid animate-reveal gap-3 rounded-lg border-[1.5px] border-primary bg-surface-open p-4 sm:grid-cols-[1fr_136px_136px_auto] sm:items-end"
     >
       <div className="grid gap-2.5">
