@@ -2,268 +2,214 @@
 
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Calendar } from "@/components/ui/calendar";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
+import { DatePicker } from "@/components/ui/date-picker";
+import { fromBerlin, toBerlinInputParts } from "@/lib/datetime";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { de } from "date-fns/locale";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
-import { cn } from "@/lib/utils";
 import { duplicateEvent } from "@/server/actions/events";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-const duplicateSchema = z.object({
-    name: z.string().min(1, "Name ist erforderlich"),
+const duplicateSchema = z
+  .object({
+    name: z.string().trim().min(1, "Bitte gib der Veranstaltung einen Namen."),
     startDate: z.date({
-        error: (issue) => issue.input === undefined
-            ? "Startdatum ist erforderlich"
-            : "Ungültiges Startdatum",
+      error: (issue) =>
+        issue.input === undefined ? "Startdatum ist erforderlich" : "Ungültiges Startdatum",
     }),
     endDate: z.date({
-        error: (issue) => issue.input === undefined
-            ? "Enddatum ist erforderlich"
-            : "Ungültiges Enddatum",
+      error: (issue) =>
+        issue.input === undefined ? "Enddatum ist erforderlich" : "Ungültiges Enddatum",
     }),
-}).refine((data) => data.endDate >= data.startDate, {
+  })
+  .refine((data) => data.endDate >= data.startDate, {
     message: "Enddatum muss nach dem Startdatum liegen",
     path: ["endDate"],
-});
+  });
 
 type DuplicateFormValues = z.infer<typeof duplicateSchema>;
 
-
 export function DuplicateEventDialog({
-    eventId,
-    defaultName,
-    defaultStartDate,
-    defaultEndDate,
-    trigger,
+  eventId,
+  defaultName,
+  defaultStartDate,
+  defaultEndDate,
+  trigger,
 }: {
-    eventId: string;
-    defaultName: string;
-    defaultStartDate: Date;
-    defaultEndDate: Date;
-    trigger: React.ReactNode;
+  eventId: string;
+  defaultName: string;
+  defaultStartDate: Date;
+  defaultEndDate: Date;
+  trigger: React.ReactElement;
 }) {
-    const [open, setOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-    const defaultDates = useMemo(() => {
-        const oneYearMs = 365 * 24 * 60 * 60 * 1000;
-        return {
-            startDate: new Date(defaultStartDate.getTime() + oneYearMs),
-            endDate: new Date(defaultEndDate.getTime() + oneYearMs),
-        };
-    }, [defaultStartDate, defaultEndDate]);
-
-    const form = useForm<DuplicateFormValues>({
-        resolver: zodResolver(duplicateSchema),
-        defaultValues: {
-            name: defaultName,
-            ...defaultDates,
-        },
-    });
-
-    async function onSubmit(values: DuplicateFormValues) {
-        setLoading(true);
-        try {
-            await duplicateEvent(eventId, values.name, values.startDate, values.endDate);
-            toast.success("Veranstaltung wurde erfolgreich dupliziert");
-            setOpen(false);
-            router.refresh();
-        } catch (error) {
-            if (error instanceof Error) {
-                if (error.message === "Unauthorized") {
-                    toast.error("Du hast keine Berechtigung, Veranstaltungen zu duplizieren");
-                } else {
-                    toast.error(error.message || "Fehler beim Duplizieren der Veranstaltung");
-                }
-            } else {
-                toast.error("Fehler beim Duplizieren der Veranstaltung");
-            }
-            setLoading(false);
-        }
-    }
-
-    const handleOpenChange = (newOpen: boolean) => {
-        setOpen(newOpen);
-        setLoading(false);
-        form.reset({
-            name: defaultName,
-            ...defaultDates,
-        });
+  // Same calendar day next year (29 Feb becomes 1 Mar), at the same Berlin time.
+  const defaultDates = useMemo(() => {
+    const nextYear = (date: Date) => {
+      const { day, time } = toBerlinInputParts(date);
+      const [year, month, dayOfMonth] = day.split("-").map(Number);
+      const shifted = new Date(Date.UTC(year + 1, month - 1, dayOfMonth))
+        .toISOString()
+        .slice(0, 10);
+      return fromBerlin(shifted, time);
     };
+    return { startDate: nextYear(defaultStartDate), endDate: nextYear(defaultEndDate) };
+  }, [defaultStartDate, defaultEndDate]);
 
-    return (
-        <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogTrigger asChild>{trigger}</DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Veranstaltung duplizieren</DialogTitle>
-                    <DialogDescription>
-                        Geben Sie den Namen und die Daten für die neue Veranstaltung ein.
-                    </DialogDescription>
-                </DialogHeader>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Veranstaltungsname</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Biwak..." {...field} />
-                                    </FormControl>
-                                    <FormDescription>
-                                        Der Name der neuen Veranstaltung.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="startDate"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                    <FormLabel>Startdatum</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    className={cn(
-                                                        "w-[240px] pl-3 text-left font-normal",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    {field.value ? (
-                                                        format(field.value, "PPP", { locale: de })
-                                                    ) : (
-                                                        <span>Wähle ein Datum</span>
-                                                    )}
-                                                    <CalendarIcon className="ml-auto size-4 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={field.value ?? undefined}
-                                                onSelect={field.onChange}
-                                                defaultMonth={field.value ?? defaultDates.startDate}
-                                                locale={de}
-                                                initialFocus
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                    <FormDescription>
-                                        Das Startdatum der neuen Veranstaltung.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="endDate"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                    <FormLabel>Enddatum</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    className={cn(
-                                                        "w-[240px] pl-3 text-left font-normal",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    {field.value ? (
-                                                        format(field.value, "PPP", { locale: de })
-                                                    ) : (
-                                                        <span>Wähle ein Datum</span>
-                                                    )}
-                                                    <CalendarIcon className="ml-auto size-4 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={field.value ?? undefined}
-                                                onSelect={field.onChange}
-                                                defaultMonth={field.value ?? defaultDates.endDate}
-                                                locale={de}
-                                                disabled={(date) => {
-                                                    const startDate = form.watch("startDate");
-                                                    return startDate ? date < startDate : false;
-                                                }}
-                                                initialFocus
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                    <FormDescription>
-                                        Das Enddatum der neuen Veranstaltung.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <DialogFooter>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => handleOpenChange(false)}
-                                disabled={loading}
-                            >
-                                Abbrechen
-                            </Button>
-                            <Button type="submit" disabled={loading}>
-                                {loading ? (
-                                    <>
-                                        <Loader2 className="mr-2 size-4 animate-spin" />
-                                        Duplizieren...
-                                    </>
-                                ) : (
-                                    "Duplizieren"
-                                )}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
-            </DialogContent>
-        </Dialog>
-    );
+  const form = useForm<DuplicateFormValues>({
+    resolver: zodResolver(duplicateSchema),
+    defaultValues: {
+      name: defaultName,
+      ...defaultDates,
+    },
+  });
+  const startDate = useWatch({ control: form.control, name: "startDate" });
+
+  async function onSubmit(values: DuplicateFormValues) {
+    setLoading(true);
+    try {
+      const newEventId = await duplicateEvent(
+        eventId,
+        values.name,
+        values.startDate,
+        values.endDate,
+      );
+      toast.success("Veranstaltung wurde erfolgreich dupliziert");
+      setOpen(false);
+      // Open the copy, which usually needs adjusting next.
+      router.push(`/organisation?event=${newEventId}&ansicht=planen`);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === "Unauthorized") {
+          toast.error("Du hast keine Berechtigung, Veranstaltungen zu duplizieren");
+        } else {
+          toast.error(error.message || "Fehler beim Duplizieren der Veranstaltung");
+        }
+      } else {
+        toast.error("Fehler beim Duplizieren der Veranstaltung");
+      }
+      setLoading(false);
+    }
+  }
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    setLoading(false);
+    form.reset({
+      name: defaultName,
+      ...defaultDates,
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger render={trigger} />
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Veranstaltung duplizieren</DialogTitle>
+          <DialogDescription>
+            Gib den Namen und die Daten für die neue Veranstaltung ein.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Veranstaltungsname</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Biwak..." {...field} />
+                  </FormControl>
+                  <FormDescription>Der Name der neuen Veranstaltung.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="startDate"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Startdatum</FormLabel>
+                  <FormControl>
+                    <DatePicker
+                      value={field.value}
+                      onChange={(date) => {
+                        field.onChange(date);
+                        if (form.getValues("endDate") < date) {
+                          form.setValue("endDate", date, { shouldValidate: true });
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormDescription>Das Startdatum der neuen Veranstaltung.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="endDate"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Enddatum</FormLabel>
+                  <FormControl>
+                    <DatePicker value={field.value} min={startDate} onChange={field.onChange} />
+                  </FormControl>
+                  <FormDescription>Das Enddatum der neuen Veranstaltung.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+                disabled={loading}
+              >
+                Abbrechen
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    Duplizieren...
+                  </>
+                ) : (
+                  "Duplizieren"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
 }

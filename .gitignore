@@ -31,6 +31,7 @@ yarn-error.log*
 
 # env files (can opt-in for commiting if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -42,3 +43,9 @@ next-env.d.ts
 # database backups (contains sensitive data)
 prod_backup.sql
 *.sql.backup
+
+# impeccable local artifacts (screenshots, caches, decision-page logs)
+.impeccable/review/
+.impeccable/questions/
+.impeccable/hook.cache.json
+.impeccable/build/

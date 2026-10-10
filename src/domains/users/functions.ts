@@ -2,20 +2,20 @@ import db from "@/db";
 import { taskParticipants, users } from "@/db/schema";
 import { logger } from "@/lib/logger";
 import { and, eq } from "drizzle-orm";
+import { assertShiftNotOver, SHIFT_OVER } from "@/domains/participants/functions";
 
 export async function removeUserFromTask(taskId: string, userId: string) {
   try {
+    await assertShiftNotOver(taskId);
     await db
       .delete(taskParticipants)
-      .where(
-        and(
-          eq(taskParticipants.userId, userId),
-          eq(taskParticipants.taskId, taskId)
-        )
-      );
+      .where(and(eq(taskParticipants.userId, userId), eq(taskParticipants.taskId, taskId)));
     return;
   } catch (error) {
     logger.error("Failed to remove task participant", error, { taskId, userId });
+    if (error instanceof Error && error.message === SHIFT_OVER) {
+      throw error;
+    }
     throw new Error("Failed to remove task");
   }
 }

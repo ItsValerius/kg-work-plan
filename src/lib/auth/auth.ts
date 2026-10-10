@@ -1,17 +1,14 @@
 import { betterAuth } from "better-auth";
-import { magicLink, customSession } from "better-auth/plugins";
+import { magicLink } from "better-auth/plugins/magic-link";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import * as dotenv from "dotenv";
 import db from "@/db/index";
-import {
-  accounts,
-  sessions,
-  users,
-  verification,
-} from "../../db/schema/index";
-import { eq } from "drizzle-orm";
+import { accounts, rateLimit, sessions, users, verification } from "../../db/schema/index";
+import { renderMagicLinkEmail } from "./magic-link-email";
 
-dotenv.config();
+const MAGIC_LINK_MINUTES = 15;
+
+dotenv.config({ quiet: true });
 
 // Better Auth configuration with magic link (passwordless email) authentication
 // See: https://www.better-auth.com/docs/plugins/magic-link
@@ -23,10 +20,15 @@ export const auth = betterAuth({
       session: sessions,
       account: accounts,
       verification: verification,
+      rateLimit: rateLimit,
     },
   }),
   plugins: [
     magicLink({
+      // Long enough for someone who checks their mail a little later; the link works once.
+      expiresIn: MAGIC_LINK_MINUTES * 60,
+      // Counted per IP; phones on mobile data often share one, so allow a burst of helpers.
+      rateLimit: { window: 60, max: 20 },
       sendMagicLink: async ({ email, url }) => {
         const { createTransport } = await import("nodemailer");
         const transport = createTransport({
@@ -38,13 +40,17 @@ export const auth = betterAuth({
           },
         });
 
-        const host = new URL(url).host;
+        const { subject, text, html } = renderMagicLinkEmail({
+          url,
+          baseUrl: process.env.BETTER_AUTH_URL ?? new URL(url).origin,
+          minutesValid: MAGIC_LINK_MINUTES,
+        });
         const result = await transport.sendMail({
           to: email,
           from: process.env.EMAIL_FROM,
-          subject: `Anmeldung bei ${host}`,
-          text: `Sign in to ${host}\n${url}\n\n`,
-          html: html({ url, host }),
+          subject,
+          text,
+          html,
         });
 
         const failed = result.rejected;
@@ -53,30 +59,15 @@ export const auth = betterAuth({
         }
       },
     }),
-    // Customize session response to normalize user fields (undefined → null)
-    // See: https://www.better-auth.com/docs/concepts/session-management#customizing-session-response
-    customSession(async ({ user, session }) => {
-      // Better Auth's Drizzle adapter may not automatically select all custom fields
-      // So we explicitly fetch the role field from the database to ensure it's included
-      const userWithRole = await db.query.users.findFirst({
-        where: eq(users.id, user.id),
-      });
-
-      const role = userWithRole?.role ?? null;
-
-      // Normalize undefined values to null to match Drizzle schema types
-      // Drizzle schema expects string | null, but better-auth may return undefined
-      return {
-        user: {
-          ...user,
-          name: user.name ?? null,
-          image: user.image ?? null,
-          role,
-        },
-        session,
-      };
-    }),
   ],
+  user: {
+    // Returned with every session; input: false keeps sign-up from setting it.
+    additionalFields: {
+      role: { type: "string", required: false, input: false },
+    },
+  },
+  // Shared counters, so the magic-link limit holds across server instances.
+  rateLimit: { storage: "database" },
   socialProviders: {
     google: {
       clientId: process.env.AUTH_GOOGLE_ID!,
@@ -88,54 +79,7 @@ export const auth = betterAuth({
     updateAge: 60 * 60 * 24, // 1 day
   },
   trustedOrigins: [
-    "http://localhost:3000", 
-    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : [])
+    "http://localhost:3000",
+    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
   ],
 });
-
-function html(params: { url: string; host: string }) {
-  const { url, host } = params;
-
-  const escapedHost = host.replace(/\./g, "&#8203;.");
-
-  const brandColor = "#346df1";
-  const color = {
-    background: "#f9f9f9",
-    text: "#444",
-    mainBackground: "#fff",
-    buttonBackground: brandColor,
-    buttonBorder: brandColor,
-    buttonText: "#fff",
-  };
-
-  return `
-<body style="background: ${color.background};">
-  <table width="100%" border="0" cellspacing="20" cellpadding="0"
-    style="background: ${color.mainBackground}; max-width: 600px; margin: auto; border-radius: 10px;">
-    <tr>
-      <td align="center"
-        style="padding: 10px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${color.text};">
-        Bei <strong>${escapedHost}</strong> anmelden
-      </td>
-    </tr>
-    <tr>
-      <td align="center" style="padding: 20px 0;">
-        <table border="0" cellspacing="0" cellpadding="0">
-          <tr>
-            <td align="center" style="border-radius: 5px;" bgcolor="${color.buttonBackground}"><a href="${url}"
-                target="_blank"
-                style="font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${color.buttonText}; text-decoration: none; border-radius: 5px; padding: 10px 20px; border: 1px solid ${color.buttonBorder}; display: inline-block; font-weight: bold;">Anmelden</a></td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"
-        style="padding: 0px 0px 10px 0px; font-size: 16px; line-height: 22px; font-family: Helvetica, Arial, sans-serif; color: ${color.text};">
-       Falls du diese Anfrage nicht gestellt hast, kannst du diese E-Mail ignorieren.
-      </td>
-    </tr>
-  </table>
-</body>
-`;
-}

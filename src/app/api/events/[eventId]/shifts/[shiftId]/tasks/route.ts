@@ -1,3 +1,5 @@
+import { revalidateTag } from "next/cache";
+import { WORKPLAN_TAG } from "@/lib/cache-tags";
 import { ApiErrorResponse } from "@/lib/api-errors";
 import { logger } from "@/lib/logger";
 import { NextRequest } from "next/server";
@@ -8,30 +10,35 @@ import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 export async function POST(request: NextRequest) {
   try {
     const userId = await getAuthenticatedAdminUserId();
-    
+
     const body = await request.json();
     const task = taskSchema.safeParse(body);
-    
+
     if (!task.success) {
       logger.warn("Invalid task data", { issues: task.error.issues });
-      return ApiErrorResponse.validationError(task.error.message);
+      return ApiErrorResponse.validationError("Bitte prüfe deine Eingaben.", task.error.issues);
     }
 
     try {
       const newTask = await createOrUpdateTask(task.data, userId);
+      // Route handlers cannot use updateTag; expire: 0 makes the next read fresh.
+      revalidateTag(WORKPLAN_TAG, { expire: 0 });
       return Response.json(newTask);
     } catch (error) {
-      logger.error("Failed to create/update task", error);
-      if (error instanceof Error && error.message === "Unauthorized") {
-        return ApiErrorResponse.unauthorized();
-      }
-      return ApiErrorResponse.internalError("Failed to create/update task", error);
+      logger.error(
+        "Die Aufgabe konnte nicht gespeichert werden. Bitte versuch es noch einmal.",
+        error,
+      );
+      return ApiErrorResponse.internalError(
+        "Die Aufgabe konnte nicht gespeichert werden. Bitte versuch es noch einmal.",
+        error,
+      );
     }
   } catch (error) {
     if (error instanceof Error && error.message === "Unauthorized") {
       return ApiErrorResponse.unauthorized();
     }
     logger.error("Invalid request body", error);
-    return ApiErrorResponse.badRequest("Invalid request body");
+    return ApiErrorResponse.badRequest();
   }
 }

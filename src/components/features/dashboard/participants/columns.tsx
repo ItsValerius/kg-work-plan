@@ -1,9 +1,11 @@
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import { formatTime } from "@/lib/datetime";
 import { ColumnDef } from "@tanstack/react-table";
 import { z } from "zod";
 import { DataTableColumnHeader } from "./data-table-column-header";
+import type { ParticipantsTableFeatures } from "./table-features";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -35,15 +37,13 @@ export const UserTaskSchema = z.object({
 });
 
 type UserTasksResult = z.infer<typeof UserTaskSchema>;
-export const columns: ColumnDef<UserTasksResult>[] = [
+export const columns: ColumnDef<ParticipantsTableFeatures, UserTasksResult>[] = [
   {
     id: "select",
     header: ({ table }) => (
       <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
+        checked={table.getIsAllPageRowsSelected()}
+        indeterminate={table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
@@ -58,28 +58,29 @@ export const columns: ColumnDef<UserTasksResult>[] = [
   },
   {
     accessorKey: "user.name",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+    cell: ({ row }) =>
+      row.original.user?.name || <span className="text-muted-foreground">Ohne Namen</span>,
+  },
+  {
+    accessorFn: (row) => row.task.shift.event.name,
+    id: "event",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Veranstaltung" />,
   },
   {
     accessorKey: "user.email",
     id: "email",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Email" />
-    ),
-  },
-  {
-    accessorKey: "groupName",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Gruppenname" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="E-Mail" />,
   },
   {
     accessorKey: "groupSize",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Gruppengröße" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Gruppe" />,
+    cell: ({ row }) => {
+      const size = row.original.groupSize;
+      const name = row.original.groupName;
+      if (!name && size === 1) return <span className="text-muted-foreground">allein</span>;
+      return `${name ? `„${name}“ · ` : ""}${size}`;
+    },
     filterFn: (row, id, value) => {
       const groupSize = row.getValue(id) as number;
       if (value === "1") return groupSize === 1;
@@ -92,38 +93,19 @@ export const columns: ColumnDef<UserTasksResult>[] = [
   {
     accessorFn: (row) => row.task.name,
     id: "task.name",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Aufgabe" />
-    ),
-  },
-  {
-    accessorKey: "task.startTime",
-    id: "startTime",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Zeit" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Aufgabe" />,
     cell: ({ row }) => {
-      const date = new Date(row.getValue("startTime"));
-      const formatted = date.toLocaleTimeString("de-DE", {
-        timeZone: "Europe/Berlin",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-      return formatted;
+      const time = formatTime(new Date(row.original.task.startTime));
+      return (
+        <span>
+          {row.original.task.name} <span className="tabular text-muted-foreground">· {time}</span>
+        </span>
+      );
     },
   },
   {
     accessorFn: (row) => row.task.shift.name,
     id: "task.shift.name",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Schicht" />
-    ),
-  },
-  {
-    accessorFn: (row) => row.task.shift.event.name,
-    id: "event",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Veranstaltung" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Schicht" />,
   },
 ];

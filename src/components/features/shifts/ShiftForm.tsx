@@ -2,7 +2,8 @@
 
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { DatePicker } from "@/components/ui/date-picker";
+import { berlinTimeFrom, fromBerlin, toBerlinInputParts } from "@/lib/datetime";
 import {
   Form,
   FormControl,
@@ -25,11 +26,17 @@ import { z } from "zod";
 export function ShiftForm({
   userId,
   eventId,
+  eventStart,
   shift,
+  returnTo,
 }: {
   userId: string;
   eventId: string;
+  /** New shifts start on the event's first day. */
+  eventStart: Date;
   shift: typeof shifts.$inferSelect | null | undefined;
+  /** Where to go after saving an edit; defaults to the event's work plan. */
+  returnTo?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,8 +46,8 @@ export function ShiftForm({
     defaultValues: {
       id: shift?.id,
       name: shift?.name || "",
-      startTime: shift?.startTime || new Date(),
-      endTime: shift?.endTime || new Date(),
+      startTime: shift?.startTime ?? fromBerlin(toBerlinInputParts(eventStart).day, "18:00"),
+      endTime: shift?.endTime ?? fromBerlin(toBerlinInputParts(eventStart).day, "22:00"),
       createdById: userId,
       eventId: eventId,
     },
@@ -66,7 +73,11 @@ export function ShiftForm({
       return;
     }
 
-    redirect(`/events/${eventId}`);
+    redirect(
+      shift
+        ? (returnTo ?? `/veranstaltungen/${eventId}`)
+        : `/organisation?event=${eventId}&ansicht=planen`,
+    );
   }
   return (
     <Form {...form}>
@@ -96,24 +107,60 @@ export function ShiftForm({
         <FormField
           control={form.control}
           name="startTime"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel className="text-left">Startzeit</FormLabel>
-              <FormControl>
-                <DateTimePicker setDate={field.onChange} date={field.value} />
-              </FormControl>
-            </FormItem>
-          )}
+          render={({ field }) => {
+            const { day, time } = toBerlinInputParts(field.value);
+            // Moving the start keeps the shift's end time and length rules (end after start).
+            const setStart = (start: Date) => {
+              field.onChange(start);
+              const endTime = toBerlinInputParts(form.getValues("endTime")).time;
+              form.setValue("endTime", berlinTimeFrom(start, endTime), { shouldValidate: true });
+            };
+            return (
+              <FormItem className="flex flex-col">
+                <FormLabel>Tag und Beginn</FormLabel>
+                <div className="flex flex-wrap gap-3">
+                  <FormControl>
+                    <DatePicker
+                      value={field.value}
+                      onChange={(date) => setStart(fromBerlin(toBerlinInputParts(date).day, time))}
+                    />
+                  </FormControl>
+                  <Input
+                    type="time"
+                    aria-label="Beginn"
+                    className="w-36"
+                    value={time}
+                    onChange={(event) =>
+                      event.target.value && setStart(fromBerlin(day, event.target.value))
+                    }
+                  />
+                </div>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
         <FormField
           control={form.control}
           name="endTime"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel className="text-left">Endzeit</FormLabel>
+              <FormLabel>Ende</FormLabel>
               <FormControl>
-                <DateTimePicker setDate={field.onChange} date={field.value} />
+                <Input
+                  type="time"
+                  className="w-36"
+                  value={toBerlinInputParts(field.value).time}
+                  onChange={(event) =>
+                    event.target.value &&
+                    field.onChange(berlinTimeFrom(form.getValues("startTime"), event.target.value))
+                  }
+                />
               </FormControl>
+              <FormDescription>
+                Endet sie vor dem Beginn, liegt das Ende am nächsten Tag.
+              </FormDescription>
+              <FormMessage />
             </FormItem>
           )}
         />

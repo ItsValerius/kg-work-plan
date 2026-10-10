@@ -3,7 +3,7 @@ import type { NavItem } from "./types";
 
 export const navItems: NavItem[] = [
   {
-    href: "/events",
+    href: "/veranstaltungen",
     label: "Veranstaltungen",
     icon: Calendar,
   },
@@ -13,15 +13,14 @@ export const navItems: NavItem[] = [
     icon: ListTodo,
   },
   {
-    href: "/profile",
+    href: "/profil",
     label: "Profil",
     icon: User,
   },
 ];
 
 export const adminNavItem: NavItem = {
-  href: "/dashboard",
-  label: "Admin Dashboard",
+  href: "/organisation",
+  label: "Organisation",
   icon: LayoutDashboard,
 };
-

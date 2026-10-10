@@ -2,7 +2,6 @@
 
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -13,29 +12,26 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { DatePicker } from "@/components/ui/date-picker";
+import { berlinToday, fromBerlin } from "@/lib/datetime";
 import { events } from "@/db/schema";
-import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { de } from "date-fns/locale";
 import { eventSchema } from "@/domains/events/types";
-import { AlertCircle, CalendarIcon, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 export function EventForm({
   userId,
   event,
+  returnTo,
 }: {
   userId: string;
   event: typeof events.$inferSelect | null | undefined;
+  /** Where to go after saving an edit; defaults to the event's work plan. */
+  returnTo?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,12 +41,14 @@ export function EventForm({
     defaultValues: {
       id: event?.id,
       name: event?.name || "",
-      startDate: event?.startDate || new Date(),
-      endDate: event?.endDate || new Date(),
+      startDate: event?.startDate ?? fromBerlin(berlinToday()),
+      endDate: event?.endDate ?? fromBerlin(berlinToday()),
       description: event?.description || "",
       createdById: userId,
     },
   });
+
+  const startDate = useWatch({ control: form.control, name: "startDate" });
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof eventSchema>) {
@@ -72,7 +70,12 @@ export function EventForm({
       return;
     }
     setLoading(false);
-    redirect("/events");
+    // New events continue straight into planning shifts and tasks.
+    if (event) {
+      redirect(returnTo ?? `/veranstaltungen/${event.id}`);
+    }
+    const created: { id: string } = await response.json();
+    redirect(`/organisation?event=${created.id}&ansicht=planen`);
   }
 
   return (
@@ -94,9 +97,7 @@ export function EventForm({
               <FormControl>
                 <Input placeholder="Biwak..." {...field} />
               </FormControl>
-              <FormDescription>
-                Das ist der Name der Veranstaltung
-              </FormDescription>
+              <FormDescription>Das ist der Name der Veranstaltung</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -110,9 +111,7 @@ export function EventForm({
               <FormControl>
                 <Input placeholder="Aufbau..." {...field} />
               </FormControl>
-              <FormDescription>
-                Das ist eine Kurze Beschreibung der Veranstaltung.
-              </FormDescription>
+              <FormDescription>Das ist eine kurze Beschreibung der Veranstaltung.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -123,38 +122,20 @@ export function EventForm({
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Startdatum</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[240px] pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP", { locale: de })
-                      ) : (
-                        <span>Wähle ein Datum</span>
-                      )}
-                      <CalendarIcon className="ml-auto size-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date) => date < new Date()}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormDescription>
-                Das Startdatum der Veranstaltung.
-              </FormDescription>
+              <FormControl>
+                <DatePicker
+                  value={field.value}
+                  min={new Date()}
+                  onChange={(date) => {
+                    field.onChange(date);
+                    // The end follows a start moved past it instead of turning into an error.
+                    if (form.getValues("endDate") < date) {
+                      form.setValue("endDate", date, { shouldValidate: true });
+                    }
+                  }}
+                />
+              </FormControl>
+              <FormDescription>Das Startdatum der Veranstaltung.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -165,35 +146,9 @@ export function EventForm({
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Enddatum</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[240px] pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP", { locale: de })
-                      ) : (
-                        <span>Wähle ein Datum</span>
-                      )}
-                      <CalendarIcon className="ml-auto size-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date) => date < new Date()}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <FormControl>
+                <DatePicker value={field.value} min={startDate} onChange={field.onChange} />
+              </FormControl>
               <FormDescription>Das Enddatum der Veranstaltung.</FormDescription>
               <FormMessage />
             </FormItem>

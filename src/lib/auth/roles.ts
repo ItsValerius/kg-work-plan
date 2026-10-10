@@ -10,7 +10,7 @@ export const USER_ROLES = {
 /**
  * Type for valid user roles
  */
-export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES] | null;
+export type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES] | null;
 
 /**
  * Check if a role value is an admin role

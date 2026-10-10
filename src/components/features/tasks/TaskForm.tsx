@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { TimePicker } from "@/components/ui/time-picker";
+import { berlinTimeFrom, toBerlinInputParts } from "@/lib/datetime";
 import { tasks } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { taskSchema } from "@/domains/tasks/types";
@@ -26,12 +26,18 @@ export function TaskForm({
   userId,
   shiftId,
   eventId,
+  shiftStart,
   task,
+  returnTo,
 }: {
   userId: string;
   shiftId: string;
   eventId: string;
+  /** Times are entered as clock times and placed on the shift's day (or the next, at night). */
+  shiftStart: Date;
   task: typeof tasks.$inferSelect | null | undefined;
+  /** Where to go after saving an edit; defaults to the event's work plan. */
+  returnTo?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +51,7 @@ export function TaskForm({
       createdById: userId,
       shiftId: shiftId,
       requiredParticipants: task?.requiredParticipants || 1,
-      startTime: task?.startTime || new Date(),
+      startTime: task?.startTime ?? shiftStart,
     },
   });
 
@@ -53,16 +59,13 @@ export function TaskForm({
   async function onSubmit(values: z.infer<typeof taskSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    const response = await fetch(
-      `/api/events/${eventId}/shifts/${shiftId}/tasks`,
-      {
-        method: "POST",
-        body: JSON.stringify(values),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await fetch(`/api/events/${eventId}/shifts/${shiftId}/tasks`, {
+      method: "POST",
+      body: JSON.stringify(values),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
     if (!response.ok) {
       const data = await response.json();
       setError(data.error);
@@ -70,7 +73,11 @@ export function TaskForm({
 
       return;
     }
-    redirect(`/events/${eventId}`);
+    redirect(
+      task
+        ? (returnTo ?? `/veranstaltungen/${eventId}`)
+        : `/organisation?event=${eventId}&ansicht=planen`,
+    );
   }
   return (
     <Form {...form}>
@@ -106,9 +113,7 @@ export function TaskForm({
               <FormControl>
                 <Input placeholder="Erste Spüle Links..." {...field} />
               </FormControl>
-              <FormDescription>
-                Eine kurze Beschreibung der Aufgabe.{" "}
-              </FormDescription>
+              <FormDescription>Eine kurze Beschreibung der Aufgabe. </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -120,7 +125,15 @@ export function TaskForm({
             <FormItem className="flex flex-col">
               <FormLabel className="text-left">Startzeit</FormLabel>
               <FormControl>
-                <TimePicker setDate={field.onChange} date={field.value} />
+                <Input
+                  type="time"
+                  className="w-36"
+                  value={toBerlinInputParts(field.value).time}
+                  onChange={(event) =>
+                    event.target.value &&
+                    field.onChange(berlinTimeFrom(shiftStart, event.target.value))
+                  }
+                />
               </FormControl>
             </FormItem>
           )}
@@ -140,9 +153,7 @@ export function TaskForm({
                   onChange={(event) => field.onChange(+event.target.value)}
                 />
               </FormControl>
-              <FormDescription>
-                Die Mindestens benötigte Anzahl an Helfern.
-              </FormDescription>
+              <FormDescription>Die Mindestens benötigte Anzahl an Helfern.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

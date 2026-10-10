@@ -1,142 +1,188 @@
+import { DateBlock } from "@/components/features/events/DateBlock";
+import { PageContainer } from "@/components/layout/PageContainer";
 import RemoveUserFromTaskButton from "@/components/shared/buttons/RemoveUserFromTaskButton";
 import { EditGroupDialog } from "@/components/shared/dialogs/EditGroupDialog";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { getAuthenticatedUser } from "@/lib/auth/utils";
-import Link from "next/link";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { getUserTasks } from "@/domains/tasks/queries";
-import { PageContainer } from "@/components/layout/PageContainer";
+import type { UserTask } from "@/domains/tasks/types";
+import { getAuthenticatedUser } from "@/lib/auth/utils";
+import { berlinToday, formatShortDate, formatTime, toBerlinInputParts } from "@/lib/datetime";
+import { cn } from "@/lib/utils";
+import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Meine Aufgaben",
 };
 
-const MeineAufgabenPage = async () => {
-  const user = await getAuthenticatedUser();
-  const userId = user.id;
+function taskDate(task: UserTask): Date {
+  return task.startTime ?? task.shiftDate ?? new Date(0);
+}
 
-  const userTasks = await getUserTasks(userId);
+function TaskMeta({ task, showStart = true }: { task: UserTask; showStart?: boolean }) {
+  return (
+    <>
+      <p className="mt-1 text-[15px] text-muted-foreground">
+        {showStart && `ab ${formatTime(taskDate(task))} Uhr · `}Schicht {task.shiftName} (
+        {formatTime(task.shiftDate ?? taskDate(task))}–{formatTime(task.shiftEndTime)} Uhr)
+      </p>
+      {(task.groupName || (task.groupSize ?? 1) > 1) && (
+        <p className="mt-1 text-[15px] text-muted-foreground">
+          {task.groupName ? `Gruppe „${task.groupName}“` : "Gruppe"}
+          {(task.groupSize ?? 1) > 1 && ` · ${task.groupSize} Personen`}
+        </p>
+      )}
+    </>
+  );
+}
+
+function TaskActions({ task }: { task: UserTask }) {
+  return (
+    <div className="-ml-3 flex flex-wrap items-center gap-x-1">
+      <Link
+        href={`/veranstaltungen/${task.eventId}#aufgabe-${task.id}`}
+        className={cn(buttonVariants({ variant: "link" }), "min-h-11 px-3")}
+      >
+        Zum Arbeitsplan
+      </Link>
+      <EditGroupDialog
+        participantId={task.participantId}
+        currentGroupName={task.groupName}
+        currentGroupSize={task.groupSize ?? 1}
+        trigger={
+          <Button variant="ghost" className="px-3">
+            {task.groupName || (task.groupSize ?? 1) > 1 ? "Gruppe ändern" : "Gruppe angeben"}
+          </Button>
+        }
+      />
+      <RemoveUserFromTaskButton taskId={task.id} taskName={task.name} />
+    </div>
+  );
+}
+
+const MeineAufgabenPage = async () => {
+  const user = await getAuthenticatedUser("/meine-aufgaben");
+  const userTasks = await getUserTasks(user.id);
+
+  // Like the event list: everything on today's Berlin day still counts as upcoming.
+  const today = berlinToday();
+  const isUpcoming = (task: UserTask) => toBerlinInputParts(taskDate(task)).day >= today;
+  const upcoming = userTasks.filter(isUpcoming);
+  const past = userTasks.filter((task) => !isUpcoming(task)).reverse();
+  const [next, ...later] = upcoming;
 
   return (
     <PageContainer>
-      <div className="mb-6 md:mb-8">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-          Meine Aufgaben
-        </h1>
-        <small className="text-sm font-medium leading-none">
-          Für {userTasks.length} Aufgabe{userTasks.length !== 1 ? "n" : ""}{" "}
-          eingetragen
-        </small>
-      </div>
+      <h1 className="text-[48px] md:text-[clamp(56px,5.7vw,80px)]">Meine Aufgaben</h1>
+      <p className="mt-3 text-[17px] text-muted-foreground">
+        {upcoming.length === 0
+          ? "Du bist gerade für keine anstehende Aufgabe eingetragen."
+          : `Du hilfst bei ${upcoming.length} ${upcoming.length === 1 ? "Aufgabe" : "Aufgaben"} – danke!`}
+      </p>
 
-      <div className="grid gap-4">
-        {userTasks.map((task) => (
-          <Card key={task.id}>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between">
-                <h2 className="text-2xl font-semibold leading-none tracking-tight">
-                  {task.name}
-                </h2>
-              </CardTitle>
-              <CardDescription>
-                <small className="text-sm font-medium leading-none">
-                  {task.shiftDate?.toLocaleDateString("de-DE", {
-                    timeZone: "Europe/Berlin",
-                  }) +
-                    ", ab " +
-                    task.startTime?.toLocaleTimeString("de-DE", {
-                      timeZone: "Europe/Berlin",
-                      hour: "numeric",
-                      minute: "numeric",
-                    }) +
-                    "Uhr"}
-                </small>
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                <p>{task?.description}</p>
-                {(task.groupName || (task.groupSize !== undefined && task.groupSize !== null && task.groupSize > 1)) && (
-                  <div className="pt-2 border-t">
-                    <div className="flex items-center gap-4 text-sm">
-                      {task.groupName && (
-                        <div>
-                          <span className="text-muted-foreground">Gruppe: </span>
-                          <span className="font-medium">{task.groupName}</span>
-                        </div>
-                      )}
-                      {task.groupSize !== undefined && task.groupSize !== null && task.groupSize > 1 && (
-                        <div>
-                          <span className="text-muted-foreground">
-                            Gruppengröße:{" "}
-                          </span>
-                          <span className="font-medium">
-                            {task.groupSize} Person
-                            {task.groupSize !== 1 ? "en" : ""}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
+      {next && (
+        <section
+          aria-labelledby="naechster-einsatz"
+          className="mt-10 rounded-xl border-[1.5px] border-primary bg-accent/40 p-5 md:p-8"
+        >
+          <h2 id="naechster-einsatz" className="text-[28px] text-primary-dark md:text-[32px]">
+            Dein nächster Einsatz
+          </h2>
+          <div className="mt-5 grid gap-x-8 gap-y-4 md:grid-cols-[auto_1fr]">
+            <DateBlock date={taskDate(next)} size="lg" />
+            <div className="min-w-0">
+              <p className="tabular font-display text-[34px] leading-none font-bold text-primary md:text-[40px]">
+                {formatTime(taskDate(next))} Uhr
+              </p>
+              <h3 className="mt-2 text-[22px] leading-snug font-semibold md:text-2xl">
+                {next.name}
+              </h3>
+              <p className="mt-1 text-[17px]">
+                {next.eventName} · {formatShortDate(taskDate(next))}
+              </p>
+              <TaskMeta task={next} showStart={false} />
+              {next.description && next.description.trim() !== "" && (
+                <p className="mt-3 max-w-[65ch] text-[17px] leading-relaxed">{next.description}</p>
+              )}
+              <div className="mt-4">
+                <TaskActions task={next} />
               </div>
-            </CardContent>
-            <CardFooter className="flex gap-2">
-              <EditGroupDialog
-                participantId={task.participantId}
-                currentGroupName={task.groupName}
-                currentGroupSize={task.groupSize ?? 1}
-              />
-              <RemoveUserFromTaskButton taskId={task.id} />
-            </CardFooter>
-          </Card>
-        ))}
+            </div>
+          </div>
+        </section>
+      )}
 
-        {userTasks.length === 0 && (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-16 px-4">
-              <div className="flex flex-col items-center gap-4 text-center">
-                <div className="rounded-full bg-muted p-4">
-                  <svg
-                    className="h-8 w-8 text-muted-foreground"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                    />
-                  </svg>
-                </div>
-                <div className="space-y-2">
-                  <h2 className="text-lg font-semibold">Noch keine Aufgaben übernommen</h2>
-                  <p className="text-sm text-muted-foreground max-w-sm">
-                    Du hast dich noch für keine Aufgaben angemeldet. Schau dir die
-                    Veranstaltungen an, um Aufgaben zu finden, bei denen du helfen kannst.
-                  </p>
-                </div>
-                <Button asChild className="mt-2">
-                  <Link href="/events">Veranstaltungen ansehen</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      {later.length > 0 && (
+        <section aria-labelledby="weitere-einsaetze" className="mt-14">
+          <h2 id="weitere-einsaetze" className="text-[32px] md:text-[44px]">
+            Danach
+          </h2>
+          <ol className="mt-6 border-t">
+            {later.map((task) => (
+              <TaskRow key={task.participantId} task={task} />
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {upcoming.length === 0 && (
+        <div className="mt-10 rounded-xl border bg-muted px-6 py-10 md:px-10">
+          <h2 className="text-[32px]">Wo wirst du gebraucht?</h2>
+          <p className="mt-2 max-w-[60ch] text-[17px] text-muted-foreground">
+            Bei den Veranstaltungen siehst du, welche Aufgaben noch freie Plätze haben. Ein Klick
+            auf „Hier eintragen“ genügt.
+          </p>
+          <Link href="/veranstaltungen" className={cn(buttonVariants(), "mt-6")}>
+            Zu den Veranstaltungen
+            <ChevronRight aria-hidden="true" />
+          </Link>
+        </div>
+      )}
+
+      {past.length > 0 && (
+        <details className="group mt-14 border-t pt-6">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-[17px] font-semibold text-muted-foreground hover:text-foreground [&::-webkit-details-marker]:hidden">
+            <ChevronRight
+              className="size-5 transition-transform group-open:rotate-90"
+              aria-hidden="true"
+            />
+            Vergangene Einsätze ({past.length})
+          </summary>
+          <ol className="mt-4 border-t">
+            {past.map((task) => (
+              <TaskRow key={task.participantId} task={task} isPast />
+            ))}
+          </ol>
+        </details>
+      )}
     </PageContainer>
   );
 };
+
+function TaskRow({ task, isPast = false }: { task: UserTask; isPast?: boolean }) {
+  return (
+    <li className="grid grid-cols-[88px_1fr] gap-x-4 border-b py-5 md:grid-cols-[120px_1fr_auto] md:items-center md:gap-x-8">
+      <DateBlock date={taskDate(task)} muted={isPast} className="pl-1 md:pl-3" />
+      <div className="min-w-0">
+        <h3
+          className={cn(
+            "text-lg leading-snug font-semibold md:text-xl",
+            isPast && "text-muted-foreground",
+          )}
+        >
+          {task.name}
+        </h3>
+        <p className="text-[15px]">{task.eventName}</p>
+        <TaskMeta task={task} />
+      </div>
+      {!isPast && (
+        <div className="col-span-2 mt-3 md:col-span-1 md:mt-0">
+          <TaskActions task={task} />
+        </div>
+      )}
+    </li>
+  );
+}
 
 export default MeineAufgabenPage;

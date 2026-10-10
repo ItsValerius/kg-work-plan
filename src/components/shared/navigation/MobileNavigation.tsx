@@ -3,49 +3,52 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { NavItems } from "./NavItems";
-import type { NavItem } from "./types";
+import { adminNavItem, navItems } from "./navItemsData";
 import { LogoutButton } from "@/components/features/auth/LogoutButton";
 
 interface MobileNavigationProps {
-    items: NavItem[];
+  isAdmin: boolean;
 }
 
-export function MobileNavigation({ items }: MobileNavigationProps) {
-    const [isOpen, setIsOpen] = useState(false);
+export function MobileNavigation({ isAdmin }: MobileNavigationProps) {
+  const items = isAdmin ? [...navItems, adminNavItem] : navItems;
+  const [isOpen, setIsOpen] = useState(false);
 
-    return (
-        <div className="flex lg:hidden items-center gap-1 shrink-0">
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-9 w-9" aria-label="Menü öffnen">
-                        <Menu className="size-5" />
-                    </Button>
-                </SheetTrigger>
-                <SheetContent side="right">
-                    <SheetHeader>
-                        <SheetTitle className="sr-only">Navigation</SheetTitle>
-                        <SheetDescription className="sr-only">
-                            Hauptnavigation und Menüoptionen
-                        </SheetDescription>
-                    </SheetHeader>
-                    <div className="flex flex-col gap-2 mt-6">
-                        <NavItems items={items} mobile onItemClick={() => setIsOpen(false)} />
-                        <div className="pt-4 border-t">
-                            <LogoutButton showText />
-                        </div>
-                    </div>
-                </SheetContent>
-            </Sheet>
-        </div>
-    );
+  return (
+    <div className="flex shrink-0 items-center gap-1 lg:hidden">
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetTrigger
+          render={
+            <Button variant="outline" className="gap-2 px-3.5" aria-label="Menü öffnen">
+              <Menu className="size-5" />
+              <span>Menü</span>
+            </Button>
+          }
+        />
+        <SheetContent side="right">
+          <SheetHeader>
+            <SheetTitle className="sr-only">Navigation</SheetTitle>
+            <SheetDescription className="sr-only">
+              Hauptnavigation und Menüoptionen
+            </SheetDescription>
+          </SheetHeader>
+          <nav className="mt-8 flex flex-col gap-1" aria-label="Hauptnavigation">
+            <NavItems items={items} mobile onItemClick={() => setIsOpen(false)} />
+            <div className="mt-3 border-t pt-3">
+              <LogoutButton showText />
+            </div>
+          </nav>
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
 }
-

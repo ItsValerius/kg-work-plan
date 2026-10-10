@@ -6,40 +6,39 @@ import { cn } from "@/lib/utils";
 import { DuplicateEventDialog } from "@/components/shared/dialogs/DuplicateEventDialog";
 
 const DuplicateButton = ({
-    eventId,
-    eventName,
-    eventStartDate,
-    eventEndDate,
-    className,
-    showText = false,
+  eventId,
+  eventName,
+  eventStartDate,
+  eventEndDate,
+  className,
+  showText = false,
 }: {
-    className: string;
-    eventId: string;
-    eventName: string;
-    eventStartDate: Date;
-    eventEndDate: Date;
-    showText?: boolean;
+  className: string;
+  eventId: string;
+  eventName: string;
+  eventStartDate: Date;
+  eventEndDate: Date;
+  showText?: boolean;
 }) => {
-    return (
-        <DuplicateEventDialog
-            eventId={eventId}
-            defaultName={eventName}
-            defaultStartDate={eventStartDate}
-            defaultEndDate={eventEndDate}
-            trigger={
-                <Button
-                    variant={showText ? "outline" : "secondary"}
-                    size={showText ? "default" : "icon"}
-                    className={cn(showText ? "" : "aspect-square", className)}
-                    aria-label={showText ? undefined : "Duplizieren"}
-                >
-                    <Copy className={showText ? "size-4 mr-2" : ""} aria-hidden="true" />
-                    {showText && "Duplizieren"}
-                </Button>
-            }
-        />
-    );
+  return (
+    <DuplicateEventDialog
+      eventId={eventId}
+      defaultName={`${eventName} (Kopie)`}
+      defaultStartDate={eventStartDate}
+      defaultEndDate={eventEndDate}
+      trigger={
+        <Button
+          variant={showText ? "outline" : "secondary"}
+          size={showText ? "default" : "icon"}
+          className={cn(showText ? "" : "aspect-square", className)}
+          aria-label={showText ? undefined : "Duplizieren"}
+        >
+          <Copy className={showText ? "mr-2 size-4" : ""} aria-hidden="true" />
+          {showText && "Duplizieren"}
+        </Button>
+      }
+    />
+  );
 };
 
 export default DuplicateButton;
-

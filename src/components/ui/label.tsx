@@ -1,27 +1,20 @@
-"use client"
+import * as React from "react";
 
-import * as React from "react"
-import * as LabelPrimitive from "@radix-ui/react-label"
-import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "@/lib/utils";
 
-import { cn } from "@/lib/utils"
-
-const labelVariants = cva(
-  "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-)
-
-function Label({
-  className,
-  ...props
-}: React.ComponentProps<typeof LabelPrimitive.Root> &
-  VariantProps<typeof labelVariants>) {
+// Base UI has no Label primitive; a native <label> does the same job.
+// select-none replaces Radix's "no text selection on double click" behavior.
+function Label({ className, ...props }: React.ComponentProps<"label">) {
   return (
-    <LabelPrimitive.Root
+    <label
       data-slot="label"
-      className={cn(labelVariants(), className)}
+      className={cn(
+        "text-sm leading-none font-medium select-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+        className,
+      )}
       {...props}
     />
-  )
+  );
 }
 
-export { Label }
+export { Label };

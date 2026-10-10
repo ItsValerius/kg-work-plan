@@ -1,15 +1,32 @@
 import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { cache } from "react";
+import { connection } from "next/server";
 import type { User } from "@/domains/users/types";
 import { isAdminRole } from "./roles";
 
 /**
- * Get the current user session
+ * Get the current user session. Deduplicated per request, so layouts, pages and
+ * helpers can all ask without extra database round trips.
  */
-export async function getSession() {
+export const getSession = cache(async () => {
+  // Better Auth checks expiry against the clock, so the lookup must wait for a real
+  // request instead of running in a per-visitor prerender.
+  await connection();
   return auth.api.getSession({
     headers: await headers(),
   });
+});
+
+/**
+ * Better Auth answers "no session" when its database is unreachable. A session cookie
+ * without a session means the state is unknown rather than signed out.
+ */
+export async function hasSessionCookie(): Promise<boolean> {
+  return (await cookies())
+    .getAll()
+    .some((cookie) => cookie.name.endsWith("better-auth.session_token"));
 }
 
 /**
@@ -62,32 +79,29 @@ export function isAdmin(session?: SessionType | null): boolean | Promise<boolean
 }
 
 /**
- * Check if the current user is logged in
- * When a session is provided (including null), returns synchronously. Otherwise, fetches the session asynchronously.
+ * Get the authenticated user for a page; sends signed-out visitors to the sign-in page.
  */
-export function isLoggedIn(session: SessionType | null): boolean;
-export function isLoggedIn(): Promise<boolean>;
-export function isLoggedIn(session?: SessionType | null): boolean | Promise<boolean> {
-  if (session !== undefined) {
-    // Synchronous when session is provided
-    return !!session?.user;
+export async function getAuthenticatedUser(callbackUrl?: string): Promise<User> {
+  const session = await getSession();
+  if (!session?.user) {
+    redirect(
+      callbackUrl ? `/anmelden?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/anmelden",
+    );
   }
-  // Asynchronous when session needs to be fetched
-  return (async () => {
-    const sessionToCheck = await getSession();
-    return !!sessionToCheck?.user;
-  })();
+
+  // Better Auth leaves unset optional fields undefined; the app's User type uses null.
+  const { user } = session;
+  return { ...user, image: user.image ?? null, role: user.role ?? null };
 }
 
 /**
- * Get the authenticated user, throws if not authenticated
- * Use this in page components to get the user object
+ * The admin's user id for an organizer page. Signed-out visitors go to sign-in and
+ * helpers back to the start page, instead of hitting an error page.
  */
-export async function getAuthenticatedUser(): Promise<User> {
-  const session = await getSession();
-  if (!session?.user) {
-    throw new Error("User not authenticated");
+export async function requireAdminUserId(callbackUrl?: string): Promise<string> {
+  const user = await getAuthenticatedUser(callbackUrl);
+  if (!isAdminRole(user.role)) {
+    redirect("/");
   }
-
-  return session.user;
+  return user.id;
 }

@@ -63,6 +63,8 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
+  // Controlled so React's reset after a form action doesn't wipe a rejected address.
+  const [email, setEmail] = useState(initialEmail ?? "");
 
   const handleEmailSignIn = async (formData: FormData) => {
     setIsLoading(true);
@@ -101,7 +103,7 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
         }
       } else {
         // Email sent successfully - redirect to verification page with email as query param
-        router.push(`/verify-request?email=${encodeURIComponent(email.trim())}`);
+        router.push(`/email-pruefen?email=${encodeURIComponent(email.trim())}`);
       }
     } catch (error) {
       const errorMessage = parseErrorMessage(error);
@@ -139,8 +141,11 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
   return (
     <div className="grid gap-4">
       {error && !emailError && (
-        <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
-          <AlertCircle className="size-4 mt-0.5 shrink-0" />
+        <div
+          role="alert"
+          className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive-surface p-3 text-[15px] text-destructive"
+        >
+          <AlertCircle className="mt-0.5 size-4 shrink-0" />
           <p>{error}</p>
         </div>
       )}
@@ -153,40 +158,51 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
           {provider.id === "email" ? (
             <>
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-[15px] font-semibold">
+                  Deine E-Mail-Adresse
+                </Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="name@beispiel.de"
+                  autoComplete="email"
+                  inputMode="email"
                   required
                   name="email"
-                  defaultValue={initialEmail}
+                  value={email}
                   disabled={isLoading}
                   aria-invalid={!!emailError}
                   aria-describedby={emailError ? "email-error" : undefined}
-                  className={emailError ? "border-destructive focus-visible:ring-destructive" : ""}
-                  onChange={() => {
+                  className="h-12 text-[17px]"
+                  onChange={(event) => {
+                    setEmail(event.target.value);
                     // Clear error when user starts typing
                     if (emailError) setEmailError(null);
                     if (error) setError(null);
                   }}
                 />
                 {emailError && (
-                  <p id="email-error" className="flex items-center gap-1.5 text-sm text-destructive" role="alert">
+                  <p
+                    id="email-error"
+                    className="flex items-center gap-1.5 text-sm text-destructive"
+                    role="alert"
+                  >
                     <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                     {emailError}
                   </p>
                 )}
               </div>
-              <SubmitButton name={provider.name} />
+              <SubmitButton
+                name={provider.name}
+                label="Anmeldelink schicken"
+                pendingLabel="Wird gesendet …"
+              />
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    oder
-                  </span>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-muted px-3 text-muted-foreground">oder</span>
                 </div>
               </div>
             </>
@@ -196,14 +212,14 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
               type="button"
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full"
+              className="w-full bg-background"
             >
               {provider.id === "google" && (
-                <div className="relative w-6 h-6 mr-2">
-                  <Image src={"/google.svg"} fill alt="google-logo" />
+                <div className="relative size-5">
+                  <Image src={"/google.svg"} fill alt="" />
                 </div>
               )}
-              Mit {provider.name} Anmelden
+              Mit {provider.name} anmelden
             </Button>
           )}
         </form>
@@ -211,4 +227,3 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
     </div>
   );
 }
-

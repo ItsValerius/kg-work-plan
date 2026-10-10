@@ -1,4 +1,4 @@
-import { neonConfig } from "@neondatabase/serverless";
+import { neonConfig, Pool } from "@neondatabase/serverless";
 
 // This is the only code that will be different in development
 if (process.env.VERCEL_ENV === "development") {
@@ -8,10 +8,14 @@ if (process.env.VERCEL_ENV === "development") {
   neonConfig.pipelineConnect = false;
 }
 
-import { sql } from "@vercel/postgres";
-import { drizzle } from "drizzle-orm/vercel-postgres";
+import { drizzle } from "drizzle-orm/neon-serverless";
 import * as schema from "./schema/index";
 
-const db = drizzle(sql, { schema });
+// The pool connects lazily on the first query, so builds don't need a database.
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL ?? process.env.DATABASE_URL,
+});
+
+const db = drizzle({ client: pool, schema });
 
 export default db;

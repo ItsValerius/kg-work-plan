@@ -2,18 +2,20 @@
 
 import { NavItems } from "./NavItems";
 import { LogoutButton } from "@/components/features/auth/LogoutButton";
-import type { NavItem } from "./types";
+import { adminNavItem, navItems } from "./navItemsData";
 
 interface DesktopNavigationProps {
-  items: NavItem[];
+  isAdmin: boolean;
 }
 
-export function DesktopNavigation({ items }: DesktopNavigationProps) {
+export function DesktopNavigation({ isAdmin }: DesktopNavigationProps) {
+  const items = isAdmin ? [...navItems, adminNavItem] : navItems;
   return (
-    <div className="hidden lg:flex items-center gap-1">
+    <div className="hidden items-center lg:flex">
       <NavItems items={items} />
-      <LogoutButton showText />
+      <div className="ml-2 border-l pl-2">
+        <LogoutButton showText />
+      </div>
     </div>
   );
 }
-

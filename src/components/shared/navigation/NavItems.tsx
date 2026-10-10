@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { NavItem } from "./types";
 
@@ -13,13 +12,7 @@ interface NavItemsProps {
 }
 
 function isActiveRoute(pathname: string, href: string): boolean {
-  if (pathname === href) return true;
-  // Only match sub-routes for specific paths, not for root-like paths
-  if (href === "/events" && pathname.startsWith("/events/")) return true;
-  if (href === "/meine-aufgaben" && pathname.startsWith("/meine-aufgaben")) return true;
-  if (href === "/profile" && pathname.startsWith("/profile")) return true;
-  if (href === "/dashboard" && pathname.startsWith("/dashboard")) return true;
-  return false;
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export function NavItems({ items, mobile = false, onItemClick }: NavItemsProps) {
@@ -30,32 +23,25 @@ export function NavItems({ items, mobile = false, onItemClick }: NavItemsProps) 
       {items.map((item) => {
         const Icon = item.icon;
         const isActive = isActiveRoute(pathname, item.href);
-        const className = mobile
-          ? "w-full justify-start"
-          : "h-9 gap-2";
 
         return (
-          <Button
+          <Link
             key={item.href}
-            asChild
-            variant={isActive ? "secondary" : "ghost"}
-            className={cn(
-              className,
-              !mobile && isActive && "bg-secondary font-medium"
-            )}
+            href={item.href}
             aria-current={isActive ? "page" : undefined}
             onClick={onItemClick}
+            className={cn(
+              "flex items-center gap-2.5 font-semibold transition-colors",
+              mobile
+                ? "min-h-12 rounded-md px-3 text-[17px] hover:bg-muted aria-[current=page]:bg-accent aria-[current=page]:text-primary-dark"
+                : "relative h-16 px-3 text-[15px] text-foreground after:absolute after:inset-x-3 after:bottom-0 after:h-[3px] after:rounded-t-sm after:bg-primary after:opacity-0 after:transition-opacity hover:text-primary aria-[current=page]:text-primary aria-[current=page]:after:opacity-100",
+            )}
           >
-            <Link href={item.href}>
-              <Icon className="size-4" aria-hidden="true" />
-              <span className={mobile ? "" : "hidden md:inline-block"}>
-                {item.label}
-              </span>
-            </Link>
-          </Button>
+            <Icon className={mobile ? "size-5" : "size-4"} aria-hidden="true" />
+            <span>{item.label}</span>
+          </Link>
         );
       })}
     </>
   );
 }
-

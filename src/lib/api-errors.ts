@@ -10,37 +10,20 @@ export interface ApiError {
  * Standardized error responses for API routes
  */
 export class ApiErrorResponse {
-  static unauthorized(message = "Unauthorized") {
-    return NextResponse.json<ApiError>(
-      { error: message },
-      { status: 401 }
-    );
-  }
-
-  static forbidden(message = "Forbidden") {
-    return NextResponse.json<ApiError>(
-      { error: message },
-      { status: 403 }
-    );
-  }
-
-  static notFound(message = "Resource not found") {
-    return NextResponse.json<ApiError>(
-      { error: message },
-      { status: 404 }
-    );
+  static unauthorized(message = "Dafür musst du angemeldet sein und die nötigen Rechte haben.") {
+    return NextResponse.json<ApiError>({ error: message }, { status: 401 });
   }
 
   static validationError(message: string, details?: unknown) {
-    return NextResponse.json<ApiError>(
-      { error: message, details },
-      { status: 422 }
-    );
+    return NextResponse.json<ApiError>({ error: message, details }, { status: 422 });
   }
 
-  static internalError(message = "Internal server error", error?: unknown) {
+  static internalError(
+    message = "Da ist etwas schiefgelaufen. Bitte versuch es noch einmal.",
+    error?: unknown,
+  ) {
     const errorResponse: ApiError = { error: message };
-    
+
     // Only include error details in development
     if (process.env.NODE_ENV === "development" && error instanceof Error) {
       errorResponse.details = {
@@ -52,11 +35,10 @@ export class ApiErrorResponse {
     return NextResponse.json<ApiError>(errorResponse, { status: 500 });
   }
 
-  static badRequest(message = "Bad request", details?: unknown) {
-    return NextResponse.json<ApiError>(
-      { error: message, details },
-      { status: 400 }
-    );
+  static badRequest(
+    message = "Die Anfrage war unvollständig. Bitte lade die Seite neu und versuch es noch einmal.",
+    details?: unknown,
+  ) {
+    return NextResponse.json<ApiError>({ error: message, details }, { status: 400 });
   }
 }
-

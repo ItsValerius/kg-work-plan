@@ -1,37 +1,38 @@
 import { getMissingUsersPerEvents } from "@/domains/events/queries";
 import type { Event } from "@/domains/events/types";
-import { EventCard } from "./EventCard";
+import { EventRow } from "./EventRow";
 
 interface EventsListProps {
-    events: Event[];
-    userIsAdmin: boolean;
+  events: Event[];
+
+  isPast?: boolean;
 }
 
-export const EventsList = async ({ events, userIsAdmin }: EventsListProps) => {
-    if (events.length === 0) {
-        return null;
-    }
+export const EventsList = async ({ events, isPast = false }: EventsListProps) => {
+  if (events.length === 0) {
+    return null;
+  }
 
-    const participantCounts = await getMissingUsersPerEvents(events.map((event) => event.id));
+  const participantCounts = await getMissingUsersPerEvents(events.map((event) => event.id));
 
-    return (
-        <div className="lg:grid lg:grid-cols-3 gap-4 md:gap-6 flex flex-col lg:items-stretch min-h-72">
-            {events.map((event) => {
-                const counts = participantCounts[event.id] ?? {
-                    currentParticipantsCount: 0,
-                    requiredParticipantsCount: 0,
-                };
-                return (
-                    <EventCard
-                        key={event.id}
-                        event={event}
-                        userIsAdmin={userIsAdmin}
-                        currentParticipantsCount={counts.currentParticipantsCount}
-                        requiredParticipantsCount={counts.requiredParticipantsCount}
-                    />
-                );
-            })}
-        </div>
-    );
+  return (
+    <ol className="border-t">
+      {events.map((event) => {
+        const counts = participantCounts[event.id] ?? {
+          currentParticipantsCount: 0,
+          requiredParticipantsCount: 0,
+          openSpotsCount: 0,
+        };
+        return (
+          <EventRow
+            key={event.id}
+            event={event}
+            openSpots={counts.openSpotsCount}
+            requiredSpots={counts.requiredParticipantsCount}
+            isPast={isPast}
+          />
+        );
+      })}
+    </ol>
+  );
 };
-

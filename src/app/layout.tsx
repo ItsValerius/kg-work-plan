@@ -2,16 +2,14 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { ZodLocale } from "@/components/layout/ZodLocale";
+import { ThemeProvider } from "next-themes";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const barlow = localFont({
+  src: "./fonts/BarlowCondensed-Bold.woff2",
+  variable: "--font-barlow",
+  weight: "700",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -28,15 +26,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="de">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
-      >
+    // next-themes sets the dark class before hydration.
+    <html lang="de" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <body className={barlow.variable}>
         <a href="#main-content" className="skip-to-content">
           Zum Hauptinhalt springen
         </a>
-        {children}
-        <Toaster richColors={true} position="top-right" />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster position="bottom-center" />
+          <ZodLocale />
+        </ThemeProvider>
       </body>
     </html>
   );
