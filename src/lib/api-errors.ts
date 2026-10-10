@@ -14,14 +14,6 @@ export class ApiErrorResponse {
     return NextResponse.json<ApiError>({ error: message }, { status: 401 });
   }
 
-  static forbidden(message = "Dafür fehlen dir die Rechte.") {
-    return NextResponse.json<ApiError>({ error: message }, { status: 403 });
-  }
-
-  static notFound(message = "Nicht gefunden. Vielleicht wurde der Eintrag gelöscht.") {
-    return NextResponse.json<ApiError>({ error: message }, { status: 404 });
-  }
-
   static validationError(message: string, details?: unknown) {
     return NextResponse.json<ApiError>({ error: message, details }, { status: 422 });
   }

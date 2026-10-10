@@ -4,7 +4,6 @@ import { z } from "zod";
 import { idSchema } from "@/lib/validation";
 
 export type Shift = typeof shifts.$inferSelect;
-export type ShiftInsert = typeof shifts.$inferInsert;
 
 export const shiftSchema = createInsertSchema(shifts)
   .extend({

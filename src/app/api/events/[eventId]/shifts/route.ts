@@ -29,9 +29,6 @@ export async function POST(request: NextRequest) {
         "Die Schicht konnte nicht gespeichert werden. Bitte versuch es noch einmal.",
         error,
       );
-      if (error instanceof Error && error.message === "Unauthorized") {
-        return ApiErrorResponse.unauthorized();
-      }
       return ApiErrorResponse.internalError(
         "Die Schicht konnte nicht gespeichert werden. Bitte versuch es noch einmal.",
         error,

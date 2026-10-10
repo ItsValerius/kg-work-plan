@@ -4,7 +4,6 @@ import { z } from "zod";
 import { idSchema } from "@/lib/validation";
 
 export type Event = typeof events.$inferSelect;
-export type EventInsert = typeof events.$inferInsert;
 
 // The DB columns only forbid NULL, so empty strings and reversed dates are checked here;
 // forms and the API both validate with this schema.

@@ -14,7 +14,6 @@ const groupSizeSchema = z
   .max(99, "Höchstens 99 Personen.");
 
 export type Participant = typeof taskParticipants.$inferSelect;
-export type ParticipantInsert = typeof taskParticipants.$inferInsert;
 
 export const participantSchema = createInsertSchema(taskParticipants).extend({
   taskId: idSchema,

@@ -4,7 +4,6 @@ import { z } from "zod";
 import { idSchema } from "@/lib/validation";
 
 export type Task = typeof tasks.$inferSelect;
-export type TaskInsert = typeof tasks.$inferInsert;
 
 export const taskSchema = createInsertSchema(tasks).extend({
   name: z

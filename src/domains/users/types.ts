@@ -4,7 +4,6 @@ import { z } from "zod";
 import { idSchema } from "@/lib/validation";
 
 export type User = typeof users.$inferSelect;
-export type UserInsert = typeof users.$inferInsert;
 
 export const userUpdateSchema = createInsertSchema(users)
   .pick({

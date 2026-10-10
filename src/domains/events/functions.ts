@@ -167,7 +167,7 @@ export async function deleteTask(taskId: string) {
     return;
   } catch (error) {
     logger.error("Failed to delete task", error, { taskId });
-    throw new Error("Failed to remove event");
+    throw new Error("Failed to remove task");
   }
 }
 
@@ -178,6 +178,6 @@ export async function deleteShift(shiftId: string) {
     return deletedShift[0];
   } catch (error) {
     logger.error("Failed to delete shift", error, { shiftId });
-    throw new Error("Failed to remove event");
+    throw new Error("Failed to remove shift");
   }
 }
