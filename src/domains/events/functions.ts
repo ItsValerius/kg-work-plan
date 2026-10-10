@@ -2,34 +2,66 @@ import db from "@/db";
 import { events, shifts, tasks } from "@/db/schema";
 import { logger } from "@/lib/logger";
 import { eq } from "drizzle-orm";
+import { berlinDaysBetween, moveByBerlinDays } from "@/lib/datetime";
 import { getEventByIdWithShiftsAndTasks } from "./queries";
 import type { EventInput } from "./types";
 
 export async function createOrUpdateEvent(data: EventInput, userId: string) {
   try {
-    const newEvent = await db
-      .insert(events)
-      .values({
-        id: data.id,
-        name: data.name,
-        description: data.description,
-        startDate: new Date(data.startDate),
-        endDate: new Date(data.endDate),
-        createdById: userId,
-      })
-      .onConflictDoUpdate({
-        target: events.id,
-        set: {
+    const savedEvent = await db.transaction(async (tx) => {
+      const previous = data.id
+        ? await tx.query.events.findFirst({
+            where: eq(events.id, data.id),
+            with: { shifts: { with: { tasks: true } } },
+          })
+        : undefined;
+
+      const [saved] = await tx
+        .insert(events)
+        .values({
+          id: data.id,
           name: data.name,
           description: data.description,
           startDate: new Date(data.startDate),
           endDate: new Date(data.endDate),
-        },
-      })
-      .returning();
+          createdById: userId,
+        })
+        .onConflictDoUpdate({
+          target: events.id,
+          set: {
+            name: data.name,
+            description: data.description,
+            startDate: new Date(data.startDate),
+            endDate: new Date(data.endDate),
+          },
+        })
+        .returning();
 
-    logger.info("Event created/updated", { eventId: newEvent[0].id, userId });
-    return newEvent[0];
+      // A new date moves the whole plan by the same number of days, keeping clock times.
+      const days = previous ? berlinDaysBetween(previous.startDate, saved.startDate) : 0;
+      if (previous && days !== 0) {
+        // ponytail: one update per row; fine for a club event's few dozen shifts and tasks.
+        for (const shift of previous.shifts) {
+          await tx
+            .update(shifts)
+            .set({
+              startTime: moveByBerlinDays(shift.startTime, days),
+              endTime: moveByBerlinDays(shift.endTime, days),
+            })
+            .where(eq(shifts.id, shift.id));
+          for (const task of shift.tasks) {
+            await tx
+              .update(tasks)
+              .set({ startTime: moveByBerlinDays(task.startTime, days) })
+              .where(eq(tasks.id, task.id));
+          }
+        }
+      }
+      return saved;
+    });
+
+    logger.info("Event created/updated", { eventId: savedEvent.id, userId });
+    return savedEvent;
   } catch (error) {
     logger.error("Failed to create/update event", error);
     throw new Error("Failed to create/update event");
@@ -63,11 +95,10 @@ export async function duplicateEvent(
       throw new Error("Event not found");
     }
 
-    const originalStartDate = new Date(originalEvent.startDate).getTime();
     const newStartDate = new Date(startDate);
-    // Keep every time at the same distance from the event start.
-    const shiftTime = (time: Date) =>
-      new Date(newStartDate.getTime() + (new Date(time).getTime() - originalStartDate));
+    // The copy keeps every clock time, moved by the days between the two event starts.
+    const days = berlinDaysBetween(originalEvent.startDate, newStartDate);
+    const shiftTime = (time: Date) => moveByBerlinDays(time, days);
 
     // All or nothing: a dropped connection must not leave a half-copied event.
     const newEvent = await db.transaction(async (tx) => {

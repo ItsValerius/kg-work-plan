@@ -1,6 +1,7 @@
 "use client";
 
 import type * as React from "react";
+import { berlinTimeFrom, fromBerlin } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,12 +65,14 @@ export function QuickAddShift({
     const formData = new FormData(event.currentTarget);
     setError(null);
     const name = String(formData.get("name") ?? "");
+    const startTime = fromBerlin(eventDay, String(formData.get("start")));
     startTransition(async () => {
       const result = await quickAddShift({
         eventId,
         name,
-        startTime: new Date(`${eventDay}T${String(formData.get("start"))}`),
-        endTime: new Date(`${eventDay}T${String(formData.get("end"))}`),
+        startTime,
+        // An end before the start is after midnight: 20:00–02:00 ends the next day.
+        endTime: berlinTimeFrom(startTime, String(formData.get("end"))),
       });
       if (!result.ok) {
         setError(result.error);

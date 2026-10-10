@@ -37,6 +37,7 @@ const EditTaskPage = async (props: {
         userId={userId}
         eventId={event.id}
         shiftId={shift.id}
+        shiftStart={shift.startTime}
         task={task}
         returnTo={back.href}
       />

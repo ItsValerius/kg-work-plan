@@ -1,6 +1,6 @@
 import db from "@/db";
 import { events, shifts, tasks, taskParticipants } from "@/db/schema";
-import { getStartOfToday } from "@/lib/datetime";
+import { berlinToday, toBerlinInputParts } from "@/lib/datetime";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
 import { asc, eq, inArray } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
@@ -18,14 +18,14 @@ async function getAllEvents() {
 // The list is cached; which events count as upcoming depends on the request's "today".
 export async function getFutureEvents() {
   await connection();
-  const startOfToday = getStartOfToday();
-  return (await getAllEvents()).filter((event) => event.endDate >= startOfToday);
+  const today = berlinToday();
+  return (await getAllEvents()).filter((event) => toBerlinInputParts(event.endDate).day >= today);
 }
 
 export async function getPastEvents() {
   await connection();
-  const startOfToday = getStartOfToday();
-  return (await getAllEvents()).filter((event) => event.endDate < startOfToday);
+  const today = berlinToday();
+  return (await getAllEvents()).filter((event) => toBerlinInputParts(event.endDate).day < today);
 }
 
 export async function getEventById(eventId: string) {

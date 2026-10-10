@@ -1,6 +1,7 @@
 "use client";
 
 import type * as React from "react";
+import { berlinTimeFrom, fromBerlin } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,7 +65,8 @@ export function QuickAddTask({ eventId, shiftId, shiftDay, shiftStart }: QuickAd
       const result = await quickAddTask({
         shiftId,
         name: String(formData.get("name") ?? ""),
-        startTime: new Date(`${shiftDay}T${time}`),
+        // A task in a night shift may start after midnight, on the next day.
+        startTime: berlinTimeFrom(fromBerlin(shiftDay, shiftStart), time),
         requiredParticipants: Number(formData.get("count")),
       });
       if (!result.ok) {

@@ -45,6 +45,7 @@ import {
 import { Download, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { participantsTableFeatures, type ParticipantsTableFeatures } from "./table-features";
 import { downloadCsv } from "@/lib/csv";
+import { berlinToday, formatDateTime } from "@/lib/datetime";
 
 interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<ParticipantsTableFeatures, TData>[];
@@ -167,9 +168,7 @@ export function DataTable<TData extends Identifiable>({
         Gruppenname: rowData.groupName || "",
         Gruppengröße: rowData.groupSize || "",
         Aufgabe: rowData.task?.name || "",
-        Zeit: rowData.task?.startTime
-          ? new Date(rowData.task.startTime).toLocaleString("de-DE")
-          : "",
+        Zeit: rowData.task?.startTime ? formatDateTime(new Date(rowData.task.startTime)) : "",
         Schicht: rowData.task?.shift?.name || "",
         Veranstaltung: rowData.task?.shift?.event?.name || "",
       };
@@ -177,7 +176,7 @@ export function DataTable<TData extends Identifiable>({
 
     const headers = Object.keys(filteredData[0] || {});
     downloadCsv(
-      `dashboard-export-${new Date().toISOString().split("T")[0]}.csv`,
+      `dashboard-export-${berlinToday()}.csv`,
       headers,
       filteredData.map((row) => headers.map((header) => row[header as keyof typeof row] ?? "")),
     );

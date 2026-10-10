@@ -22,7 +22,7 @@ const NewShiftPage = async (props: { params: Promise<{ eventId: string }> }) => 
       backHref={`/dashboard?event=${event.id}&ansicht=planen`}
       backLabel="Zurück zur Planung"
     >
-      <ShiftForm userId={userId} eventId={event.id} shift={null} />
+      <ShiftForm userId={userId} eventId={event.id} eventStart={event.startDate} shift={null} />
     </FormPageShell>
   );
 };

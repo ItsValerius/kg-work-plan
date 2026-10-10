@@ -26,7 +26,13 @@ const NewTaskPage = async (props: { params: Promise<{ eventId: string; shiftId: 
       backHref={`/dashboard?event=${event.id}&ansicht=planen`}
       backLabel="Zurück zur Planung"
     >
-      <TaskForm userId={userId} eventId={event.id} shiftId={shift.id} task={null} />
+      <TaskForm
+        userId={userId}
+        eventId={event.id}
+        shiftId={shift.id}
+        shiftStart={shift.startTime}
+        task={null}
+      />
     </FormPageShell>
   );
 };

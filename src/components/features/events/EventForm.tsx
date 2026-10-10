@@ -2,7 +2,6 @@
 
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -13,14 +12,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DatePicker } from "@/components/ui/date-picker";
+import { berlinToday, fromBerlin } from "@/lib/datetime";
 import { events } from "@/db/schema";
-import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format, startOfDay } from "date-fns";
-import { de } from "date-fns/locale";
 import { eventSchema } from "@/domains/events/types";
-import { AlertCircle, CalendarIcon, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -44,8 +41,8 @@ export function EventForm({
     defaultValues: {
       id: event?.id,
       name: event?.name || "",
-      startDate: event?.startDate || new Date(),
-      endDate: event?.endDate || new Date(),
+      startDate: event?.startDate ?? fromBerlin(berlinToday()),
+      endDate: event?.endDate ?? fromBerlin(berlinToday()),
       description: event?.description || "",
       createdById: userId,
     },
@@ -125,43 +122,19 @@ export function EventForm({
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Startdatum</FormLabel>
-              <Popover>
-                <PopoverTrigger
-                  render={
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-[240px] pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground",
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP", { locale: de })
-                        ) : (
-                          <span>Wähle ein Datum</span>
-                        )}
-                        <CalendarIcon className="ml-auto size-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  }
+              <FormControl>
+                <DatePicker
+                  value={field.value}
+                  min={new Date()}
+                  onChange={(date) => {
+                    field.onChange(date);
+                    // The end follows a start moved past it instead of turning into an error.
+                    if (form.getValues("endDate") < date) {
+                      form.setValue("endDate", date, { shouldValidate: true });
+                    }
+                  }}
                 />
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={(date) => {
-                      field.onChange(date);
-                      // The end follows a start moved past it instead of turning into an error.
-                      if (date && form.getValues("endDate") < date) {
-                        form.setValue("endDate", date, { shouldValidate: true });
-                      }
-                    }}
-                    disabled={(date) => date < startOfDay(new Date())}
-                    autoFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              </FormControl>
               <FormDescription>Das Startdatum der Veranstaltung.</FormDescription>
               <FormMessage />
             </FormItem>
@@ -173,37 +146,9 @@ export function EventForm({
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Enddatum</FormLabel>
-              <Popover>
-                <PopoverTrigger
-                  render={
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-[240px] pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground",
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP", { locale: de })
-                        ) : (
-                          <span>Wähle ein Datum</span>
-                        )}
-                        <CalendarIcon className="ml-auto size-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  }
-                />
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date) => date < startOfDay(startDate ?? new Date())}
-                    autoFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <FormControl>
+                <DatePicker value={field.value} min={startDate} onChange={field.onChange} />
+              </FormControl>
               <FormDescription>Das Enddatum der Veranstaltung.</FormDescription>
               <FormMessage />
             </FormItem>

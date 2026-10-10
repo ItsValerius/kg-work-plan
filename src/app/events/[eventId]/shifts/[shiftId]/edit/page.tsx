@@ -31,7 +31,13 @@ const EditShiftPage = async (props: { params: Promise<{ eventId: string; shiftId
       backHref={back.href}
       backLabel={back.label}
     >
-      <ShiftForm userId={userId} eventId={event.id} shift={shift} returnTo={back.href} />
+      <ShiftForm
+        userId={userId}
+        eventId={event.id}
+        eventStart={event.startDate}
+        shift={shift}
+        returnTo={back.href}
+      />
     </FormPageShell>
   );
 };

@@ -15,12 +15,15 @@ function Calendar({
   classNames,
   showOutsideDays = true,
   locale = de,
+  // Days are Berlin days, whatever the device's time zone.
+  timeZone = "Europe/Berlin",
   ...props
 }: CalendarProps) {
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
       locale={locale}
+      timeZone={timeZone}
       className={cn("p-3", className)}
       classNames={{
         months: "relative flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",

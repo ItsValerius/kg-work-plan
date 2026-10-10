@@ -2,6 +2,7 @@
 
 import { getAuthenticatedAdminUserId, getAuthenticatedUserId } from "@/lib/auth/utils";
 import * as domainActions from "@/domains/participants/functions";
+import { SHIFT_OVER } from "@/domains/participants/functions";
 import {
   signUpSchema,
   updateGroupSchema,
@@ -45,6 +46,9 @@ export async function signUpForTask(raw: {
   } catch (error) {
     if (error instanceof Error && error.message === "Benutzer bereits zur Aufgabe eingetragen.") {
       return { ok: false, error: "Du bist bei dieser Aufgabe schon eingetragen." };
+    }
+    if (error instanceof Error && error.message === SHIFT_OVER) {
+      return { ok: false, error: SHIFT_OVER };
     }
     if (error instanceof Error && error.message.startsWith("Die Mitgliederanzahl")) {
       return {

@@ -20,16 +20,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DatePicker } from "@/components/ui/date-picker";
+import { fromBerlin, toBerlinInputParts } from "@/lib/datetime";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { de } from "date-fns/locale";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
-import { cn } from "@/lib/utils";
 import { duplicateEvent } from "@/server/actions/events";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -70,12 +67,17 @@ export function DuplicateEventDialog({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // Same calendar day next year (29 Feb becomes 1 Mar), at the same Berlin time.
   const defaultDates = useMemo(() => {
-    const oneYearMs = 365 * 24 * 60 * 60 * 1000;
-    return {
-      startDate: new Date(defaultStartDate.getTime() + oneYearMs),
-      endDate: new Date(defaultEndDate.getTime() + oneYearMs),
+    const nextYear = (date: Date) => {
+      const { day, time } = toBerlinInputParts(date);
+      const [year, month, dayOfMonth] = day.split("-").map(Number);
+      const shifted = new Date(Date.UTC(year + 1, month - 1, dayOfMonth))
+        .toISOString()
+        .slice(0, 10);
+      return fromBerlin(shifted, time);
     };
+    return { startDate: nextYear(defaultStartDate), endDate: nextYear(defaultEndDate) };
   }, [defaultStartDate, defaultEndDate]);
 
   const form = useForm<DuplicateFormValues>({
@@ -85,6 +87,7 @@ export function DuplicateEventDialog({
       ...defaultDates,
     },
   });
+  const startDate = useWatch({ control: form.control, name: "startDate" });
 
   async function onSubmit(values: DuplicateFormValues) {
     setLoading(true);
@@ -148,39 +151,17 @@ export function DuplicateEventDialog({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Startdatum</FormLabel>
-                  <Popover>
-                    <PopoverTrigger
-                      render={
-                        <FormControl>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className={cn(
-                              "w-[240px] pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground",
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP", { locale: de })
-                            ) : (
-                              <span>Wähle ein Datum</span>
-                            )}
-                            <CalendarIcon className="ml-auto size-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      }
+                  <FormControl>
+                    <DatePicker
+                      value={field.value}
+                      onChange={(date) => {
+                        field.onChange(date);
+                        if (form.getValues("endDate") < date) {
+                          form.setValue("endDate", date, { shouldValidate: true });
+                        }
+                      }}
                     />
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value ?? undefined}
-                        onSelect={field.onChange}
-                        defaultMonth={field.value ?? defaultDates.startDate}
-                        locale={de}
-                        autoFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  </FormControl>
                   <FormDescription>Das Startdatum der neuen Veranstaltung.</FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -192,43 +173,9 @@ export function DuplicateEventDialog({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Enddatum</FormLabel>
-                  <Popover>
-                    <PopoverTrigger
-                      render={
-                        <FormControl>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className={cn(
-                              "w-[240px] pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground",
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP", { locale: de })
-                            ) : (
-                              <span>Wähle ein Datum</span>
-                            )}
-                            <CalendarIcon className="ml-auto size-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      }
-                    />
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value ?? undefined}
-                        onSelect={field.onChange}
-                        defaultMonth={field.value ?? defaultDates.endDate}
-                        locale={de}
-                        disabled={(date) => {
-                          const startDate = form.watch("startDate");
-                          return startDate ? date < startDate : false;
-                        }}
-                        autoFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <FormControl>
+                    <DatePicker value={field.value} min={startDate} onChange={field.onChange} />
+                  </FormControl>
                   <FormDescription>Das Enddatum der neuen Veranstaltung.</FormDescription>
                   <FormMessage />
                 </FormItem>

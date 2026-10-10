@@ -6,7 +6,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { getUserTasks } from "@/domains/tasks/queries";
 import type { UserTask } from "@/domains/tasks/types";
 import { getAuthenticatedUser } from "@/lib/auth/utils";
-import { formatShortDate, formatTime, getStartOfToday } from "@/lib/datetime";
+import { berlinToday, formatShortDate, formatTime, toBerlinInputParts } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
@@ -65,9 +65,11 @@ const MeineAufgabenPage = async () => {
   const user = await getAuthenticatedUser("/meine-aufgaben");
   const userTasks = await getUserTasks(user.id);
 
-  const startOfToday = getStartOfToday();
-  const upcoming = userTasks.filter((task) => taskDate(task) >= startOfToday);
-  const past = userTasks.filter((task) => taskDate(task) < startOfToday).reverse();
+  // Like the event list: everything on today's Berlin day still counts as upcoming.
+  const today = berlinToday();
+  const isUpcoming = (task: UserTask) => toBerlinInputParts(taskDate(task)).day >= today;
+  const upcoming = userTasks.filter(isUpcoming);
+  const past = userTasks.filter((task) => !isUpcoming(task)).reverse();
   const [next, ...later] = upcoming;
 
   return (

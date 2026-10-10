@@ -2,9 +2,11 @@ import db from "@/db";
 import { taskParticipants, users } from "@/db/schema";
 import { logger } from "@/lib/logger";
 import { and, eq } from "drizzle-orm";
+import { assertShiftNotOver } from "@/domains/participants/functions";
 
 export async function removeUserFromTask(taskId: string, userId: string) {
   try {
+    await assertShiftNotOver(taskId);
     await db
       .delete(taskParticipants)
       .where(and(eq(taskParticipants.userId, userId), eq(taskParticipants.taskId, taskId)));

@@ -1,6 +1,7 @@
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import { formatTime } from "@/lib/datetime";
 import { ColumnDef } from "@tanstack/react-table";
 import { z } from "zod";
 import { DataTableColumnHeader } from "./data-table-column-header";
@@ -94,11 +95,7 @@ export const columns: ColumnDef<ParticipantsTableFeatures, UserTasksResult>[] = 
     id: "task.name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Aufgabe" />,
     cell: ({ row }) => {
-      const time = new Date(row.original.task.startTime).toLocaleTimeString("de-DE", {
-        timeZone: "Europe/Berlin",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      const time = formatTime(new Date(row.original.task.startTime));
       return (
         <span>
           {row.original.task.name} <span className="tabular text-muted-foreground">· {time}</span>

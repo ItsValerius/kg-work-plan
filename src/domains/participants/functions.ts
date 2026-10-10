@@ -1,5 +1,5 @@
 import db from "@/db";
-import { taskParticipants, tasks } from "@/db/schema";
+import { shifts, taskParticipants, tasks } from "@/db/schema";
 import { logger } from "@/lib/logger";
 import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { fitsCapacity } from "./capacity";
@@ -12,6 +12,7 @@ import {
 } from "./types";
 
 const ALREADY_SIGNED_UP = "Benutzer bereits zur Aufgabe eingetragen.";
+export const SHIFT_OVER = "Diese Schicht ist schon vorbei.";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -35,6 +36,21 @@ async function lockTaskAndCount(tx: Tx, taskId: string, excludeParticipantId?: s
   return { task, taken };
 }
 
+/**
+ * Helpers change their own sign-ups only until the shift ends, so the record of who
+ * helped stays as it was. Admins correct it through the dashboard instead.
+ */
+export async function assertShiftNotOver(taskId: string, executor: Tx | typeof db = db) {
+  const [row] = await executor
+    .select({ endTime: shifts.endTime })
+    .from(tasks)
+    .innerJoin(shifts, eq(tasks.shiftId, shifts.id))
+    .where(eq(tasks.id, taskId));
+  if (row && row.endTime < new Date()) {
+    throw new Error(SHIFT_OVER);
+  }
+}
+
 /** Postgres unique violation, raw or wrapped by drizzle. */
 function isUniqueViolation(error: unknown): boolean {
   const code = (e: unknown) => (e as { code?: string } | undefined)?.code;
@@ -48,6 +64,7 @@ export async function createParticipant(data: ParticipantInput, userId: string) 
       if (!locked) {
         throw new Error("Aufgabe existiert nicht.");
       }
+      await assertShiftNotOver(data.taskId, tx);
 
       if (!fitsCapacity(locked.task.requiredParticipants, locked.taken, data.groupSize ?? 1)) {
         throw new Error("Die Mitgliederanzahl der Gruppe ist zu groß für diese Aufgabe.");
@@ -104,6 +121,7 @@ export async function updateGroup(data: UpdateGroupData, userId: string) {
     if (participant.userId !== userId) {
       throw new Error("Unauthorized");
     }
+    await assertShiftNotOver(participant.taskId);
 
     // Update the participant
     const updateData: UpdateGroupPayload = {};
@@ -167,6 +185,7 @@ export async function removeParticipant(participantId: string, userId: string) {
     if (!participant || participant.userId !== userId) {
       throw new Error("Unauthorized");
     }
+    await assertShiftNotOver(participant.taskId);
 
     await db.delete(taskParticipants).where(eq(taskParticipants.id, participantId));
 

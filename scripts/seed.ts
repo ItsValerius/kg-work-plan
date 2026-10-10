@@ -7,6 +7,7 @@
  */
 import * as dotenv from "dotenv";
 import { Client } from "pg";
+import { addDays, berlinToday, fromBerlin } from "../src/lib/datetime";
 
 dotenv.config({ path: ".env.local", quiet: true });
 dotenv.config({ quiet: true });
@@ -24,20 +25,7 @@ const T = {
  * UTC in timestamp-without-time-zone columns; pg would serialize a Date in local time.
  */
 function berlin(days: number, time: string): string {
-  const [hour, minute] = time.split(":").map(Number);
-  const day = new Date();
-  day.setUTCDate(day.getUTCDate() + days);
-  const guess = new Date(
-    Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(), hour, minute),
-  );
-  const berlinHour = Number(
-    new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Europe/Berlin",
-      hour: "2-digit",
-      hourCycle: "h23",
-    }).format(guess),
-  );
-  return new Date(guess.getTime() - (berlinHour - hour) * 3_600_000).toISOString();
+  return fromBerlin(addDays(berlinToday(), days), time).toISOString();
 }
 
 const helpers = [

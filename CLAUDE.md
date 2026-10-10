@@ -23,10 +23,11 @@ docker compose up -d     # Postgres (54320) + Neon wsproxy (54330) + Mailpit (SM
 pnpm make-admin <email>  # give an address the admin role locally (creates the account if missing)
 pnpm db:seed             # load a demo season (dates relative to today); rerun to reset it, real accounts stay
 pnpm drizzle-kit generate   # generate a migration from src/db/schema into src/db/migrations
-pnpm drizzle-kit migrate    # apply migrations (needs POSTGRES_URL or DATABASE_URL)
+pnpm drizzle-kit migrate    # apply migrations (needs POSTGRES_URL or DATABASE_URL); production builds run this via `vercel-build`
+pnpm test                # Vitest unit tests in tests/ (pnpm test:watch while working)
 ```
 
-There is no test framework configured.
+`pnpm test` runs Vitest (`vitest.config.mts`) on `tests/**/*.test.ts`, which mirrors `src/` (`tests/lib`, `tests/domains`) and imports through `@/`. Tests run with `TZ=America/New_York` so date code can't rely on the machine's zone. Add a small test there for any new rule (capacity, spots, CSV, dates).
 
 ### Local setup
 
@@ -45,7 +46,7 @@ All env vars are listed in `.env.example` (Google sign-in is optional locally).
 - **`src/db/schema/`** — Drizzle tables. Always define tables with the `pgTable` from `src/db/util.ts`, which prefixes names with `kg-work-plan_`; `drizzle.config.ts` filters on that prefix (`tablesFilter`), so tables created with the plain `pgTable` are invisible to drizzle-kit. Better Auth tables (user/session/account/verification) live in `users.ts`.
 - **`src/domains/<domain>/`** — framework-agnostic data layer, split into `queries.ts` (reads), `functions.ts` (writes; take an explicit `userId`, log via `@/lib/logger`, rethrow generic errors) and `types.ts` (zod schemas / input types, often via `drizzle-zod`). No auth checks here.
 - **`src/server/actions/`** — `"use server"` wrappers: authenticate (`getAuthenticatedUserId` / `getAuthenticatedAdminUserId`), **parse every argument with a Zod schema** (`parseOrThrow` / `firstIssueMessage` from `src/lib/validation.ts`; schemas live in each domain's `types.ts`), call the domain function, then `updateTag(WORKPLAN_TAG)`. Server actions are public endpoints: never trust their arguments.
-- **`src/app/api/`** — Route handlers that mirror the nested resource structure (`events/[eventId]/shifts/[shiftId]/tasks/[taskId]/users`). They validate with the domain zod schema, call domain functions, and return errors via `ApiErrorResponse` (`src/lib/api-errors.ts`). Some client forms (e.g. `EventForm`, `ShiftForm`, `UserDataFrom`) `fetch` these routes; others call server actions directly.
+- **`src/app/api/`** — Route handlers that mirror the nested resource structure (`events/[eventId]/shifts/[shiftId]/tasks`). They validate with the domain zod schema, call domain functions, and return errors via `ApiErrorResponse` (`src/lib/api-errors.ts`). Some client forms (e.g. `EventForm`, `ShiftForm`, `UserDataFrom`) `fetch` these routes; others call server actions directly.
 - **`src/components/`** — `ui/` is shadcn (configured by `components.json`; add with the shadcn CLI), `features/<domain>/` holds domain components, `shared/` holds reusable buttons/dialogs/navigation, `layout/` holds page shells.
 
 ### Rendering & caching (Cache Components)
@@ -68,7 +69,9 @@ All env vars are listed in `.env.example` (Google sign-in is optional locally).
 ### Conventions
 
 - User-facing text is German (route names too: `/meine-aufgaben`, MDX legal pages `/datenschutz`, `/nutzungsbedingungen` under the `(mdx)` route group).
-- Dates are stored in UTC; use `src/lib/datetime.ts` (`UTCDate`, formatting in `de-DE` / `Europe/Berlin`) rather than ad-hoc formatting.
+- **Dates:** stored as UTC instants, shown and entered as Berlin wall-clock time, always through `src/lib/datetime.ts` (Intl only, no date library): `fromBerlin(day, time)` for input, `berlinTimeFrom` for times that may fall after midnight (night shifts), `moveByBerlinDays` for date moves, `berlinToday()`/`toBerlinInputParts` for day comparisons, and the `format*` helpers for output. Pickers: `DatePicker` (Berlin days) and native `<input type="time">`. Never use `toLocale*String`, `setHours` or `new Date("…T…")` elsewhere.
+- Helpers can change their own sign-ups only until the shift ends (`assertShiftNotOver`); admins correct records in the dashboard.
+- Editing an event's start date moves its shifts and tasks by the same number of Berlin days (duplicating does the same).
 - Path alias `@/*` → `src/*`.
 - Organizer creation (events, shifts, tasks, duplicates) lives only under `/dashboard` (tab "Planen", forms at `/dashboard/events/...`); edit and delete also live there (inline buttons in "Planen", plus the event actions). Old `/events/.../new` URLs redirect there (`next.config.ts`).
 - The sign-in email is `src/lib/auth/magic-link-email.ts` (tables + inline styles only; links valid 15 min).
