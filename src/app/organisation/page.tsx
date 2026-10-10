@@ -17,13 +17,12 @@ import {
   getMissingUsersPerEvents,
   getPastEvents,
 } from "@/domains/events/queries";
-import { isAdmin } from "@/lib/auth/utils";
+import { requireAdminUserId } from "@/lib/auth/utils";
 import { formatShortDate } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, ArrowUpRight, Pencil, Plus, Users } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Organisation",
@@ -37,7 +36,7 @@ interface DashboardPageProps {
 }
 
 const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
-  if (!(await isAdmin())) return redirect("/");
+  await requireAdminUserId("/organisation");
 
   const params = await searchParams;
   const view: View = VIEWS.includes(params.ansicht as View) ? (params.ansicht as View) : "luecken";

@@ -98,8 +98,8 @@ export async function getAuthenticatedUser(callbackUrl?: string): Promise<User> 
  * The admin's user id for an organizer page. Signed-out visitors go to sign-in and
  * helpers back to the start page, instead of hitting an error page.
  */
-export async function requireAdminUserId(): Promise<string> {
-  const user = await getAuthenticatedUser();
+export async function requireAdminUserId(callbackUrl?: string): Promise<string> {
+  const user = await getAuthenticatedUser(callbackUrl);
   if (!isAdminRole(user.role)) {
     redirect("/");
   }
