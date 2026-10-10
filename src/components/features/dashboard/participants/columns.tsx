@@ -28,8 +28,10 @@ export const UserTaskSchema = z.object({
     name: z.string(),
     startTime: z.date(),
     shift: z.object({
+      id: z.string(),
       name: z.string(),
       event: z.object({
+        id: z.string(),
         name: z.string(),
       }),
     }),
@@ -66,6 +68,8 @@ export const columns: ColumnDef<ParticipantsTableFeatures, UserTasksResult>[] = 
     accessorFn: (row) => row.task.shift.event.name,
     id: "event",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Veranstaltung" />,
+    // Filters hold ids: names repeat across events ("Aufbau") and would match by substring.
+    filterFn: (row, _id, value) => row.original.task.shift.event.id === value,
   },
   {
     accessorKey: "user.email",
@@ -94,6 +98,7 @@ export const columns: ColumnDef<ParticipantsTableFeatures, UserTasksResult>[] = 
     accessorFn: (row) => row.task.name,
     id: "task.name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Aufgabe" />,
+    filterFn: (row, _id, value) => row.original.taskId === value,
     cell: ({ row }) => {
       const time = formatTime(new Date(row.original.task.startTime));
       return (
@@ -107,5 +112,6 @@ export const columns: ColumnDef<ParticipantsTableFeatures, UserTasksResult>[] = 
     accessorFn: (row) => row.task.shift.name,
     id: "task.shift.name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Schicht" />,
+    filterFn: (row, _id, value) => row.original.task.shift.id === value,
   },
 ];

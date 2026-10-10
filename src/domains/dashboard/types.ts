@@ -8,11 +8,14 @@ export interface FilterOption {
 }
 
 export interface ShiftFilterOption extends FilterOption {
+  eventId: string;
   eventName: string;
 }
 
 export interface TaskFilterOption extends FilterOption {
+  shiftId: string;
   shiftName: string;
+  eventId: string;
 }
 
 export type ParticipantsUserTask = typeof taskParticipants.$inferSelect & {
@@ -21,8 +24,9 @@ export type ParticipantsUserTask = typeof taskParticipants.$inferSelect & {
     name: string;
     startTime: Date;
     shift: {
+      id: string;
       name: string;
-      event: { name: string };
+      event: { id: string; name: string };
     };
   };
 };
