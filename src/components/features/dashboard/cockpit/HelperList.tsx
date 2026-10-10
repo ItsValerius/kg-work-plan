@@ -85,14 +85,15 @@ export function HelperList({ event }: { event: EventWorkPlan }) {
                     return (
                       <li
                         key={p.id}
-                        className="grid grid-cols-[1fr_auto] items-center gap-x-4 border-t border-dashed py-2 first:border-t-0 sm:grid-cols-[minmax(0,3fr)_minmax(0,2.4fr)_minmax(0,3fr)_auto]"
+                        className="grid grid-cols-[1fr_auto] items-center gap-x-4 border-t border-dashed py-2 first:border-t-0 sm:grid-cols-[minmax(0,3fr)_minmax(0,2.4fr)_minmax(0,3fr)_auto] print:grid-cols-[minmax(0,3fr)_minmax(0,2.4fr)]"
                       >
                         <span className="min-w-0">
                           <span className="block font-medium sm:truncate">{name}</span>
                           <span className="block text-sm text-muted-foreground sm:hidden">
                             {group}
+                            {/* Emails show on screen only, never on the printout. */}
                             {p.user?.email && (
-                              <>
+                              <span className="print:hidden">
                                 {" · "}
                                 <a
                                   href={`mailto:${p.user.email}`}
@@ -100,14 +101,14 @@ export function HelperList({ event }: { event: EventWorkPlan }) {
                                 >
                                   {p.user.email}
                                 </a>
-                              </>
+                              </span>
                             )}
                           </span>
                         </span>
                         <span className="hidden truncate text-muted-foreground sm:block">
                           {group}
                         </span>
-                        <span className="hidden truncate sm:block">
+                        <span className="hidden truncate sm:block print:hidden">
                           {p.user?.email && (
                             <a
                               href={`mailto:${p.user.email}`}
@@ -117,7 +118,7 @@ export function HelperList({ event }: { event: EventWorkPlan }) {
                             </a>
                           )}
                         </span>
-                        <span className="justify-self-end">
+                        <span className="justify-self-end print:hidden">
                           <RemoveHelperButton
                             participantId={p.id}
                             helperName={name}

@@ -29,6 +29,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { events } from "@/db/schema";
+import type { ShiftFilterOption, TaskFilterOption } from "@/domains/dashboard/types";
+import { changePlanFilter } from "@/domains/dashboard/filters";
 import React from "react";
 import { toast } from "sonner";
 import {
@@ -51,8 +53,8 @@ interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<ParticipantsTableFeatures, TData>[];
   data: TData[];
   events: (typeof events.$inferSelect)[];
-  shifts?: Array<{ id: string; name: string; eventName: string }>;
-  tasks?: Array<{ id: string; name: string; shiftName: string }>;
+  shifts?: ShiftFilterOption[];
+  tasks?: TaskFilterOption[];
   onDeleteRows?: (selectedRowIds: string[]) => void | Promise<void>;
 }
 
@@ -182,19 +184,39 @@ export function DataTable<TData extends Identifiable>({
     );
   };
 
-  const hasActiveFilters =
-    !!table.getColumn("event")?.getFilterValue() ||
-    !!table.getColumn("task.shift.name")?.getFilterValue() ||
-    !!table.getColumn("task.name")?.getFilterValue() ||
-    !!table.getColumn("groupSize")?.getFilterValue() ||
-    globalFilter;
+  // Event → shift → task filters hold ids; options narrow to the selected parent.
+  const filterValue = (id: string) =>
+    columnFilters.find((filter) => filter.id === id)?.value as string | undefined;
+  const eventId = filterValue("event");
+  const shiftId = filterValue("task.shift.name");
+  const taskId = filterValue("task.name");
+  const selectPlan = (level: "event" | "shift" | "task") => (id: string | null) => {
+    if (!id) return;
+    const next = changePlanFilter({ eventId, shiftId, taskId }, level, id, shifts, tasks);
+    table.setColumnFilters((prev) => [
+      ...prev.filter((f) => !["event", "task.shift.name", "task.name"].includes(f.id)),
+      ...(next.eventId ? [{ id: "event", value: next.eventId }] : []),
+      ...(next.shiftId ? [{ id: "task.shift.name", value: next.shiftId }] : []),
+      ...(next.taskId ? [{ id: "task.name", value: next.taskId }] : []),
+    ]);
+  };
+  const eventItems = events.map((event) => ({ value: event.id, label: event.name }));
+  const shiftItems = shifts
+    .filter((shift) => !eventId || shift.eventId === eventId)
+    .map((shift) => ({
+      value: shift.id,
+      label: eventId ? shift.name : `${shift.name} (${shift.eventName})`,
+    }));
+  const taskItems = tasks
+    .filter((task) => (shiftId ? task.shiftId === shiftId : !eventId || task.eventId === eventId))
+    .map((task) => ({
+      value: task.id,
+      label: shiftId ? task.name : `${task.name} (${task.shiftName})`,
+    }));
+
+  const hasActiveFilters = columnFilters.length > 0 || globalFilter;
 
   const clearAllFilters = () => {
-    // Explicitly clear each column filter
-    table.getColumn("event")?.setFilterValue(undefined);
-    table.getColumn("task.shift.name")?.setFilterValue(undefined);
-    table.getColumn("task.name")?.setFilterValue(undefined);
-    table.getColumn("groupSize")?.setFilterValue(undefined);
     setColumnFilters([]);
     setGlobalFilter("");
     // Force Select components to remount by incrementing the key
@@ -221,19 +243,18 @@ export function DataTable<TData extends Identifiable>({
           <div className="w-full">
             <Label>Veranstaltung</Label>
             <Select
+              items={eventItems}
               key={`event-${selectResetKey}`}
-              value={(table.getColumn("event")?.getFilterValue() as string) ?? null}
-              onValueChange={(value) =>
-                table.getColumn("event")?.setFilterValue(value || undefined)
-              }
+              value={eventId ?? null}
+              onValueChange={selectPlan("event")}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Alle Veranstaltungen" />
               </SelectTrigger>
               <SelectContent>
-                {events.map((event) => (
-                  <SelectItem key={event.id} value={event.name}>
-                    {event.name}
+                {eventItems.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -243,23 +264,19 @@ export function DataTable<TData extends Identifiable>({
             <div className="w-full">
               <Label>Schicht</Label>
               <Select
-                items={shifts.map((shift) => ({
-                  value: shift.name,
-                  label: `${shift.name} (${shift.eventName})`,
-                }))}
+                items={shiftItems}
                 key={`shift-${selectResetKey}`}
-                value={(table.getColumn("task.shift.name")?.getFilterValue() as string) ?? null}
-                onValueChange={(value) =>
-                  table.getColumn("task.shift.name")?.setFilterValue(value || undefined)
-                }
+                value={shiftId ?? null}
+                onValueChange={selectPlan("shift")}
+                disabled={shiftItems.length === 0}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Alle Schichten" />
                 </SelectTrigger>
                 <SelectContent>
-                  {shifts.map((shift) => (
-                    <SelectItem key={shift.id} value={shift.name}>
-                      {shift.name} ({shift.eventName})
+                  {shiftItems.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -270,23 +287,19 @@ export function DataTable<TData extends Identifiable>({
             <div className="w-full">
               <Label>Aufgabe</Label>
               <Select
-                items={tasks.map((task) => ({
-                  value: task.name,
-                  label: `${task.name} (${task.shiftName})`,
-                }))}
+                items={taskItems}
                 key={`task-${selectResetKey}`}
-                value={(table.getColumn("task.name")?.getFilterValue() as string) ?? null}
-                onValueChange={(value) =>
-                  table.getColumn("task.name")?.setFilterValue(value || undefined)
-                }
+                value={taskId ?? null}
+                onValueChange={selectPlan("task")}
+                disabled={taskItems.length === 0}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Alle Aufgaben" />
                 </SelectTrigger>
                 <SelectContent>
-                  {tasks.map((task) => (
-                    <SelectItem key={task.id} value={task.name}>
-                      {task.name} ({task.shiftName})
+                  {taskItems.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

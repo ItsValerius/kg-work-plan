@@ -16,8 +16,8 @@ export async function getParticipantsData(): Promise<ParticipantsData> {
         columns: { name: true, startTime: true },
         with: {
           shift: {
-            with: { event: { columns: { name: true } } },
-            columns: { name: true },
+            with: { event: { columns: { id: true, name: true } } },
+            columns: { id: true, name: true },
           },
         },
       },
@@ -45,13 +45,16 @@ export async function getParticipantsData(): Promise<ParticipantsData> {
   const shiftsForFilter: ShiftFilterOption[] = allShifts.map((shift) => ({
     id: shift.id,
     name: shift.name,
+    eventId: shift.eventId,
     eventName: shift.event.name,
   }));
 
   const tasksForFilter: TaskFilterOption[] = allTasks.map((task) => ({
     id: task.id,
     name: task.name,
+    shiftId: task.shift.id,
     shiftName: task.shift.name,
+    eventId: task.shift.event.id,
   }));
 
   return {
