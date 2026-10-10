@@ -20,6 +20,17 @@ export const getSession = cache(async () => {
 });
 
 /**
+ * The session straight from the database, skipping the cookie cache. Server actions and
+ * API routes authorize with this, so a revoked session or removed role stops them at once.
+ */
+async function getFreshSession() {
+  return auth.api.getSession({
+    headers: await headers(),
+    query: { disableCookieCache: true },
+  });
+}
+
+/**
  * Better Auth answers "no session" when its database is unreachable. A session cookie
  * without a session means the state is unknown rather than signed out.
  */
@@ -34,7 +45,7 @@ export async function hasSessionCookie(): Promise<boolean> {
  * Use this in server actions to ensure user is logged in
  */
 export async function getAuthenticatedUserId(): Promise<string> {
-  const session = await getSession();
+  const session = await getFreshSession();
   if (!session?.user?.id) {
     throw new Error("Unauthorized");
   }
@@ -46,7 +57,7 @@ export async function getAuthenticatedUserId(): Promise<string> {
  * Use this in server actions that require admin privileges
  */
 export async function getAuthenticatedAdminUserId(): Promise<string> {
-  const session = await getSession();
+  const session = await getFreshSession();
   if (!session?.user?.id) {
     throw new Error("Unauthorized");
   }
@@ -56,26 +67,9 @@ export async function getAuthenticatedAdminUserId(): Promise<string> {
   return session.user.id;
 }
 
-type SessionType = Awaited<ReturnType<typeof getSession>>;
-
-/**
- * Check if the current user is an admin
- * When a session is provided (including null), returns synchronously. Otherwise, fetches the session asynchronously.
- */
-export function isAdmin(session: SessionType | null): boolean;
-export function isAdmin(): Promise<boolean>;
-export function isAdmin(session?: SessionType | null): boolean | Promise<boolean> {
-  // Check if an argument was provided (distinguishes undefined from null/explicitly passed)
-  // This ensures that when session is explicitly passed (including null), we return synchronously
-  if (session !== undefined) {
-    // Synchronous when session is provided (handles null gracefully)
-    return isAdminRole(session?.user?.role);
-  }
-  // Asynchronous when no argument provided - fetch session
-  return (async () => {
-    const sessionToCheck = await getSession();
-    return isAdminRole(sessionToCheck?.user?.role);
-  })();
+/** Whether the current visitor is an admin (cached session, for rendering). */
+export async function isAdmin(): Promise<boolean> {
+  return isAdminRole((await getSession())?.user?.role);
 }
 
 /**

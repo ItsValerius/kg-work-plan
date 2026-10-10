@@ -1,16 +1,19 @@
 import { DateBlock } from "@/components/features/events/DateBlock";
 import { PageContainer } from "@/components/layout/PageContainer";
+import { MyTasksSkeleton } from "@/components/layout/Skeletons";
 import RemoveUserFromTaskButton from "@/components/shared/buttons/RemoveUserFromTaskButton";
 import { EditGroupDialog } from "@/components/shared/dialogs/EditGroupDialog";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { getUserTasks } from "@/domains/tasks/queries";
 import type { UserTask } from "@/domains/tasks/types";
 import { getAuthenticatedUser } from "@/lib/auth/utils";
-import { berlinToday, formatShortDate, formatTime, toBerlinInputParts } from "@/lib/datetime";
+import { formatShortDate, formatTime } from "@/lib/datetime";
+import { isUpcomingTask } from "@/domains/tasks/upcoming";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Meine Aufgaben",
@@ -61,20 +64,29 @@ function TaskActions({ task }: { task: UserTask }) {
   );
 }
 
-const MeineAufgabenPage = async () => {
+const MeineAufgabenPage = () => {
+  return (
+    <PageContainer>
+      <h1 className="text-[48px] md:text-[clamp(56px,5.7vw,80px)]">Meine Aufgaben</h1>
+      <Suspense fallback={<MyTasksSkeleton />}>
+        <MyTasks />
+      </Suspense>
+    </PageContainer>
+  );
+};
+
+async function MyTasks() {
   const user = await getAuthenticatedUser("/meine-aufgaben");
   const userTasks = await getUserTasks(user.id);
 
-  // Like the event list: everything on today's Berlin day still counts as upcoming.
-  const today = berlinToday();
-  const isUpcoming = (task: UserTask) => toBerlinInputParts(taskDate(task)).day >= today;
+  const isUpcoming = (task: UserTask) =>
+    isUpcomingTask({ start: taskDate(task), shiftEndTime: task.shiftEndTime });
   const upcoming = userTasks.filter(isUpcoming);
   const past = userTasks.filter((task) => !isUpcoming(task)).reverse();
   const [next, ...later] = upcoming;
 
   return (
-    <PageContainer>
-      <h1 className="text-[48px] md:text-[clamp(56px,5.7vw,80px)]">Meine Aufgaben</h1>
+    <>
       <p className="mt-3 text-[17px] text-muted-foreground">
         {upcoming.length === 0
           ? "Du bist gerade für keine anstehende Aufgabe eingetragen."
@@ -156,9 +168,9 @@ const MeineAufgabenPage = async () => {
           </ol>
         </details>
       )}
-    </PageContainer>
+    </>
   );
-};
+}
 
 function TaskRow({ task, isPast = false }: { task: UserTask; isPast?: boolean }) {
   return (

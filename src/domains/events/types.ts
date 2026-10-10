@@ -5,15 +5,24 @@ import { idSchema } from "@/lib/validation";
 
 export type Event = typeof events.$inferSelect;
 
+// Shared by the event form and duplicating, so both accept the same input.
+const eventNameSchema = z
+  .string()
+  .trim()
+  .min(1, "Bitte gib der Veranstaltung einen Namen.")
+  .max(120, "Der Name ist zu lang (höchstens 120 Zeichen).");
+const endsNotBeforeStart = (event: { startDate: Date; endDate: Date }) =>
+  event.endDate >= event.startDate;
+const END_NOT_BEFORE_START = {
+  message: "Das Ende darf nicht vor dem Beginn liegen.",
+  path: ["endDate"],
+};
+
 // The DB columns only forbid NULL, so empty strings and reversed dates are checked here;
 // forms and the API both validate with this schema.
 export const eventSchema = createInsertSchema(events)
   .extend({
-    name: z
-      .string()
-      .trim()
-      .min(1, "Bitte gib der Veranstaltung einen Namen.")
-      .max(120, "Der Name ist zu lang (höchstens 120 Zeichen)."),
+    name: eventNameSchema,
     description: z
       .string()
       .trim()
@@ -21,28 +30,18 @@ export const eventSchema = createInsertSchema(events)
     startDate: z.coerce.date<Date>(),
     endDate: z.coerce.date<Date>(),
   })
-  .refine((event) => event.endDate >= event.startDate, {
-    message: "Das Ende darf nicht vor dem Beginn liegen.",
-    path: ["endDate"],
-  });
+  .refine(endsNotBeforeStart, END_NOT_BEFORE_START);
 
 export type EventInput = z.infer<typeof eventSchema>;
 
 export const duplicateEventSchema = z
   .object({
     eventId: idSchema,
-    name: z
-      .string()
-      .trim()
-      .min(1, "Bitte gib der Veranstaltung einen Namen.")
-      .max(120, "Der Name ist zu lang (höchstens 120 Zeichen)."),
+    name: eventNameSchema,
     startDate: z.coerce.date<Date>(),
     endDate: z.coerce.date<Date>(),
   })
-  .refine((event) => event.endDate >= event.startDate, {
-    message: "Das Ende darf nicht vor dem Beginn liegen.",
-    path: ["endDate"],
-  });
+  .refine(endsNotBeforeStart, END_NOT_BEFORE_START);
 
 export interface ParticipantCounts {
   currentParticipantsCount: number;
@@ -54,8 +53,9 @@ export interface ParticipantCounts {
 export type EventParticipantCounts = Record<string, ParticipantCounts>;
 
 export interface EventsSectionProps {
-  events: Event[];
-  userIsAdmin: boolean;
+  /** Awaited inside the section's Suspense boundary, so the heading renders right away. */
+  events: Promise<Event[]>;
+  userIsAdmin: Promise<boolean>;
   title: string;
   description: string;
   emptyStateTitle?: string;

@@ -28,7 +28,7 @@ export async function updateUserProfile(userId: string, name: string, authentica
 
     const updatedUser = await db
       .update(users)
-      .set({ name })
+      .set({ name: name || null })
       .where(eq(users.id, userId))
       .returning();
 

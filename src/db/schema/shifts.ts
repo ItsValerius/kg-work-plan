@@ -17,8 +17,8 @@ export const shifts = pgTable("shift", {
   endTime: timestamp("end_time", { mode: "date" }).notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
   createdById: text("created_by_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    // Deleting a person (e.g. on request) must not delete what they planned.
+    .references(() => users.id, { onDelete: "set null" }),
 });
 
 export const shiftsRelations = relations(shifts, ({ one, many }) => ({

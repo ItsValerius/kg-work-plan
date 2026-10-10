@@ -77,7 +77,7 @@ export function HelperList({ event }: { event: EventWorkPlan }) {
                 </div>
                 <ul className="mt-2 text-[15px]">
                   {task.participants.map((p) => {
-                    const name = p.user?.name ?? "Ohne Namen";
+                    const name = p.user?.name || "Ohne Namen";
                     const group =
                       p.groupName || p.groupSize > 1
                         ? `${p.groupName ? `„${p.groupName}“ · ` : ""}${p.groupSize} Pers.`

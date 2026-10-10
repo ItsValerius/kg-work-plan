@@ -1,14 +1,11 @@
 import { betterAuth } from "better-auth";
 import { magicLink } from "better-auth/plugins/magic-link";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import * as dotenv from "dotenv";
 import db from "@/db/index";
 import { accounts, rateLimit, sessions, users, verification } from "../../db/schema/index";
 import { renderMagicLinkEmail } from "./magic-link-email";
 
 const MAGIC_LINK_MINUTES = 15;
-
-dotenv.config({ quiet: true });
 
 // Better Auth configuration with magic link (passwordless email) authentication
 // See: https://www.better-auth.com/docs/plugins/magic-link
@@ -77,6 +74,10 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day
+    // Pages read the session from this signed cookie instead of the database; src/proxy.ts
+    // keeps it fresh. Writes skip it (see getFreshSession), so revocations and role changes
+    // apply to them at once and to pages within maxAge.
+    cookieCache: { enabled: true, maxAge: 5 * 60 },
   },
   trustedOrigins: [
     "http://localhost:3000",

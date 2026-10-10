@@ -1,5 +1,4 @@
 import { taskParticipants } from "@/db/schema";
-import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { idSchema } from "@/lib/validation";
 
@@ -15,12 +14,6 @@ const groupSizeSchema = z
 
 export type Participant = typeof taskParticipants.$inferSelect;
 
-export const participantSchema = createInsertSchema(taskParticipants).extend({
-  taskId: idSchema,
-  groupName: groupNameSchema.optional(),
-  groupSize: groupSizeSchema.optional(),
-});
-
 /** Sign-up from the event sheet (the user id comes from the session, never the client). */
 export const signUpSchema = z.object({
   taskId: idSchema,
@@ -28,7 +21,7 @@ export const signUpSchema = z.object({
   groupSize: groupSizeSchema.default(1),
 });
 
-export type ParticipantInput = z.infer<typeof participantSchema>;
+export type ParticipantInput = z.infer<typeof signUpSchema>;
 
 export const updateGroupSchema = z.object({
   participantId: idSchema,

@@ -75,9 +75,7 @@ export function LogoutButton({ showText = false, variant = "ghost" }: LogoutButt
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending} className="mt-0">
-            Abbrechen
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>Abbrechen</AlertDialogCancel>
           <AlertDialogAction onClick={handleSignOut} disabled={isPending} className="gap-1.5">
             {isPending ? (
               <>

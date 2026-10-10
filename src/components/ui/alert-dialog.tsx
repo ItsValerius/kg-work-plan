@@ -49,7 +49,7 @@ AlertDialogHeader.displayName = "AlertDialogHeader";
 // DOM order puts the cancel button first, so Base UI's default initial focus lands on it.
 const AlertDialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className)}
+    className={cn("flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end", className)}
     {...props}
   />
 );
@@ -72,7 +72,7 @@ function AlertDialogDescription({ className, ...props }: AlertDialogPrimitive.De
   return (
     <AlertDialogPrimitive.Description
       data-slot="alert-dialog-description"
-      className={cn("text-base text-muted-foreground", className)}
+      className={cn("text-base text-pretty text-muted-foreground", className)}
       {...props}
     />
   );
@@ -90,7 +90,7 @@ function AlertDialogCancel({ className, ...props }: AlertDialogPrimitive.Close.P
   return (
     <AlertDialogPrimitive.Close
       data-slot="alert-dialog-cancel"
-      className={cn(buttonVariants({ variant: "outline" }), "mt-2 sm:mt-0", className)}
+      className={cn(buttonVariants({ variant: "outline" }), className)}
       {...props}
     />
   );

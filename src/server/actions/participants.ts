@@ -2,7 +2,7 @@
 
 import { getAuthenticatedAdminUserId, getAuthenticatedUserId } from "@/lib/auth/utils";
 import * as domainActions from "@/domains/participants/functions";
-import { SHIFT_OVER } from "@/domains/participants/functions";
+import { ALREADY_SIGNED_UP, SHIFT_OVER } from "@/domains/participants/functions";
 import {
   signUpSchema,
   updateGroupSchema,
@@ -39,12 +39,9 @@ export async function signUpForTask(raw: {
   const groupSize = input.groupSize;
 
   try {
-    await domainActions.createParticipant(
-      { taskId: input.taskId, groupName, groupSize, createdById: userId },
-      userId,
-    );
+    await domainActions.createParticipant({ taskId: input.taskId, groupName, groupSize }, userId);
   } catch (error) {
-    if (error instanceof Error && error.message === "Benutzer bereits zur Aufgabe eingetragen.") {
+    if (error instanceof Error && error.message === ALREADY_SIGNED_UP) {
       return { ok: false, error: "Du bist bei dieser Aufgabe schon eingetragen." };
     }
     if (error instanceof Error && error.message === SHIFT_OVER) {

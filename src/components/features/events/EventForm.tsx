@@ -19,6 +19,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { eventSchema } from "@/domains/events/types";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
+import { saveEvent } from "@/server/actions/events";
+
+const SAVE_FAILED =
+  "Die Veranstaltung konnte nicht gespeichert werden. Bitte versuch es noch einmal.";
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
@@ -53,29 +57,21 @@ export function EventForm({
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof eventSchema>) {
     setLoading(true);
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    const response = await fetch("/api/events", {
-      method: "POST",
-      body: JSON.stringify(values),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (!response.ok) {
-      const data = await response.json();
-      setError(data.error);
+    const result = await saveEvent(values).catch(() => ({
+      ok: false as const,
+      error: SAVE_FAILED,
+    }));
+    if (!result.ok) {
+      setError(result.error);
       setLoading(false);
-
       return;
     }
-    setLoading(false);
     // New events continue straight into planning shifts and tasks.
-    if (event) {
-      redirect(returnTo ?? `/veranstaltungen/${event.id}`);
-    }
-    const created: { id: string } = await response.json();
-    redirect(`/organisation?event=${created.id}&ansicht=planen`);
+    redirect(
+      event
+        ? (returnTo ?? `/veranstaltungen/${event.id}`)
+        : `/organisation?event=${result.id}&ansicht=planen`,
+    );
   }
 
   return (

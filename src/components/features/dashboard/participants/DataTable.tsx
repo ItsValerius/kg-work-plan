@@ -153,7 +153,7 @@ export function DataTable<TData extends Identifiable>({
   };
 
   const handleExport = () => {
-    const filteredData = table.getFilteredRowModel().rows.map((row) => {
+    const rows = table.getFilteredRowModel().rows.map((row) => {
       const rowData = row.original as TData & {
         user?: { name?: string | null; email?: string | null } | null;
         groupName?: string | null;
@@ -164,23 +164,32 @@ export function DataTable<TData extends Identifiable>({
           shift?: { name?: string; event?: { name?: string } };
         };
       };
-      return {
-        Name: rowData.user?.name || "",
-        Email: rowData.user?.email || "",
-        Gruppenname: rowData.groupName || "",
-        Gruppengröße: rowData.groupSize || "",
-        Aufgabe: rowData.task?.name || "",
-        Zeit: rowData.task?.startTime ? formatDateTime(new Date(rowData.task.startTime)) : "",
-        Schicht: rowData.task?.shift?.name || "",
-        Veranstaltung: rowData.task?.shift?.event?.name || "",
-      };
+      return [
+        rowData.user?.name || "",
+        rowData.user?.email || "",
+        rowData.groupName || "",
+        rowData.groupSize || "",
+        rowData.task?.name || "",
+        rowData.task?.startTime ? formatDateTime(new Date(rowData.task.startTime)) : "",
+        rowData.task?.shift?.name || "",
+        rowData.task?.shift?.event?.name || "",
+      ];
     });
 
-    const headers = Object.keys(filteredData[0] || {});
+    // A fixed header, so an export with no matching rows still has its columns.
     downloadCsv(
       `dashboard-export-${berlinToday()}.csv`,
-      headers,
-      filteredData.map((row) => headers.map((header) => row[header as keyof typeof row] ?? "")),
+      [
+        "Name",
+        "Email",
+        "Gruppenname",
+        "Gruppengröße",
+        "Aufgabe",
+        "Zeit",
+        "Schicht",
+        "Veranstaltung",
+      ],
+      rows,
     );
   };
 

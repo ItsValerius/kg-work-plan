@@ -19,6 +19,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { shiftSchema } from "@/domains/shifts/types";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
+import { saveShift } from "@/server/actions/shifts";
+
+const SAVE_FAILED = "Die Schicht konnte nicht gespeichert werden. Bitte versuch es noch einmal.";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -56,20 +59,13 @@ export function ShiftForm({
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof shiftSchema>) {
     setLoading(true);
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    const response = await fetch(`/api/events/${eventId}/shifts`, {
-      method: "POST",
-      body: JSON.stringify(values),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (!response.ok) {
-      const data = await response.json();
-      setError(data.error);
+    const result = await saveShift(values).catch(() => ({
+      ok: false as const,
+      error: SAVE_FAILED,
+    }));
+    if (!result.ok) {
+      setError(result.error);
       setLoading(false);
-
       return;
     }
 

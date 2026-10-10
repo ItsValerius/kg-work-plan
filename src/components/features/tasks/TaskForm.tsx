@@ -18,6 +18,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { taskSchema } from "@/domains/tasks/types";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
+import { saveTask } from "@/server/actions/tasks";
+
+const SAVE_FAILED = "Die Aufgabe konnte nicht gespeichert werden. Bitte versuch es noch einmal.";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -57,20 +60,11 @@ export function TaskForm({
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof taskSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    const response = await fetch(`/api/events/${eventId}/shifts/${shiftId}/tasks`, {
-      method: "POST",
-      body: JSON.stringify(values),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (!response.ok) {
-      const data = await response.json();
-      setError(data.error);
+    setLoading(true);
+    const result = await saveTask(values).catch(() => ({ ok: false as const, error: SAVE_FAILED }));
+    if (!result.ok) {
+      setError(result.error);
       setLoading(false);
-
       return;
     }
     redirect(

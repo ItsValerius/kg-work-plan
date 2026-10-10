@@ -162,7 +162,7 @@ export async function duplicateEvent(
 
 export async function deleteTask(taskId: string) {
   try {
-    await db.delete(tasks).where(eq(tasks.id, taskId)).returning();
+    await db.delete(tasks).where(eq(tasks.id, taskId));
 
     return;
   } catch (error) {

@@ -1,6 +1,6 @@
 import { EventForm } from "@/components/features/events/EventForm";
 import { FormPageShell } from "@/components/layout/FormPageShell";
-import { getEventByIdWithShiftsAndTasks } from "@/domains/events/queries";
+import { getEventById } from "@/domains/events/queries";
 import { getAuthenticatedUser, isAdmin } from "@/lib/auth/utils";
 import { organisationBackLink } from "@/lib/edit-origin";
 import type { Metadata } from "next";
@@ -12,7 +12,7 @@ interface EditEventPageProps {
 
 export async function generateMetadata(props: EditEventPageProps): Promise<Metadata> {
   const params = await props.params;
-  const event = await getEventByIdWithShiftsAndTasks(params.eventId);
+  const event = await getEventById(params.eventId);
   return { title: event ? `${event.name} bearbeiten` : "Veranstaltung bearbeiten" };
 }
 
@@ -20,7 +20,7 @@ const EditEventPage = async (props: EditEventPageProps) => {
   const params = await props.params;
   const [user, event, userIsAdmin] = await Promise.all([
     getAuthenticatedUser(),
-    getEventByIdWithShiftsAndTasks(params.eventId),
+    getEventById(params.eventId),
     isAdmin(),
   ]);
 

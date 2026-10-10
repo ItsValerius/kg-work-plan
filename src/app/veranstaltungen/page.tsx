@@ -3,24 +3,19 @@ import { EventsSection } from "@/components/features/events/EventsSection";
 import { getFutureEvents, getPastEvents } from "@/domains/events/queries";
 import { PageContainer } from "@/components/layout/PageContainer";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Veranstaltungen",
 };
 
-const EventsPage = async () => {
-  const futureEvents = await getFutureEvents();
-
-  const userIsAdmin = await isAdmin();
-
-  const pastEvents = userIsAdmin ? await getPastEvents() : [];
-
+const EventsPage = () => {
   return (
     <PageContainer>
       <div className="space-y-16 md:space-y-24">
         <EventsSection
-          events={futureEvents}
-          userIsAdmin={userIsAdmin}
+          events={getFutureEvents()}
+          userIsAdmin={isAdmin()}
           title="Veranstaltungen"
           description="Such dir eine Veranstaltung aus und trag dich bei einer Aufgabe ein, die noch Helfer braucht."
           emptyStateTitle="Keine Veranstaltungen geplant"
@@ -29,19 +24,30 @@ const EventsPage = async () => {
           showAddButton={true}
           isFutureEvents={true}
         />
-        {userIsAdmin && (
-          <EventsSection
-            events={pastEvents}
-            userIsAdmin={userIsAdmin}
-            title="Vergangene Veranstaltungen"
-            description="Nur für Organisatoren sichtbar."
-            showAddButton={false}
-            isFutureEvents={false}
-          />
-        )}
+        <Suspense>
+          <PastEventsSection />
+        </Suspense>
       </div>
     </PageContainer>
   );
 };
+
+/** Past events, only for organizers and only when there are any. */
+async function PastEventsSection() {
+  if (!(await isAdmin())) return null;
+  const pastEvents = await getPastEvents();
+  if (pastEvents.length === 0) return null;
+
+  return (
+    <EventsSection
+      events={Promise.resolve(pastEvents)}
+      userIsAdmin={Promise.resolve(true)}
+      title="Vergangene Veranstaltungen"
+      description="Nur für Organisatoren sichtbar."
+      showAddButton={false}
+      isFutureEvents={false}
+    />
+  );
+}
 
 export default EventsPage;

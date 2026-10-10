@@ -14,51 +14,43 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { User, userUpdateSchema } from "@/domains/users/types";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { userUpdateSchema } from "@/domains/users/types";
+import { Suspense, use, useEffect } from "react";
+import { useForm, type ControllerRenderProps, type UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
+import { updateProfile } from "@/server/actions/users";
 
-export function UserDataForm({ user }: { user: User }) {
+type ProfileValues = z.infer<typeof userUpdateSchema>;
+/** Null while the visitor is signed out; the page redirects them. */
+type ProfileUser = Promise<{ id: string; name: string } | null>;
+
+/**
+ * The form renders right away; only the name input waits for the session, so the label,
+ * hint and button are part of the page's static shell.
+ */
+export function UserDataForm({ user }: { user: ProfileUser }) {
   // 1. Define your form.
-  const form = useForm<z.infer<typeof userUpdateSchema>>({
+  const form = useForm<ProfileValues>({
     resolver: zodResolver(userUpdateSchema),
-    defaultValues: {
-      id: user?.id,
-      name: user.name || "",
-    },
   });
-
-  const router = useRouter();
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof userUpdateSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    const res = await fetch(`/api/users`, {
-      method: "POST",
-      body: JSON.stringify(values),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const json = await res.json();
-    if (json.error) {
-      if (res.status === 422) {
-        form.setError("root", { type: "422", message: json.error });
-      } else {
-        form.setError("root", { type: "500" });
-      }
-      toast.error("Fehler beim Aktualisieren des Namens", {
-        description: json.error || "Bitte versuche es erneut.",
-      });
+    const result = await updateProfile(values).catch(() => ({
+      ok: false as const,
+      error: "Dein Profil konnte nicht gespeichert werden. Bitte versuch es noch einmal.",
+    }));
+    if (!result.ok) {
+      form.setError("root", { message: result.error });
+      toast.error("Fehler beim Aktualisieren des Namens", { description: result.error });
       return;
     }
     toast.success("Name erfolgreich aktualisiert", {
-      description: `Dein Name wurde auf "${values.name}" geändert.`,
+      description: values.name
+        ? `Dein Name wurde auf "${values.name}" geändert.`
+        : "Dein Name wird nicht mehr angezeigt.",
     });
-    router.refresh();
   }
   return (
     <Form {...form}>
@@ -77,9 +69,11 @@ export function UserDataForm({ user }: { user: User }) {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Max Mustermann..." {...field} />
+                <NameInput field={field} form={form} user={user} />
               </FormControl>
-              <FormDescription>Dein Name auf der Website.</FormDescription>
+              <FormDescription>
+                Dein Name auf der Website. Lass das Feld leer, wenn er nicht angezeigt werden soll.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -91,5 +85,41 @@ export function UserDataForm({ user }: { user: User }) {
         </Button>
       </form>
     </Form>
+  );
+}
+
+type NameInputProps = Omit<React.ComponentProps<"input">, "form"> & {
+  field: ControllerRenderProps<ProfileValues, "name">;
+  form: UseFormReturn<ProfileValues>;
+  user: ProfileUser;
+};
+
+/** Gets FormControl's id and aria props and passes them on to whichever input shows. */
+function NameInput({ field, form, user, ...props }: NameInputProps) {
+  return (
+    <Suspense fallback={<Input placeholder="Max Mustermann..." disabled {...props} />}>
+      <LoadedNameInput field={field} form={form} user={user} {...props} />
+    </Suspense>
+  );
+}
+
+function LoadedNameInput({ field, form, user, ...props }: NameInputProps) {
+  const profile = use(user);
+
+  useEffect(() => {
+    if (!profile) return;
+    form.setValue("id", profile.id);
+    form.resetField("name", { defaultValue: profile.name });
+  }, [form, profile]);
+
+  if (!profile) return <Input placeholder="Max Mustermann..." disabled {...props} />;
+  return (
+    <Input
+      placeholder="Max Mustermann..."
+      {...props}
+      {...field}
+      // Until the effect above runs (and in the server HTML) the form has no value yet.
+      value={field.value ?? profile.name}
+    />
   );
 }

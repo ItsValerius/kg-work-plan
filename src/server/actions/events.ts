@@ -2,10 +2,41 @@
 
 import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 import * as domainActions from "@/domains/events/functions";
-import { duplicateEventSchema } from "@/domains/events/types";
-import { idSchema, parseOrThrow } from "@/lib/validation";
+import { duplicateEventSchema, eventSchema, type EventInput } from "@/domains/events/types";
+import { firstIssueMessage, idSchema, parseOrThrow } from "@/lib/validation";
 import { updateTag } from "next/cache";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
+
+export type SaveResult = { ok: true; id: string } | { ok: false; error: string };
+
+/**
+ * Saves the event form (create or edit). Returns the reason instead of throwing, because
+ * production builds hide thrown server-action messages from the browser.
+ */
+export async function saveEvent(raw: EventInput): Promise<SaveResult> {
+  let userId: string;
+  try {
+    userId = await getAuthenticatedAdminUserId();
+  } catch {
+    return { ok: false, error: "Nur Organisatoren können Veranstaltungen speichern." };
+  }
+  const parsed = eventSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { ok: false, error: firstIssueMessage(parsed.error) };
+  }
+
+  let id: string;
+  try {
+    id = (await domainActions.createOrUpdateEvent(parsed.data, userId)).id;
+  } catch {
+    return {
+      ok: false,
+      error: "Die Veranstaltung konnte nicht gespeichert werden. Bitte versuch es noch einmal.",
+    };
+  }
+  updateTag(WORKPLAN_TAG);
+  return { ok: true, id };
+}
 
 export async function deleteEvent(eventId: string) {
   await getAuthenticatedAdminUserId();

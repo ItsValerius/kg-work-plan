@@ -3,43 +3,11 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatTime } from "@/lib/datetime";
 import { ColumnDef } from "@tanstack/react-table";
-import { z } from "zod";
+import type { ParticipantsUserTask } from "@/domains/dashboard/types";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import type { ParticipantsTableFeatures } from "./table-features";
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-
-export const UserTaskSchema = z.object({
-  id: z.string(),
-  userId: z.string().nullable(),
-  createdAt: z.date(),
-  createdById: z.string(),
-  taskId: z.string(),
-  groupName: z.string().nullable(),
-  groupSize: z.number(),
-  user: z
-    .object({
-      name: z.string().nullable(),
-      email: z.string().nullable(),
-    })
-    .nullable(),
-  task: z.object({
-    name: z.string(),
-    startTime: z.date(),
-    shift: z.object({
-      id: z.string(),
-      name: z.string(),
-      event: z.object({
-        id: z.string(),
-        name: z.string(),
-      }),
-    }),
-  }),
-});
-
-type UserTasksResult = z.infer<typeof UserTaskSchema>;
-export const columns: ColumnDef<ParticipantsTableFeatures, UserTasksResult>[] = [
+export const columns: ColumnDef<ParticipantsTableFeatures, ParticipantsUserTask>[] = [
   {
     id: "select",
     header: ({ table }) => (

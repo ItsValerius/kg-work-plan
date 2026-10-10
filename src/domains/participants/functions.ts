@@ -4,14 +4,9 @@ import { logger } from "@/lib/logger";
 import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { fitsCapacity } from "./capacity";
 import { getParticipantById } from "./queries";
-import {
-  updateGroupSchema,
-  type UpdateGroupData,
-  type UpdateGroupPayload,
-  type ParticipantInput,
-} from "./types";
+import type { UpdateGroupData, UpdateGroupPayload, ParticipantInput } from "./types";
 
-const ALREADY_SIGNED_UP = "Benutzer bereits zur Aufgabe eingetragen.";
+export const ALREADY_SIGNED_UP = "Benutzer bereits zur Aufgabe eingetragen.";
 export const SHIFT_OVER = "Diese Schicht ist schon vorbei.";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -105,13 +100,8 @@ export async function createParticipant(data: ParticipantInput, userId: string) 
 
 export async function updateGroup(data: UpdateGroupData, userId: string) {
   try {
-    const validated = updateGroupSchema.safeParse(data);
-    if (!validated.success) {
-      throw new Error("Invalid data");
-    }
-
     // Get the current participant
-    const participant = await getParticipantById(validated.data.participantId);
+    const participant = await getParticipantById(data.participantId);
 
     if (!participant) {
       throw new Error("Participant not found");
@@ -126,22 +116,22 @@ export async function updateGroup(data: UpdateGroupData, userId: string) {
     // Update the participant
     const updateData: UpdateGroupPayload = {};
 
-    if (validated.data.groupName !== undefined) {
+    if (data.groupName !== undefined) {
       // Allow empty string to clear the group name (set to null)
-      updateData.groupName = validated.data.groupName === "" ? null : validated.data.groupName;
+      updateData.groupName = data.groupName === "" ? null : data.groupName;
     }
 
-    if (validated.data.groupSize !== undefined) {
-      updateData.groupSize = validated.data.groupSize;
+    if (data.groupSize !== undefined) {
+      updateData.groupSize = data.groupSize;
     }
 
     await db.transaction(async (tx) => {
       // A bigger group must still fit next to everyone else on the task.
-      if (validated.data.groupSize !== undefined) {
+      if (data.groupSize !== undefined) {
         const locked = await lockTaskAndCount(tx, participant.taskId, participant.id);
         if (
           locked &&
-          !fitsCapacity(locked.task.requiredParticipants, locked.taken, validated.data.groupSize)
+          !fitsCapacity(locked.task.requiredParticipants, locked.taken, data.groupSize)
         ) {
           throw new Error(
             `Die neue Gruppengröße würde die maximale Teilnehmeranzahl von ${locked.task.requiredParticipants} überschreiten.`,
@@ -152,7 +142,7 @@ export async function updateGroup(data: UpdateGroupData, userId: string) {
       await tx
         .update(taskParticipants)
         .set(updateData)
-        .where(eq(taskParticipants.id, validated.data.participantId));
+        .where(eq(taskParticipants.id, data.participantId));
     });
 
     return { success: true };

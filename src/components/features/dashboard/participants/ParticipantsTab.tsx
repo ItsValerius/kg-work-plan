@@ -1,11 +1,22 @@
 import { Suspense } from "react";
 import { getParticipantsData } from "@/domains/dashboard/queries";
 import { ParticipantsTable } from "./ParticipantsTable";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ParticipantsTableSkeleton } from "@/components/layout/Skeletons";
 
 async function ParticipantsContent() {
   const { userTasks, allEvents, shiftsForFilter, tasksForFilter } = await getParticipantsData();
 
+  return (
+    <ParticipantsTable
+      userTasks={userTasks}
+      allEvents={allEvents}
+      shiftsForFilter={shiftsForFilter}
+      tasksForFilter={tasksForFilter}
+    />
+  );
+}
+
+export function ParticipantsTab() {
   return (
     <div className="space-y-4">
       <h2 className="text-[32px] md:text-[44px]">Alle Helfer</h2>
@@ -13,33 +24,9 @@ async function ParticipantsContent() {
         Alle Einträge über alle Veranstaltungen: filtern, mehrere auf einmal austragen oder als
         Liste exportieren.
       </p>
-      <ParticipantsTable
-        userTasks={userTasks}
-        allEvents={allEvents}
-        shiftsForFilter={shiftsForFilter}
-        tasksForFilter={tasksForFilter}
-      />
+      <Suspense fallback={<ParticipantsTableSkeleton />}>
+        <ParticipantsContent />
+      </Suspense>
     </div>
-  );
-}
-
-function ParticipantsSkeleton() {
-  return (
-    <div className="space-y-4">
-      <Skeleton className="h-8 w-64" />
-      <Skeleton className="h-4 w-full max-w-2xl" />
-      <div className="space-y-4">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
-    </div>
-  );
-}
-
-export function ParticipantsTab() {
-  return (
-    <Suspense fallback={<ParticipantsSkeleton />}>
-      <ParticipantsContent />
-    </Suspense>
   );
 }
