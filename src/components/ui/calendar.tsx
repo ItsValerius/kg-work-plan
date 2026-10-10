@@ -28,9 +28,9 @@ function Calendar({
       classNames={{
         months: "relative flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
-        month_caption: "flex justify-center pt-1 relative items-center",
+        month_caption: "relative flex h-8 items-center justify-center",
         caption_label: "text-sm font-medium",
-        nav: "absolute inset-x-1 top-1 z-10 flex items-center justify-between",
+        nav: "absolute inset-x-0 top-0 z-10 flex h-8 items-center justify-between",
         button_previous: cn(
           buttonVariants({ variant: "outline" }),
           "size-8 min-h-0 bg-transparent p-0 opacity-50 hover:opacity-100",
@@ -46,10 +46,10 @@ function Calendar({
         // Modifier classes below are applied to the day cell, so they style
         // the inner day button through `[&>button]`.
         day: "h-9 w-9 text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
-        day_button: cn(buttonVariants({ variant: "ghost" }), "h-9 w-9 p-0 font-normal"),
+        day_button: cn(buttonVariants({ variant: "ghost" }), "size-9 min-h-0 p-0 font-normal"),
         selected:
           "[&>button]:bg-primary [&>button]:text-primary-foreground [&>button]:hover:bg-primary [&>button]:hover:text-primary-foreground [&>button]:focus:bg-primary [&>button]:focus:text-primary-foreground",
-        today: "rounded-md bg-accent text-accent-foreground",
+        today: "rounded-lg bg-accent text-accent-foreground",
         outside: "text-muted-foreground opacity-50",
         disabled: "text-muted-foreground opacity-50",
         hidden: "invisible",
