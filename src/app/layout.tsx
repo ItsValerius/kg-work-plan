@@ -27,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     // next-themes sets the dark class before hydration.
-    <html lang="de" suppressHydrationWarning>
+    <html lang="de" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className={barlow.variable}>
         <a href="#main-content" className="skip-to-content">
           Zum Hauptinhalt springen
