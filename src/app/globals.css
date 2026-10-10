@@ -12,6 +12,9 @@
   --background: #ffffff;
   --shimmer-base: #eef2ea;
   --shimmer-highlight: #f7f9f4;
+  /* One step darker, for bars on wash and pale panels where the default would vanish. */
+  --shimmer-panel-base: #e5ebe1;
+  --shimmer-panel-highlight: #eef2ea;
   --claim-glow: #b9ec86;
   --foreground: #17251c;
   --card: #ffffff;
@@ -88,6 +91,8 @@
     --scrim: rgb(4 8 5 / 0.62);
     --shimmer-base: #1a251d;
     --shimmer-highlight: #223026;
+    --shimmer-panel-base: #223026;
+    --shimmer-panel-highlight: #2b3b2f;
     --claim-glow: #2f5a2a;
   }
 }
@@ -224,8 +229,10 @@
 }
 
 /*
-  Loading placeholders: green-tinted bars with a slow sweep. They fade in after 150ms,
-  so fast loads never flash them; reduced motion leaves them static.
+  Loading placeholders: green-tinted bars with a slow sweep. The gradient is fixed to the
+  viewport, so one band of light passes over every bar at once instead of each bar
+  flickering on its own (iOS Safari ignores fixed backgrounds and sweeps per bar). They
+  fade in after 150ms, so fast loads never flash them; reduced motion leaves them static.
 */
 @layer components {
   .skeleton {
@@ -238,9 +245,15 @@
       var(--shimmer-base) 65%
     );
     background-size: 220% 100%;
+    background-attachment: fixed;
     animation:
       shimmer 1.6s ease-in-out infinite,
       settle 300ms ease-out 150ms both;
+  }
+  .bg-muted .skeleton,
+  .bg-accent\/40 .skeleton {
+    --shimmer-base: var(--shimmer-panel-base);
+    --shimmer-highlight: var(--shimmer-panel-highlight);
   }
 }
 

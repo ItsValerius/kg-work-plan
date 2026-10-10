@@ -360,7 +360,7 @@ The system is flat. Depth comes from white, wash and pale fills plus 1px line ru
 
 Overlays follow the same rule. Dialogs, alert dialogs, sheets, popovers, menus and select lists are white with a 1px line border and no shadow. Separation from the page comes from the scrim alone. Overlays fade (and dialogs zoom from 95%) in about 200ms. Sheets slide in from their edge.
 
-Loading placeholders are the only moving fill: pale green-grey bars (#eef2ea) with a lighter sheen (#f7f9f4) sweeping across them every 1.6s. They sit flat on the page like everything else.
+Loading placeholders are the only moving fill: pale green-grey bars (#eef2ea) with a lighter sheen (#f7f9f4). The sheen is fixed to the viewport, so one band of light passes over every bar at once every 1.6s instead of each bar flickering on its own. On wash and pale panels the bars are one step darker (#e5ebe1 / #eef2ea) so they don't vanish. They sit flat on the page like everything else.
 
 **The Flat Sheet Rule.** Separate content with whitespace, rules and tonal fills. No shipped surface carries a box shadow, gradient or blur, and that includes overlays. A raised layer is marked by its border and the scrim. The one gradient is the loading shimmer on placeholder bars, which never rests on real content.
 
@@ -395,7 +395,7 @@ Plain, sturdy and labelled.
 - **Mobile:** an outline "Menü" button with an icon and a visible label opens a right-side sheet. Items are 48px tall at 17px, and the active one is pale with deep green text.
 - **Signed out:** a single outline "Anmelden" button.
 - **Session unknown:** when a session cookie exists but the session can't be read, the header shows only the crest and wordmark, with no nav and no "Anmelden".
-- **Session loading:** the crest and wordmark render at once. While the session streams in, a placeholder holds the nav's shape: three short bars on desktop (16px tall, 112/112/64px wide) and a 44px menu-button-sized bar on phones.
+- **Session loading:** the crest and wordmark render at once. While the session streams in, a placeholder holds a helper's navigation: three link-sized slots (167/165/88px, each with a 16px bar), the divider and an Abmelden-sized slot on desktop, and a 93×44px menu-button bar on phones.
 - **Labels:** Veranstaltungen, Meine Aufgaben, Profil, and for admins "Organisation".
 
 ### Sign-up sheet (signature)
@@ -459,9 +459,10 @@ One wording everywhere: the 44/56px display headline "Da ist etwas schiefgelaufe
 
 ### Loading states
 
-Every route has a loading placeholder that mirrors the page it stands in for, so nothing jumps when the content arrives.
+Only what depends on the visitor or the data waits. Fixed text (headings, intros, labels, the sign-in page) renders at once, and just the request-dependent part streams in behind a placeholder that mirrors it, so nothing jumps when the content arrives. Pages that need data before anything can render keep a full-page placeholder.
+- **Exact size:** each bar sits in a box as tall as the text line it stands for (the page's real line heights), so heights match the page to the pixel; wrapped lines get a second bar only at the widths where the real text wraps.
 - **Bars:** blocks of the shimmer fill, 5px corner (6px for button and claim-line shapes, 12px for panels), sized to the text or control they replace. They fade in over 300ms after a 150ms delay, so fast loads never flash. Under reduced motion they stay static.
-- **Real structure stays real:** the placeholders keep the page's actual rules, wash rails and panel strokes, and only the content becomes bars. The event list keeps its date-led rows (a numeral bar beside two short date-part bars, then two text bars). The work plan keeps the wash shift rail (sitting at its own height, not stretched) beside sheet lines with dashed rules and a full-width claim-line bar as the last line. Meine Aufgaben keeps the next-duty panel above two date rows. The organizer cockpit keeps the event rail, pane header and tabs. Forms show a bordered 12px panel with label and field bars.
+- **Real structure stays real:** the placeholders keep the page's actual rules (including the ink sheet and shift rules), wash rails and panel strokes, and the next-duty panel's green border and pale fill. Fixed titles the placeholder knows for certain (form titles, Organisation, the rail heading, the work plan's back link) are real text; text that appears only with data stays a bar, so a placeholder never promises content. The event list keeps its date-led rows (a numeral bar beside two short date-part bars, then two text bars). The work plan keeps the wash shift rail (sitting at its own height, not stretched) beside sheet lines with dashed rules and a full-width claim-line bar as the last line. Meine Aufgaben keeps the next-duty panel above the Danach heading and two task rows. The organizer cockpit keeps the event rail, pane header and tabs. Forms show their title, then a bordered 12px panel with the fields of that form (event, shift or task) as label, control and hint bars.
 - **Accessibility:** each placeholder is a `role="status"` region with `aria-busy` and a German label ("Arbeitsplan wird geladen", "Veranstaltungen werden geladen"). The bars inside are `aria-hidden`.
 
 ### Cards / Containers
@@ -482,10 +483,10 @@ Sonner at bottom center. White, 1px line border, 5px corner, no shadow and 15px 
 - **Do** set dates, times, line numbers and counts in Barlow Condensed with tabular figures.
 - **Do** keep body text at 16px or more, reading text at 15px or more, and every control at least 44px tall.
 - **Do** rely on the single global focus rule (3px focus-green outline, 3px offset) and respect reduced motion. All animations and transitions collapse to 0.01ms.
-- **Do** name the action in progress on the working button and name the task in toasts.
+- **Do** name the action in progress on the working button ("Wird gespeichert …", with a space before the ellipsis), disable it while it works, and name the task in toasts.
 - **Do** confirm a removal in an alert dialog with "Behalten" focused and a danger "Ja, …" action that names the act.
 - **Do** keep overlays flat: white, 1px line border, one radius, the `scrim` behind them.
-- **Do** give each route a loading placeholder that mirrors its layout: real rules and rails, shimmer bars for content, a 150ms delay before it appears, and a German `role="status"` label.
+- **Do** render fixed text at once and give only the request-dependent part a placeholder that mirrors it: real rules and rails, shimmer bars sized to the real line boxes, a 150ms delay before it appears, and a German `role="status"` label.
 - **Do** show one event at a time to organizers, with counts in the display face, and keep the helper list printable.
 - **Do** keep creation (events, shifts, tasks, duplicates) in the organizer cockpit, with inline rows first and the full form one link away.
 - **Do** build emails from tables, inline styles and Arial, with a table-cell button; never rely on web fonts or CSS a mail client may drop.

@@ -161,8 +161,9 @@ export function ShiftForm({
           )}
         />
 
-        <Button type="submit">
-          {loading ? <Loader2 className="animate-spin" /> : "Speichern"}
+        <Button type="submit" disabled={loading}>
+          {loading && <Loader2 className="animate-spin" aria-hidden="true" />}
+          {loading ? "Wird gespeichert …" : "Speichern"}
         </Button>
       </form>
     </Form>

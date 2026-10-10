@@ -163,8 +163,8 @@ export function EditGroupDialog({
                 Abbrechen
               </Button>
               <Button type="submit" disabled={isPending}>
-                {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-                Speichern
+                {isPending && <Loader2 className="animate-spin" aria-hidden="true" />}
+                {isPending ? "Wird gespeichert …" : "Speichern"}
               </Button>
             </DialogFooter>
           </form>

@@ -59,7 +59,7 @@ export function LogoutButton({ showText = false, variant = "ghost" }: LogoutButt
             disabled={isPending}
           >
             {isPending ? (
-              <Loader2 className="size-4 animate-spin" />
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
             ) : (
               <LogOut className="size-4" aria-hidden="true" />
             )}
@@ -79,8 +79,8 @@ export function LogoutButton({ showText = false, variant = "ghost" }: LogoutButt
           <AlertDialogAction onClick={handleSignOut} disabled={isPending} className="gap-1.5">
             {isPending ? (
               <>
-                <Loader2 className="size-4 animate-spin" />
-                Wird abgemeldet...
+                <Loader2 className="animate-spin" aria-hidden="true" />
+                Wird abgemeldet …
               </>
             ) : (
               <>

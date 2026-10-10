@@ -79,9 +79,9 @@ export function UserDataForm({ user }: { user: ProfileUser }) {
           )}
         />
 
-        <Button type="submit">
-          {form.formState.isSubmitting && <Loader2 className="animate-spin" />}
-          Aktualisieren
+        <Button type="submit" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting && <Loader2 className="animate-spin" aria-hidden="true" />}
+          {form.formState.isSubmitting ? "Wird gespeichert …" : "Aktualisieren"}
         </Button>
       </form>
     </Form>

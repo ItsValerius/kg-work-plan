@@ -199,8 +199,8 @@ export function DuplicateEventDialog({
               <Button type="submit" disabled={loading}>
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 size-4 animate-spin" />
-                    Duplizieren...
+                    <Loader2 className="animate-spin" aria-hidden="true" />
+                    Wird dupliziert …
                   </>
                 ) : (
                   "Duplizieren"

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { ArrowLeft } from "lucide-react";
 import { PageContainer } from "./PageContainer";
 
 /** A single placeholder bar; size it with Tailwind classes. */
@@ -52,7 +53,7 @@ export function EventsListSkeleton({ rows = 3 }: { rows?: number }) {
 /** A task sheet: title row with counter, sign-up lines, the claim button and a free line. */
 function SheetSkeleton({ taken }: { taken: number }) {
   return (
-    <div className="border-t-2 border-border">
+    <div className="border-t-2 border-foreground/80">
       <div className="flex items-start justify-between gap-4 border-b pt-3 pb-3 md:pt-4">
         <span className="flex min-w-0 flex-col">
           <Line className="h-[27.5px]" bar="h-5 w-48" />
@@ -86,7 +87,10 @@ function SheetSkeleton({ taken }: { taken: number }) {
 export function EventPlanSkeleton() {
   return (
     <Busy label="Arbeitsplan wird geladen">
-      <Line className="h-11" bar="h-4 w-40" />
+      <p className="inline-flex min-h-11 items-center gap-2 pr-2 text-[15px] font-semibold text-primary">
+        <ArrowLeft className="size-4" />
+        Alle Veranstaltungen
+      </p>
       <div className="mt-3 grid gap-x-10 gap-y-4 border-b pb-6 md:mt-8 md:grid-cols-[auto_1fr] md:items-start md:pb-10">
         <span className="hidden h-[108px] items-center md:flex">
           <DateBlockBar large />
@@ -167,7 +171,7 @@ export function MyTasksSkeleton() {
   return (
     <Status label="Deine Aufgaben werden geladen">
       <Line className="mt-3 h-[26px]" bar="h-4 w-72" />
-      <div className="mt-10 rounded-xl border-[1.5px] border-border p-5 md:p-8">
+      <div className="mt-10 rounded-xl border-[1.5px] border-primary bg-accent/40 p-5 md:p-8">
         <Line className="h-[29px] md:h-[33px]" bar="h-6 w-64 md:h-7" />
         <div className="mt-5 grid gap-x-8 gap-y-4 md:grid-cols-[auto_1fr]">
           <DateBlockBar large />
@@ -217,7 +221,7 @@ export function DashboardSkeleton() {
   return (
     <Busy label="Organisation wird geladen">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <Line className="h-[49px] md:h-[75px]" bar="h-10 w-56 md:h-16 md:w-72" />
+        <h1 className="text-[48px] md:text-[clamp(56px,5.7vw,80px)]">Organisation</h1>
         <div className="flex flex-wrap gap-2.5">
           <Bar className="h-11 w-[142px] rounded-md" />
           <Bar className="h-11 w-[206px] rounded-md" />
@@ -225,7 +229,9 @@ export function DashboardSkeleton() {
       </div>
       <div className="mt-8 grid gap-8 md:grid-cols-[280px_1fr] md:gap-10">
         <div className="hidden rounded-lg bg-muted p-2 md:block md:self-start">
-          <Line className="h-[28.6px] px-2" bar="h-3 w-32" />
+          <h2 className="px-2 pt-2 pb-2 font-sans text-[12px] font-semibold tracking-normal text-muted-foreground">
+            Kommende Veranstaltungen
+          </h2>
           <div className="grid gap-0.5">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
@@ -278,7 +284,7 @@ export function DashboardSkeleton() {
             <div className="mt-6 grid gap-8">
               {Array.from({ length: 2 }).map((_, i) => (
                 <div key={i}>
-                  <div className="flex items-center gap-3 border-b-2 border-border pb-2">
+                  <div className="flex items-center gap-3 border-b-2 border-foreground/80 pb-2">
                     <Line className="h-7" bar="h-5 w-24" />
                     <Line className="h-7" bar="h-4 w-20" />
                   </div>
@@ -373,12 +379,12 @@ const FORM_FIELDS = {
 /** An organizer form page (FormPageShell) with the fields of the given form. */
 export function FormPageSkeleton({
   form,
-  longTitle = false,
+  title,
   context = true,
 }: {
   form: keyof typeof FORM_FIELDS;
-  /** The title wraps to two lines on phones ("Veranstaltung bearbeiten"). */
-  longTitle?: boolean;
+  /** The page's fixed title, shown as real text so only the data parts load. */
+  title: string;
   /** The page shows a line of context (event or shift name) under the title. */
   context?: boolean;
 }) {
@@ -386,8 +392,7 @@ export function FormPageSkeleton({
     <Busy label="Formular wird geladen">
       <div className="mx-auto max-w-2xl">
         <Line className="h-11" bar="h-4 w-48" />
-        <Line className="mt-4 h-[45px] md:h-[58px]" bar="h-9 w-64 md:h-12 md:w-96" />
-        {longTitle && <Line className="h-[45px] md:hidden" bar="h-9 w-32" />}
+        <h1 className="mt-4 text-[44px] md:text-[56px]">{title}</h1>
         {context && <Line className="mt-2 h-[25.5px]" bar="h-4 w-48" />}
         <div className="mt-8 rounded-xl border bg-muted p-6 md:p-9">
           <div className="flex flex-col gap-8">
@@ -397,46 +402,6 @@ export function FormPageSkeleton({
         </div>
       </div>
     </Busy>
-  );
-}
-
-/** The sign-in page: intro on the left, the card with the email form and Google button. */
-export function SignInSkeleton() {
-  return (
-    <main
-      role="status"
-      aria-busy="true"
-      aria-label="Anmeldung wird geladen"
-      className="mx-auto grid w-full max-w-5xl gap-10 px-4 py-10 sm:px-6 md:grid-cols-[1fr_minmax(0,440px)] md:items-center md:gap-16 md:py-16 lg:px-8"
-    >
-      <div aria-hidden="true">
-        <Line className="mb-6 h-11 md:mb-8" bar="h-4 w-40" />
-        <Bar className="hidden size-28 rounded-full md:block" />
-        <Line className="h-[49px] md:mt-6 md:h-16" bar="h-10 w-48 md:h-14 md:w-56" />
-        <div className="mt-4 max-w-[46ch]">
-          <Line className="h-[27.6px]" bar="h-4 w-full" />
-          <Line className="h-[27.6px]" bar="h-4 w-1/2" />
-        </div>
-      </div>
-      <div aria-hidden="true" className="rounded-xl border bg-muted p-6 md:p-9">
-        <Line className="h-[25.5px]" bar="h-4 w-full" />
-        <Line className="h-[25.5px]" bar="h-4 w-3/5" />
-        <div className="mt-5 flex flex-col">
-          <Line className="h-[22px]" bar="h-3.5 w-40" />
-          <Bar className="mt-2 h-12 w-full rounded-md" />
-          <Bar className="mt-4 h-11 w-full rounded-lg" />
-          <Line className="mt-4 h-5 justify-center" bar="h-3 w-10" />
-          <Bar className="mt-4 h-11 w-full rounded-lg" />
-        </div>
-        {/* The privacy note: four lines on phones, three on desktop. */}
-        <div className="mt-6">
-          <Line className="h-[22.75px]" bar="h-3 w-full" />
-          <Line className="h-[22.75px]" bar="h-3 w-full" />
-          <Line className="h-[22.75px]" bar="h-3 w-4/5 md:w-2/5" />
-          <Line className="h-[22.75px] md:hidden" bar="h-3 w-1/3" />
-        </div>
-      </div>
-    </main>
   );
 }
 
