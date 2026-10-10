@@ -14,8 +14,13 @@ export function PlanView({ event }: { event: EventWorkPlan }) {
   const multiDay = !isSameBerlinDay(event.startDate, event.endDate);
   const lastShift = event.shifts.at(-1);
   const eventStart = toBerlinInputParts(event.startDate);
-  // A new shift most likely starts where the last one ended.
-  const suggestedStart = lastShift ? toBerlinInputParts(lastShift.endTime).time : eventStart.time;
+  // A new shift most likely starts where the last one ended. Events are stored at
+  // midnight, so a first shift gets a daytime start instead of 00:00.
+  const suggestedStart = lastShift
+    ? toBerlinInputParts(lastShift.endTime).time
+    : eventStart.time === "00:00"
+      ? "10:00"
+      : eventStart.time;
 
   return (
     <div className="grid gap-10">

@@ -92,10 +92,16 @@ export function DuplicateEventDialog({
   async function onSubmit(values: DuplicateFormValues) {
     setLoading(true);
     try {
-      await duplicateEvent(eventId, values.name, values.startDate, values.endDate);
+      const newEventId = await duplicateEvent(
+        eventId,
+        values.name,
+        values.startDate,
+        values.endDate,
+      );
       toast.success("Veranstaltung wurde erfolgreich dupliziert");
       setOpen(false);
-      router.refresh();
+      // Open the copy, which usually needs adjusting next.
+      router.push(`/organisation?event=${newEventId}&ansicht=planen`);
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === "Unauthorized") {

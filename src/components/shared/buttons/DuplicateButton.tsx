@@ -23,7 +23,7 @@ const DuplicateButton = ({
   return (
     <DuplicateEventDialog
       eventId={eventId}
-      defaultName={eventName}
+      defaultName={`${eventName} (Kopie)`}
       defaultStartDate={eventStartDate}
       defaultEndDate={eventEndDate}
       trigger={
