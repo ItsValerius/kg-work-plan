@@ -138,7 +138,7 @@ export function TaskSheet({ eventId, task, viewerId, justClaimed }: TaskSheetPro
             </span>
             {isOwn && (
               <Link
-                href={`/veranstaltungen/${eventId}#aufgabe-${task.id}`}
+                href="/meine-aufgaben"
                 className="rounded-md px-2 py-2 text-[15px] font-semibold text-primary-dark underline-offset-4 hover:underline"
               >
                 Ändern
