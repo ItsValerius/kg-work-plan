@@ -14,7 +14,9 @@ const config: Config = {
   out: "src/db/migrations",
   dialect: "postgresql",
   dbCredentials: {
-    url: connectionUrl,
+    // pg already treats Neon's sslmode=require as verify-full and warns about it on every
+    // migrate; naming the mode it uses keeps the same checks without the warning.
+    url: connectionUrl.replace("sslmode=require", "sslmode=verify-full"),
   },
   tablesFilter: ["kg-work-plan_*"],
 };
