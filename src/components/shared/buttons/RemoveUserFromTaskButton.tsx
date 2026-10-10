@@ -30,17 +30,17 @@ const RemoveUserFromTaskButton = ({ taskId, taskName }: RemoveUserFromTaskButton
 
   const handleRemove = () => {
     startTransition(async () => {
-      try {
-        await removeUserFromTask(taskId);
-        toast.success(taskName ? `Du bist bei „${taskName}“ ausgetragen.` : "Du bist ausgetragen.");
-        setOpen(false);
-      } catch (error) {
-        if (error instanceof Error && error.message === "Unauthorized") {
-          toast.error("Du hast keine Berechtigung für diese Aktion.");
-        } else {
-          toast.error("Das Austragen hat nicht geklappt. Bitte versuche es noch einmal.");
-        }
+      // A dropped connection still throws.
+      const result = await removeUserFromTask(taskId).catch(() => ({
+        ok: false as const,
+        error: "Das Austragen hat nicht geklappt. Bitte versuche es noch einmal.",
+      }));
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
       }
+      toast.success(taskName ? `Du bist bei „${taskName}“ ausgetragen.` : "Du bist ausgetragen.");
+      setOpen(false);
     });
   };
 

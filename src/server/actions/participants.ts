@@ -8,7 +8,7 @@ import {
   updateGroupSchema,
   type UpdateGroupData,
 } from "@/domains/participants/types";
-import { firstIssueMessage, idListSchema, idSchema, parseOrThrow } from "@/lib/validation";
+import { firstIssueMessage, idListSchema, parseOrThrow } from "@/lib/validation";
 import { updateTag } from "next/cache";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
 
@@ -63,21 +63,43 @@ export async function signUpForTask(raw: {
   return { ok: true };
 }
 
-export async function updateGroup(data: UpdateGroupData) {
-  const userId = await getAuthenticatedUserId();
-  const result = await domainActions.updateGroup(parseOrThrow(updateGroupSchema, data), userId);
+export type UpdateGroupResult = { ok: true } | { ok: false; error: string };
+
+/** A helper changes their group; returns the reason on failure, like signUpForTask. */
+export async function updateGroup(data: UpdateGroupData): Promise<UpdateGroupResult> {
+  let userId: string;
+  try {
+    userId = await getAuthenticatedUserId();
+  } catch {
+    return { ok: false, error: "Bitte melde dich zuerst an." };
+  }
+  const parsed = updateGroupSchema.safeParse(data);
+  if (!parsed.success) {
+    return { ok: false, error: firstIssueMessage(parsed.error) };
+  }
+
+  try {
+    await domainActions.updateGroup(parsed.data, userId);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (message === SHIFT_OVER) {
+      return { ok: false, error: `${SHIFT_OVER} Wende dich an die Organisation.` };
+    }
+    if (message.startsWith("Die neue Gruppengröße")) {
+      return { ok: false, error: message };
+    }
+    return {
+      ok: false,
+      error: "Die Gruppe konnte nicht gespeichert werden. Bitte versuche es noch einmal.",
+    };
+  }
+
   updateTag(WORKPLAN_TAG);
-  return result;
+  return { ok: true };
 }
 
 export async function removeUserFromTaskAction(selectedRowIds: string[]) {
   const userId = await getAuthenticatedAdminUserId();
   await domainActions.removeUserFromTaskAction(parseOrThrow(idListSchema, selectedRowIds), userId);
-  updateTag(WORKPLAN_TAG);
-}
-
-export async function removeParticipant(participantId: string) {
-  const userId = await getAuthenticatedUserId();
-  await domainActions.removeParticipant(parseOrThrow(idSchema, participantId), userId);
   updateTag(WORKPLAN_TAG);
 }

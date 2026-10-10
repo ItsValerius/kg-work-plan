@@ -178,20 +178,3 @@ export async function removeUserFromTaskAction(selectedRowIds: string[], userId:
     throw error;
   }
 }
-
-export async function removeParticipant(participantId: string, userId: string) {
-  try {
-    const participant = await getParticipantById(participantId);
-    if (!participant || participant.userId !== userId) {
-      throw new Error("Unauthorized");
-    }
-    await assertShiftNotOver(participant.taskId);
-
-    await db.delete(taskParticipants).where(eq(taskParticipants.id, participantId));
-
-    return;
-  } catch (error) {
-    logger.error("Failed to remove participant", error, { participantId });
-    throw new Error("Failed to remove participant");
-  }
-}

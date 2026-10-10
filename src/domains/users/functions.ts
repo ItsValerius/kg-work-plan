@@ -2,7 +2,7 @@ import db from "@/db";
 import { taskParticipants, users } from "@/db/schema";
 import { logger } from "@/lib/logger";
 import { and, eq } from "drizzle-orm";
-import { assertShiftNotOver } from "@/domains/participants/functions";
+import { assertShiftNotOver, SHIFT_OVER } from "@/domains/participants/functions";
 
 export async function removeUserFromTask(taskId: string, userId: string) {
   try {
@@ -13,6 +13,9 @@ export async function removeUserFromTask(taskId: string, userId: string) {
     return;
   } catch (error) {
     logger.error("Failed to remove task participant", error, { taskId, userId });
+    if (error instanceof Error && error.message === SHIFT_OVER) {
+      throw error;
+    }
     throw new Error("Failed to remove task");
   }
 }

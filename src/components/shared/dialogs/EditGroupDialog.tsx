@@ -56,26 +56,19 @@ export function EditGroupDialog({
 
   async function onSubmit(values: Omit<UpdateGroupData, "participantId">) {
     startTransition(async () => {
-      try {
-        await updateGroup({
-          participantId,
-          ...values,
-        });
-        toast.success("Gruppeninformationen erfolgreich aktualisiert");
-        setOpen(false);
-        form.reset();
-      } catch (error) {
-        if (error instanceof Error) {
-          form.setError("root", { type: "error", message: error.message });
-          toast.error(error.message);
-        } else {
-          form.setError("root", {
-            type: "error",
-            message: "Fehler beim Aktualisieren der Gruppeninformationen",
-          });
-          toast.error("Fehler beim Aktualisieren der Gruppeninformationen");
-        }
+      // A dropped connection still throws.
+      const result = await updateGroup({ participantId, ...values }).catch(() => ({
+        ok: false as const,
+        error: "Die Gruppe konnte nicht gespeichert werden. Bitte versuche es noch einmal.",
+      }));
+      if (!result.ok) {
+        form.setError("root", { type: "error", message: result.error });
+        toast.error(result.error);
+        return;
       }
+      toast.success("Gruppeninformationen erfolgreich aktualisiert");
+      setOpen(false);
+      form.reset();
     });
   }
 
