@@ -1,13 +1,13 @@
 ---
 version: 1
 slug: "src-app-dashboard-page-tsx"
-primary_target: "src/app/dashboard/page.tsx"
+primary_target: "src/app/organisation/page.tsx"
 related_targets: ["src/components/features/dashboard/DashboardTabs.tsx"]
 ---
 
 # Organizer dashboard: Veranstaltungs-Cockpit
 
-Scope: `/dashboard` for admins. Mode: Operate. Jobs (confirmed): check gaps before an event and recruit, print/export lists for the day, fix registrations, set up events. Most tedious today: finding where help is missing, and building events task by task (addressed with an inline quick-add on the event page).
+Scope: `/organisation` for admins. Mode: Operate. Jobs (confirmed): check gaps before an event and recruit, print/export lists for the day, fix registrations, set up events. Most tedious today: finding where help is missing, and building events task by task (addressed with an inline quick-add on the event page).
 
 Constraints: inherits DESIGN.md (Arbeitsplan / Vereinskalender family); German UI; desktop-first but must work on phones; the cross-event participants table (filters, bulk delete, CSV) stays reachable as "Alle Helfer".
 

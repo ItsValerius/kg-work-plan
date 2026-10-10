@@ -72,10 +72,10 @@ export function EventForm({
     setLoading(false);
     // New events continue straight into planning shifts and tasks.
     if (event) {
-      redirect(returnTo ?? `/events/${event.id}`);
+      redirect(returnTo ?? `/veranstaltungen/${event.id}`);
     }
     const created: { id: string } = await response.json();
-    redirect(`/dashboard?event=${created.id}&ansicht=planen`);
+    redirect(`/organisation?event=${created.id}&ansicht=planen`);
   }
 
   return (

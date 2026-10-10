@@ -79,7 +79,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             )}
             <div className="mt-6 flex flex-wrap gap-3">
               <Button onClick={this.handleReset}>Noch einmal versuchen</Button>
-              <Link href="/events" className={buttonVariants({ variant: "outline" })}>
+              <Link href="/veranstaltungen" className={buttonVariants({ variant: "outline" })}>
                 Zu den Veranstaltungen
               </Link>
             </div>

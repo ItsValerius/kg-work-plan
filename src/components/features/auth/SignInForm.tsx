@@ -103,7 +103,7 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
         }
       } else {
         // Email sent successfully - redirect to verification page with email as query param
-        router.push(`/verify-request?email=${encodeURIComponent(email.trim())}`);
+        router.push(`/email-pruefen?email=${encodeURIComponent(email.trim())}`);
       }
     } catch (error) {
       const errorMessage = parseErrorMessage(error);

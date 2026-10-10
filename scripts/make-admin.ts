@@ -35,7 +35,7 @@ async function main() {
     );
     console.log(
       result.rows[0].created
-        ? `${email} angelegt und zum Admin gemacht. Jetzt unter /signin mit dieser Adresse anmelden.`
+        ? `${email} angelegt und zum Admin gemacht. Jetzt unter /anmelden mit dieser Adresse anmelden.`
         : `${email} ist jetzt Admin.`,
     );
   } finally {

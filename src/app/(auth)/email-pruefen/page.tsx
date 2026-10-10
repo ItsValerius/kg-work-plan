@@ -50,7 +50,7 @@ const VerifyRequestPage = async (props: VerifyRequestPageProps) => {
         <p className="mt-8 border-t pt-6 text-[15px] text-muted-foreground">
           Keine E-Mail erhalten? Überprüfe deine Eingabe oder{" "}
           <Link
-            href={email ? `/signin?email=${encodeURIComponent(email)}` : "/signin"}
+            href={email ? `/anmelden?email=${encodeURIComponent(email)}` : "/anmelden"}
             className="font-semibold text-primary underline"
           >
             versuche es erneut

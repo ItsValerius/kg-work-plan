@@ -21,7 +21,7 @@ export function GapsView({ event }: { event: EventWorkPlan }) {
         </p>
         <p className="mt-1 text-muted-foreground">Leg unter „Planen“ Schichten und Aufgaben an.</p>
         <Link
-          href={`/dashboard?event=${event.id}&ansicht=planen`}
+          href={`/organisation?event=${event.id}&ansicht=planen`}
           className={cn(buttonVariants(), "mt-4")}
         >
           Jetzt planen

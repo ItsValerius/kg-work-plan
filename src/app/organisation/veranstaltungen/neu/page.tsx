@@ -12,7 +12,7 @@ const NewEventPage = async () => {
   return (
     <FormPageShell
       title="Neue Veranstaltung"
-      backHref="/dashboard"
+      backHref="/organisation"
       backLabel="Zurück zur Organisation"
     >
       <EventForm userId={userId} event={null} />

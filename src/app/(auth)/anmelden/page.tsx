@@ -20,7 +20,7 @@ export default async function SignInPage(props: {
   const back =
     comesFromSignUp && isInternal
       ? { href: callbackUrl, label: "Zurück zur Veranstaltung" }
-      : { href: "/events", label: "Alle Veranstaltungen" };
+      : { href: "/veranstaltungen", label: "Alle Veranstaltungen" };
 
   return (
     <main

@@ -52,12 +52,12 @@ export function ClaimLine({
   );
 
   if (!isLoggedIn) {
-    const callbackUrl = `/events/${eventId}#aufgabe-${taskId}`;
+    const callbackUrl = `/veranstaltungen/${eventId}#aufgabe-${taskId}`;
     return (
       <li className="grid grid-cols-[44px_1fr] items-center py-2 md:grid-cols-[52px_1fr]">
         {lineNumberCell}
         <Link
-          href={`/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+          href={`/anmelden?callbackUrl=${encodeURIComponent(callbackUrl)}`}
           className="flex min-h-12 flex-col items-start justify-center gap-0.5 rounded-lg border-[1.5px] border-primary bg-background px-4 py-2 font-semibold text-primary transition-colors hover:bg-accent sm:flex-row sm:items-center sm:justify-between sm:gap-3"
         >
           <span className="flex items-center gap-2.5 whitespace-nowrap">
@@ -95,7 +95,7 @@ export function ClaimLine({
         action: { label: "Meine Aufgaben", onClick: () => router.push("/meine-aufgaben") },
       });
       setIsOpen(false);
-      router.replace(`/events/${eventId}?eingetragen=${taskId}#aufgabe-${taskId}`, {
+      router.replace(`/veranstaltungen/${eventId}?eingetragen=${taskId}#aufgabe-${taskId}`, {
         scroll: false,
       });
       router.refresh();

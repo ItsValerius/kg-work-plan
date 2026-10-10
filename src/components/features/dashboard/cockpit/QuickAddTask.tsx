@@ -42,7 +42,7 @@ export function QuickAddTask({ eventId, shiftId, shiftDay, shiftStart }: QuickAd
           Aufgabe hinzufügen
         </Button>
         <Link
-          href={`/dashboard/events/${eventId}/shifts/${shiftId}/tasks/new`}
+          href={`/organisation/veranstaltungen/${eventId}/schichten/${shiftId}/aufgaben/neu`}
           className={cn(
             buttonVariants({ variant: "link", size: "sm" }),
             "px-2 text-muted-foreground",

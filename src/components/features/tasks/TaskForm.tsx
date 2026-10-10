@@ -74,7 +74,9 @@ export function TaskForm({
       return;
     }
     redirect(
-      task ? (returnTo ?? `/events/${eventId}`) : `/dashboard?event=${eventId}&ansicht=planen`,
+      task
+        ? (returnTo ?? `/veranstaltungen/${eventId}`)
+        : `/organisation?event=${eventId}&ansicht=planen`,
     );
   }
   return (

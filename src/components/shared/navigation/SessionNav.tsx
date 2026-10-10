@@ -12,7 +12,7 @@ export async function SessionNav() {
     // Unknown session state (database unreachable): offer no auth control at all.
     if (await hasSessionCookie()) return null;
     return (
-      <Link href="/signin" className={buttonVariants({ variant: "outline" })}>
+      <Link href="/anmelden" className={buttonVariants({ variant: "outline" })}>
         Anmelden
       </Link>
     );

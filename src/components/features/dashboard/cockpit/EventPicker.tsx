@@ -23,7 +23,7 @@ export function EventPicker({ events, selectedId, view }: EventPickerProps) {
       <select
         id={id}
         value={selectedId}
-        onChange={(e) => router.push(`/dashboard?event=${e.target.value}&ansicht=${view}`)}
+        onChange={(e) => router.push(`/organisation?event=${e.target.value}&ansicht=${view}`)}
         className="min-h-12 w-full rounded-md border border-input bg-background px-3 text-[17px]"
       >
         {events.map((event) => (

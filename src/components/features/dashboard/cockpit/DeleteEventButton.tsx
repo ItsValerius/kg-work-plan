@@ -29,7 +29,7 @@ export function DeleteEventButton({ eventId, eventName }: { eventId: string; eve
         await deleteEvent(eventId);
         toast.success(`„${eventName}“ wurde gelöscht.`);
         setOpen(false);
-        router.push("/dashboard");
+        router.push("/organisation");
       } catch {
         toast.error("Löschen hat nicht geklappt. Bitte versuche es noch einmal.");
       }

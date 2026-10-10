@@ -14,27 +14,48 @@ const nextConfig: NextConfig = {
     // reach the database some other way (seed script, another server instance).
     workplan: { stale: 30, revalidate: 60, expire: 3600 },
   },
-  // Creating events, shifts and tasks moved into the organizer area.
+  // Old English URLs (bookmarks, links in sent emails) keep working.
   async redirects() {
+    const e = "/veranstaltungen/:eventId";
+    const o = "/organisation/veranstaltungen";
     return [
-      { source: "/events/new", destination: "/dashboard/events/new", permanent: true },
-      {
-        source: "/events/:eventId/shifts/new",
-        destination: "/dashboard/events/:eventId/shifts/new",
-        permanent: true,
-      },
+      // Creating moved into the organizer area.
+      { source: "/events/new", destination: `${o}/neu` },
+      { source: "/events/:eventId/shifts/new", destination: `${o}/:eventId/schichten/neu` },
       {
         source: "/events/:eventId/shifts/:shiftId/tasks/new",
-        destination: "/dashboard/events/:eventId/shifts/:shiftId/tasks/new",
-        permanent: true,
+        destination: `${o}/:eventId/schichten/:shiftId/aufgaben/neu`,
       },
       // The old single-task page; tasks now live on the event's work plan.
       {
         source: "/events/:eventId/shifts/:shiftId/tasks/:taskId",
-        destination: "/events/:eventId#aufgabe-:taskId",
-        permanent: true,
+        destination: `${e}#aufgabe-:taskId`,
       },
-    ];
+      {
+        source: "/events/:eventId/shifts/:shiftId/tasks/:taskId/edit",
+        destination: `${e}/schichten/:shiftId/aufgaben/:taskId/bearbeiten`,
+      },
+      {
+        source: "/events/:eventId/shifts/:shiftId/edit",
+        destination: `${e}/schichten/:shiftId/bearbeiten`,
+      },
+      { source: "/events/:eventId/edit", destination: `${e}/bearbeiten` },
+      { source: "/events/:eventId", destination: e },
+      { source: "/events", destination: "/veranstaltungen" },
+      { source: "/dashboard/events/new", destination: `${o}/neu` },
+      {
+        source: "/dashboard/events/:eventId/shifts/new",
+        destination: `${o}/:eventId/schichten/neu`,
+      },
+      {
+        source: "/dashboard/events/:eventId/shifts/:shiftId/tasks/new",
+        destination: `${o}/:eventId/schichten/:shiftId/aufgaben/neu`,
+      },
+      { source: "/dashboard", destination: "/organisation" },
+      { source: "/profile", destination: "/profil" },
+      { source: "/signin", destination: "/anmelden" },
+      { source: "/verify-request", destination: "/email-pruefen" },
+    ].map((r) => ({ ...r, permanent: true }));
   },
 };
 

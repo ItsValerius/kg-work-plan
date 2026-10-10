@@ -23,7 +23,7 @@ const NewTaskPage = async (props: { params: Promise<{ eventId: string; shiftId: 
     <FormPageShell
       title="Neue Aufgabe"
       context={`${event.name} · Schicht ${shift.name}`}
-      backHref={`/dashboard?event=${event.id}&ansicht=planen`}
+      backHref={`/organisation?event=${event.id}&ansicht=planen`}
       backLabel="Zurück zur Planung"
     >
       <TaskForm

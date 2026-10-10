@@ -41,7 +41,7 @@ export default async function EventPage(props: EventPageProps) {
   return (
     <PageContainer>
       <Link
-        href="/events"
+        href="/veranstaltungen"
         className="inline-flex min-h-11 items-center gap-2 rounded-md pr-2 text-[15px] font-semibold text-primary hover:underline"
       >
         <ArrowLeft className="size-4" aria-hidden="true" />
@@ -134,7 +134,6 @@ export default async function EventPage(props: EventPageProps) {
                   <TaskSheet
                     key={task.id}
                     eventId={event.id}
-                    shiftId={shift.id}
                     task={task}
                     viewerId={viewerId}
                     justClaimed={searchParams.eingetragen === task.id}

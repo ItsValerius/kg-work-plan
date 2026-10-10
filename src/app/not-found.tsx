@@ -14,7 +14,7 @@ export default function NotFound() {
       <p className="mt-3 text-[17px] text-muted-foreground">
         Diese Seite gibt es nicht (mehr). Vielleicht wurde die Veranstaltung oder Aufgabe gelöscht.
       </p>
-      <Link href="/events" className={cn(buttonVariants(), "mt-8 self-start")}>
+      <Link href="/veranstaltungen" className={cn(buttonVariants(), "mt-8 self-start")}>
         Zu den Veranstaltungen
       </Link>
     </main>

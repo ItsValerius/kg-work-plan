@@ -46,7 +46,7 @@ export function PlanView({ event }: { event: EventWorkPlan }) {
                   id={shift.id}
                   name={shift.name}
                   kind="Schicht"
-                  editHref={`/events/${event.id}/shifts/${shift.id}/edit`}
+                  editHref={`/veranstaltungen/${event.id}/schichten/${shift.id}/bearbeiten`}
                   deleteAction={deleteShift}
                 />
               </div>
@@ -78,7 +78,7 @@ export function PlanView({ event }: { event: EventWorkPlan }) {
                       id={task.id}
                       name={task.name}
                       kind="Aufgabe"
-                      editHref={`/events/${event.id}/shifts/${shift.id}/tasks/${task.id}/edit`}
+                      editHref={`/veranstaltungen/${event.id}/schichten/${shift.id}/aufgaben/${task.id}/bearbeiten`}
                       deleteAction={deleteTask}
                     />
                   </li>

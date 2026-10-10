@@ -24,7 +24,7 @@ function RailItem({
   return (
     <li>
       <Link
-        href={`/dashboard?event=${event.id}&ansicht=${view}`}
+        href={`/organisation?event=${event.id}&ansicht=${view}`}
         aria-current={selected ? "page" : undefined}
         className={cn(
           "grid grid-cols-[64px_1fr] items-center gap-3 rounded-md border border-transparent py-3 pr-3 pl-2 transition-colors hover:bg-background",

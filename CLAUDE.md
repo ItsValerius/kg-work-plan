@@ -31,7 +31,7 @@ pnpm test                # Vitest unit tests in tests/ (pnpm test:watch while wo
 
 ### Local setup
 
-`cp .env.example .env.local` and set `BETTER_AUTH_SECRET`; the defaults point at the docker-compose services. Sign in at `/signin` with any address: the magic-link email lands in Mailpit (http://localhost:8025). `pnpm make-admin` connects with plain `pg` to `POSTGRES_URL`, not through the app's driver.
+`cp .env.example .env.local` and set `BETTER_AUTH_SECRET`; the defaults point at the docker-compose services. Sign in at `/anmelden` with any address: the magic-link email lands in Mailpit (http://localhost:8025). `pnpm make-admin` connects with plain `pg` to `POSTGRES_URL`, not through the app's driver.
 
 `src/db/index.ts` uses a `@neondatabase/serverless` `Pool` (WebSockets) with `drizzle-orm/neon-serverless`, connecting via `POSTGRES_URL` (fallback `DATABASE_URL`). When `VERCEL_ENV=development` it routes through the `pg_proxy` wsproxy container on port 54330, so the local stack needs both docker-compose services running. `drizzle.config.ts` reads the same env vars via dotenv.
 
@@ -64,16 +64,16 @@ All env vars are listed in `.env.example` (Google sign-in is optional locally).
 - Better Auth (`src/lib/auth/auth.ts`) with magic-link email (nodemailer) and Google; mounted at `src/app/api/auth/[...all]/route.ts`. Client side uses `src/lib/auth/client.ts`.
 - `role` is a Better Auth `user.additionalFields` entry (`input: false`, so sign-up can't set it) and comes with every session; `getAuthenticatedUser` normalizes missing values to `null`. Admin = `role === "admin"` (`src/lib/auth/roles.ts`); regular users have `null`.
 - Rate limits are stored in the database (`rate_limit` table) so all instances share them; the magic-link endpoint allows 20 requests per minute per IP.
-- There is no proxy: `/`, `/signin`, `/verify-request` and everything under `/events` are public, and **every protected page, layout, server action and API route must do its own check** using helpers in `src/lib/auth/utils.ts` (`getAuthenticatedUser` / `requireAdminUserId` redirect on pages; the throwing helpers raise `Error("Unauthorized")`, which API routes map to 401). A proxy would have to live in `src/proxy.ts`, next to `app/`.
+- There is no proxy: `/`, `/anmelden`, `/email-pruefen` and everything under `/veranstaltungen` are public, and **every protected page, layout, server action and API route must do its own check** using helpers in `src/lib/auth/utils.ts` (`getAuthenticatedUser` / `requireAdminUserId` redirect on pages; the throwing helpers raise `Error("Unauthorized")`, which API routes map to 401). A proxy would have to live in `src/proxy.ts`, next to `app/`.
 
 ### Conventions
 
-- User-facing text is German (route names too: `/meine-aufgaben`, MDX legal pages `/datenschutz`, `/nutzungsbedingungen` under the `(mdx)` route group).
+- User-facing text is German (route names too: `/veranstaltungen`, `/organisation`, `/meine-aufgaben`, `/profil`, `/anmelden`, MDX legal pages `/datenschutz`, `/nutzungsbedingungen` under the `(mdx)` route group; only `/api` stays English).
 - **Dates:** stored as UTC instants, shown and entered as Berlin wall-clock time, always through `src/lib/datetime.ts` (Intl only, no date library): `fromBerlin(day, time)` for input, `berlinTimeFrom` for times that may fall after midnight (night shifts), `moveByBerlinDays` for date moves, `berlinToday()`/`toBerlinInputParts` for day comparisons, and the `format*` helpers for output. Pickers: `DatePicker` (Berlin days) and native `<input type="time">`. Never use `toLocale*String`, `setHours` or `new Date("…T…")` elsewhere.
 - Helpers can change their own sign-ups only until the shift ends (`assertShiftNotOver`); admins correct records in the dashboard.
 - Editing an event's start date moves its shifts and tasks by the same number of Berlin days (duplicating does the same).
 - Path alias `@/*` → `src/*`.
-- Organizer creation (events, shifts, tasks, duplicates) lives only under `/dashboard` (tab "Planen", forms at `/dashboard/events/...`); edit and delete also live there (inline buttons in "Planen", plus the event actions). Old `/events/.../new` URLs redirect there (`next.config.ts`).
+- Organizer creation (events, shifts, tasks, duplicates) lives only under `/organisation` (tab "Planen", forms at `/organisation/veranstaltungen/...`); edit and delete also live there (inline buttons in "Planen", plus the event actions). Old English URLs (`/events/...`, `/dashboard/...`, `/profile`, `/signin`) redirect to the German ones (`next.config.ts`).
 - The sign-in email is `src/lib/auth/magic-link-email.ts` (tables + inline styles only; links valid 15 min).
 - UI follows `DESIGN.md` (the Knallköpp "Vereinskalender" family shared with the sibling kg-eventplan app) and `PRODUCT.md`; per-surface direction lives in `.impeccable/surfaces/`.
 - Server actions called from forms that must show a reason on failure return `{ ok: false, error }` instead of throwing (e.g. `signUpForTask`, `quickAddTask`), because production builds hide thrown server-action messages.

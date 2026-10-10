@@ -35,7 +35,7 @@ export default function Error({
       )}
       <div className="mt-8 flex flex-wrap gap-3">
         <Button onClick={reset}>Noch einmal versuchen</Button>
-        <Link href="/events" className={buttonVariants({ variant: "outline" })}>
+        <Link href="/veranstaltungen" className={buttonVariants({ variant: "outline" })}>
           Zu den Veranstaltungen
         </Link>
       </div>

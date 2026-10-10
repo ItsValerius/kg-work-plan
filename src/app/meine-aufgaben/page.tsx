@@ -41,7 +41,7 @@ function TaskActions({ task }: { task: UserTask }) {
   return (
     <div className="-ml-3 flex flex-wrap items-center gap-x-1">
       <Link
-        href={`/events/${task.eventId}#aufgabe-${task.id}`}
+        href={`/veranstaltungen/${task.eventId}#aufgabe-${task.id}`}
         className={cn(buttonVariants({ variant: "link" }), "min-h-11 px-3")}
       >
         Zum Arbeitsplan
@@ -133,7 +133,7 @@ const MeineAufgabenPage = async () => {
             Bei den Veranstaltungen siehst du, welche Aufgaben noch freie Plätze haben. Ein Klick
             auf „Hier eintragen“ genügt.
           </p>
-          <Link href="/events" className={cn(buttonVariants(), "mt-6")}>
+          <Link href="/veranstaltungen" className={cn(buttonVariants(), "mt-6")}>
             Zu den Veranstaltungen
             <ChevronRight aria-hidden="true" />
           </Link>

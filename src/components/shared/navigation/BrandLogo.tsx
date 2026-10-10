@@ -4,7 +4,7 @@ import Image from "next/image";
 export default function BrandLogo() {
   return (
     <Link
-      href="/events"
+      href="/veranstaltungen"
       className="group flex shrink-0 items-center gap-3 rounded-md no-underline"
       aria-label="KG Knallköpp Golkrath Arbeitsplan – zur Startseite"
     >

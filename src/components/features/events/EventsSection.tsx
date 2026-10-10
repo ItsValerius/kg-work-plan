@@ -50,7 +50,7 @@ export const EventsSection = ({
             <p className="mt-1 text-[17px] text-muted-foreground">{emptyStateActionText}</p>
           )}
           {canShowAddButton && (
-            <Link href="/dashboard/events/new" className={cn(buttonVariants(), "mt-6")}>
+            <Link href="/organisation/veranstaltungen/neu" className={cn(buttonVariants(), "mt-6")}>
               In der Organisation anlegen
             </Link>
           )}

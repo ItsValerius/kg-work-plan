@@ -84,7 +84,9 @@ export function isAdmin(session?: SessionType | null): boolean | Promise<boolean
 export async function getAuthenticatedUser(callbackUrl?: string): Promise<User> {
   const session = await getSession();
   if (!session?.user) {
-    redirect(callbackUrl ? `/signin?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/signin");
+    redirect(
+      callbackUrl ? `/anmelden?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/anmelden",
+    );
   }
 
   // Better Auth leaves unset optional fields undefined; the app's User type uses null.

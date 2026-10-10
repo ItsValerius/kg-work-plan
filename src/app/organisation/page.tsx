@@ -70,14 +70,14 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
         <h1 className="text-[48px] md:text-[clamp(56px,5.7vw,80px)]">Organisation</h1>
         <div className="flex flex-wrap gap-2.5">
           <Link
-            href="/dashboard?ansicht=alle"
+            href="/organisation?ansicht=alle"
             aria-current={view === "alle" ? "page" : undefined}
             className={buttonVariants({ variant: "outline" })}
           >
             <Users aria-hidden="true" />
             Alle Helfer
           </Link>
-          <Link href="/dashboard/events/new" className={buttonVariants()}>
+          <Link href="/organisation/veranstaltungen/neu" className={buttonVariants()}>
             <Plus aria-hidden="true" />
             Neue Veranstaltung
           </Link>
@@ -87,7 +87,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
       {view === "alle" ? (
         <div className="mt-8">
           <Link
-            href="/dashboard"
+            href="/organisation"
             className="mb-6 inline-flex min-h-11 items-center gap-2 rounded-md pr-2 text-[15px] font-semibold text-primary hover:underline"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
@@ -118,7 +118,10 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
                   Lege die erste Veranstaltung an, dann erscheinen hier ihre Lücken und die
                   Helferliste.
                 </p>
-                <Link href="/dashboard/events/new" className={cn(buttonVariants(), "mt-5")}>
+                <Link
+                  href="/organisation/veranstaltungen/neu"
+                  className={cn(buttonVariants(), "mt-5")}
+                >
                   Veranstaltung anlegen
                 </Link>
               </div>
@@ -142,14 +145,14 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
                     )}
                     <div className="mt-4 flex flex-wrap gap-2.5 print:hidden">
                       <Link
-                        href={`/events/${event.id}`}
+                        href={`/veranstaltungen/${event.id}`}
                         className={buttonVariants({ variant: "outline", size: "sm" })}
                       >
                         <ArrowUpRight aria-hidden="true" />
                         Arbeitsplan öffnen
                       </Link>
                       <Link
-                        href={`/events/${event.id}/edit`}
+                        href={`/veranstaltungen/${event.id}/bearbeiten`}
                         className={buttonVariants({ variant: "outline", size: "sm" })}
                       >
                         <Pencil aria-hidden="true" />
@@ -178,7 +181,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
                   ).map(([id, label]) => (
                     <Link
                       key={id}
-                      href={`/dashboard?event=${event.id}&ansicht=${id}`}
+                      href={`/organisation?event=${event.id}&ansicht=${id}`}
                       aria-current={view === id ? "page" : undefined}
                       className={cn(
                         "relative -mb-px flex min-h-12 items-center border-b-[3px] border-transparent px-4 font-semibold text-muted-foreground transition-colors hover:text-foreground",

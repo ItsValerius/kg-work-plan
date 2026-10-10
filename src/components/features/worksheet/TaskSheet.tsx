@@ -9,7 +9,6 @@ type Task = EventWorkPlan["shifts"][number]["tasks"][number];
 
 interface TaskSheetProps {
   eventId: string;
-  shiftId: string;
   task: Task;
   viewerId: string | null;
   justClaimed: boolean;
@@ -36,7 +35,7 @@ function lineRange(from: number, to: number) {
 /**
  * One task as the club's paper sign-up sheet: a numbered line per helper needed.
  */
-export function TaskSheet({ eventId, shiftId, task, viewerId, justClaimed }: TaskSheetProps) {
+export function TaskSheet({ eventId, task, viewerId, justClaimed }: TaskSheetProps) {
   const isLoggedIn = viewerId !== null;
   const { filled, required, open } = taskSpots(task);
   const isFull = open === 0;
@@ -139,7 +138,7 @@ export function TaskSheet({ eventId, shiftId, task, viewerId, justClaimed }: Tas
             </span>
             {isOwn && (
               <Link
-                href={`/events/${eventId}/shifts/${shiftId}/tasks/${task.id}`}
+                href={`/veranstaltungen/${eventId}#aufgabe-${task.id}`}
                 className="rounded-md px-2 py-2 text-[15px] font-semibold text-primary-dark underline-offset-4 hover:underline"
               >
                 Ändern

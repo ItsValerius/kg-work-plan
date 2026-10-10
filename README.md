@@ -24,7 +24,7 @@ pnpm db:seed                    # optional: a demo season relative to today
 pnpm dev                        # http://localhost:3000
 ```
 
-Sign in at `/signin` with any address; the email arrives in Mailpit at
+Sign in at `/anmelden` with any address; the email arrives in Mailpit at
 http://localhost:8025. Make yourself an organizer with `pnpm make-admin you@example.com`.
 
 ## Commands

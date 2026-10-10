@@ -49,7 +49,7 @@ export function QuickAddShift({
           Schicht hinzufügen
         </Button>
         <Link
-          href={`/dashboard/events/${eventId}/shifts/new`}
+          href={`/organisation/veranstaltungen/${eventId}/schichten/neu`}
           className={cn(buttonVariants({ variant: "link" }), "px-2 text-muted-foreground")}
         >
           an einem anderen Tag …

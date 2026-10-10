@@ -74,7 +74,9 @@ export function ShiftForm({
     }
 
     redirect(
-      shift ? (returnTo ?? `/events/${eventId}`) : `/dashboard?event=${eventId}&ansicht=planen`,
+      shift
+        ? (returnTo ?? `/veranstaltungen/${eventId}`)
+        : `/organisation?event=${eventId}&ansicht=planen`,
     );
   }
   return (

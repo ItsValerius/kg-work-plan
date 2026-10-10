@@ -18,7 +18,7 @@ export const EventRow = ({ event, openSpots, requiredSpots, isPast }: EventRowPr
   return (
     <li className="group relative border-b">
       <Link
-        href={`/events/${event.id}`}
+        href={`/veranstaltungen/${event.id}`}
         className="grid grid-cols-[88px_1fr_auto] items-center gap-x-4 gap-y-1 py-5 pr-2 transition-colors hover:bg-muted md:grid-cols-[120px_1fr_auto] md:gap-x-8 md:py-6"
       >
         <DateBlock date={event.startDate} muted={isPast} className="pl-1 md:pl-3" />

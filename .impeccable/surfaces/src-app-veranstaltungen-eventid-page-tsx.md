@@ -1,13 +1,13 @@
 ---
 version: 1
 slug: "src-app-events-eventid-page-tsx"
-primary_target: "src/app/events/[eventId]/page.tsx"
-related_targets: ["src/app/events/page.tsx","src/app/meine-aufgaben/page.tsx","src/app/(auth)/signin/page.tsx"]
+primary_target: "src/app/veranstaltungen/[eventId]/page.tsx"
+related_targets: ["src/app/veranstaltungen/page.tsx","src/app/meine-aufgaben/page.tsx","src/app/(auth)/anmelden/page.tsx"]
 ---
 
 # Helper journey: Arbeitsplan
 
-Scope: the helper journey — events list (`/events`), event work plan (`/events/[eventId]`), inline sign-up, Meine Aufgaben, sign-in. Mode: Operate. Admin dashboard is a later round; admin controls on these pages stay available but quiet.
+Scope: the helper journey — events list (`/veranstaltungen`), event work plan (`/veranstaltungen/[eventId]`), inline sign-up, Meine Aufgaben, sign-in. Mode: Operate. Admin dashboard is a later round; admin controls on these pages stay available but quiet.
 
 Audience/job: members of all ages plus friends & family, on phones from a shared link and on desktop; find where help is missing and claim a spot with minimal effort. Some use Meine Aufgaben on the event day to check when/where they're needed.
 
