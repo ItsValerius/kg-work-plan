@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:tunnel": "tsx scripts/dev-tunnel.ts",
     "build": "next build",
     "vercel-build": "[ \"$VERCEL_ENV\" = production ] && drizzle-kit migrate; next build",
     "start": "next start",

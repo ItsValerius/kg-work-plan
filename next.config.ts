@@ -4,8 +4,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Configure `pageExtensions` to include markdown and MDX files
   pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
-  // `pnpm dev:tunnel` serves the dev server through ngrok (for testing ChatGPT locally).
-  allowedDevOrigins: ["*.ngrok-free.app", "*.ngrok-free.dev", "*.ngrok.app"],
   // Static shell + cached data + streamed request data (Partial Prerendering).
   cacheComponents: true,
   // Prefetch one reusable shell per route instead of every visible link.
