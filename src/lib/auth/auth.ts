@@ -32,6 +32,8 @@ export const MCP_RESOURCE = `${process.env.BETTER_AUTH_URL ?? "http://localhost:
 // Better Auth configuration with magic link (passwordless email) authentication
 // See: https://www.better-auth.com/docs/plugins/magic-link
 export const auth = betterAuth({
+  // The jwt plugin's session-JWT endpoint isn't used; only OAuth access tokens reach /api/mcp.
+  disabledPaths: ["/token"],
   database: drizzleAdapter(db, {
     provider: "pg", // PostgreSQL provider
     schema: {

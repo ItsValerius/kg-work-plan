@@ -122,7 +122,7 @@ export function buildMcpServer(userId: string) {
     {
       title: "Veranstaltung speichern",
       description:
-        "Create an event (name and startDay required; endDay defaults to startDay) or edit one by id. Moving an event's start moves its shifts and tasks by the same number of days.",
+        "Create an event (name and startDay required; endDay defaults to startDay) or edit one by id. Moving an event's start moves its end (unless endDay is given), shifts and tasks by the same number of days.",
       inputSchema: z.object({
         id: idSchema.optional().describe("Set to edit an existing event"),
         name: z.string().optional(),
@@ -145,7 +145,12 @@ export function buildMcpServer(userId: string) {
         name: name ?? existing?.name,
         description: description ?? existing?.description ?? "",
         startDate,
-        endDate: endDay ? fromBerlin(endDay) : (existing?.endDate ?? startDate),
+        // Without a new end, a moved event keeps its length, like duplicate_event.
+        endDate: endDay
+          ? fromBerlin(endDay)
+          : existing
+            ? moveByBerlinDays(existing.endDate, berlinDaysBetween(existing.startDate, startDate))
+            : startDate,
         createdById: userId,
       });
       if (!parsed.success) return fail(firstIssueMessage(parsed.error));
