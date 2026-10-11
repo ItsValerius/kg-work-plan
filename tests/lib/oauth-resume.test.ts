@@ -26,3 +26,19 @@ describe("isOAuthResumeUrl", () => {
     expect(isOAuthResumeUrl(undefined)).toBe(false);
   });
 });
+
+describe("oauthResumeUrl forced sign-in", () => {
+  const resume = (query: string) =>
+    new URLSearchParams(
+      oauthResumeUrl(new URLSearchParams(`client_id=a&sig=s&${query}`))!.split("?")[1],
+    );
+
+  it("drops only the prompts that force another sign-in", () => {
+    expect(resume("prompt=login%20consent").get("prompt")).toBe("consent");
+    expect(resume("prompt=select_account").has("prompt")).toBe(false);
+  });
+
+  it("drops max_age, which would ask for a fresh sign-in again", () => {
+    expect(resume("max_age=0").has("max_age")).toBe(false);
+  });
+});

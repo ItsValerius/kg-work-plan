@@ -1,7 +1,7 @@
 import type { EventWorkPlan } from "@/domains/events/queries";
 import type { Event } from "@/domains/events/types";
 import { eventSpots, sumSpots, taskSpots } from "@/domains/tasks/spots";
-import { berlinTimeFrom, fromBerlin, toBerlinInputParts } from "@/lib/datetime";
+import { toBerlinInputParts } from "@/lib/datetime";
 
 /*
   What AI assistants see and send. Times are Berlin wall-clock strings ("2026-11-11",
@@ -59,15 +59,4 @@ export function toWorkPlan(event: EventWorkPlan) {
       })),
     })),
   };
-}
-
-/** A shift's instants; an end before the start falls on the next day (night shifts). */
-export function shiftTimes(shiftDay: string, start: string, end: string) {
-  const startTime = fromBerlin(shiftDay, start);
-  return { startTime, endTime: berlinTimeFrom(startTime, end) };
-}
-
-/** A task's start within its shift: the shift's day, or the next one after midnight. */
-export function taskStart(shiftStart: Date, start: string) {
-  return berlinTimeFrom(shiftStart, start);
 }

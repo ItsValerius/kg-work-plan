@@ -1,31 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { EventWorkPlan } from "@/domains/events/queries";
 import { fromBerlin } from "@/lib/datetime";
-import { shiftTimes, taskStart, toWorkPlan } from "@/server/mcp/format";
-
-describe("MCP times", () => {
-  it("reads input as Berlin wall-clock time", () => {
-    const { startTime, endTime } = shiftTimes("2026-11-11", "18:00", "22:00");
-    expect(startTime.toISOString()).toBe("2026-11-11T17:00:00.000Z");
-    expect(endTime.toISOString()).toBe("2026-11-11T21:00:00.000Z");
-  });
-
-  it("ends a night shift on the next day", () => {
-    const { endTime } = shiftTimes("2026-11-11", "22:00", "02:00");
-    expect(endTime.toISOString()).toBe("2026-11-12T01:00:00.000Z");
-  });
-
-  it("uses the summer offset on a DST-change day", () => {
-    expect(shiftTimes("2026-03-29", "12:00", "14:00").startTime.toISOString()).toBe(
-      "2026-03-29T10:00:00.000Z",
-    );
-  });
-
-  it("puts a task after midnight on the shift's next day", () => {
-    const shiftStart = fromBerlin("2026-11-11", "22:00");
-    expect(taskStart(shiftStart, "00:30").toISOString()).toBe("2026-11-11T23:30:00.000Z");
-  });
-});
+import { toWorkPlan } from "@/server/mcp/format";
 
 describe("MCP work plan", () => {
   const plan = {

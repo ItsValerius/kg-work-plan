@@ -19,7 +19,15 @@ export function oauthResumeUrl(search: URLSearchParams): string | undefined {
   if (!search.has("sig") || !search.has("client_id")) return undefined;
   const params = new URLSearchParams(search);
   for (const name of SIGNING_PARAMS) params.delete(name);
-  // They have just signed in; asking again would loop back here.
-  if (params.get("prompt") === "login") params.delete("prompt");
+  // They have just signed in. These ask the provider for a fresh sign-in (or an account
+  // page, which is /anmelden too), so keeping them would loop back here.
+  params.delete("max_age");
+  const prompt = params
+    .get("prompt")
+    ?.split(" ")
+    .filter((value) => !["login", "create", "select_account"].includes(value))
+    .join(" ");
+  if (prompt) params.set("prompt", prompt);
+  else params.delete("prompt");
   return `${RESUME_PREFIX}${params}`;
 }

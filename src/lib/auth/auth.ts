@@ -27,7 +27,11 @@ import { renderMagicLinkEmail } from "./magic-link-email";
 const MAGIC_LINK_MINUTES = 15;
 
 /** What AI assistants connect to; access tokens are bound to exactly this URL. */
-export const MCP_RESOURCE = `${process.env.BETTER_AUTH_URL ?? "http://localhost:3000"}/api/mcp`;
+// new URL() so a trailing slash in BETTER_AUTH_URL can't produce "//api/mcp".
+export const MCP_RESOURCE = new URL(
+  "/api/mcp",
+  process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+).href;
 
 // Better Auth configuration with magic link (passwordless email) authentication
 // See: https://www.better-auth.com/docs/plugins/magic-link

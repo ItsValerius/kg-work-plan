@@ -19,13 +19,14 @@ import { taskSchema } from "@/domains/tasks/types";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
 import {
   berlinDaysBetween,
+  berlinTimeFrom,
   fromBerlin,
   moveByBerlinDays,
   toBerlinInputParts,
 } from "@/lib/datetime";
 import { logger } from "@/lib/logger";
 import { firstIssueMessage, idSchema } from "@/lib/validation";
-import { shiftTimes, taskStart, toEventSummary, toWorkPlan } from "./format";
+import { toEventSummary, toWorkPlan } from "./format";
 
 /*
   The tools an admin's AI assistant gets at /api/mcp. Reads and create/edit only: no
@@ -33,13 +34,10 @@ import { shiftTimes, taskStart, toEventSummary, toWorkPlan } from "./format";
   and function as the organizer forms.
 */
 
-const daySchema = z
-  .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/)
-  .describe("Calendar day in Europe/Berlin, YYYY-MM-DD");
-const timeSchema = z
-  .string()
-  .regex(/^([01]\d|2[0-3]):[0-5]\d$/)
+// Real calendar days and clock times only: "2026-02-30" would otherwise roll over to March.
+const daySchema = z.iso.date().describe("Calendar day in Europe/Berlin, YYYY-MM-DD");
+const timeSchema = z.iso
+  .time({ precision: -1 })
   .describe("Wall-clock time in Europe/Berlin, HH:MM (24h)");
 
 const INSTRUCTIONS = `Work plan of a carnival club (Karnevalsgesellschaft): events contain shifts, shifts contain tasks that volunteers sign up for.
@@ -167,7 +165,7 @@ export function buildMcpServer(userId: string) {
     {
       title: "Schicht speichern",
       description:
-        "Create a shift in an event (eventId, name, day, start, end required) or edit one by id. An end before the start means the shift ends after midnight. Moving a shift to another day moves its tasks along; it can't move to another event.",
+        "Create a shift in an event (eventId, name, day, start, end required) or edit one by id. An end before the start means the shift ends after midnight. Changing only the start keeps the end. Moving a shift to another day moves its tasks along; it can't move to another event.",
       inputSchema: z.object({
         id: idSchema.optional().describe("Set to edit an existing shift"),
         eventId: idSchema.optional().describe("Required for a new shift"),
@@ -194,16 +192,20 @@ export function buildMcpServer(userId: string) {
         if (!(await getEventById(eventId))) return fail("Diese Veranstaltung gibt es nicht.");
       }
       const current = existing && toBerlinInputParts(existing.startTime);
-      const times = shiftTimes(
-        day ?? current!.day,
-        start ?? current!.time,
-        end ?? toBerlinInputParts(existing!.endTime).time,
-      );
+      const startTime = fromBerlin(day ?? current!.day, start ?? current!.time);
+      // A new end, or a move to another day, is placed after the start (night shifts end
+      // the next day). A new start alone keeps the end, so 18–23 → 23:30 is refused
+      // instead of becoming a shift until 23:00 the next day.
+      const endTime =
+        end || day
+          ? berlinTimeFrom(startTime, end ?? toBerlinInputParts(existing!.endTime).time)
+          : existing!.endTime;
       const parsed = shiftSchema.safeParse({
         id,
         eventId: existing?.eventId ?? eventId,
         name: name ?? existing?.name,
-        ...times,
+        startTime,
+        endTime,
         createdById: userId,
       });
       if (!parsed.success) return fail(firstIssueMessage(parsed.error));
@@ -256,8 +258,9 @@ export function buildMcpServer(userId: string) {
         shiftId: shift.id,
         name: name ?? existing?.name,
         description: description ?? existing?.description ?? "",
+        // A task may start after midnight in a night shift, on the shift's next day.
         startTime: start
-          ? taskStart(shift.startTime, start)
+          ? berlinTimeFrom(shift.startTime, start)
           : (existing?.startTime ?? shift.startTime),
         requiredParticipants: requiredParticipants ?? existing?.requiredParticipants,
         createdById: userId,

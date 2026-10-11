@@ -3,6 +3,9 @@
 import { authClient } from "@/lib/auth/client";
 import { useEffect } from "react";
 
+// The magic link is valid this long (see auth.ts); polling longer can't succeed.
+const LINK_VALID_MS = 15 * 60 * 1000;
+
 /**
  * Continues an AI assistant's connection in this window once the magic link (opened in
  * another tab of the same browser) has signed the person in. The assistant keeps its
@@ -20,11 +23,13 @@ export function ContinueWhenSignedIn({ next }: { next: string }) {
       }
     };
     const timer = setInterval(check, 2000);
+    const giveUp = setTimeout(() => clearInterval(timer), LINK_VALID_MS);
     // Coming back to this tab after clicking the link continues at once.
     window.addEventListener("focus", check);
     return () => {
       done = true;
       clearInterval(timer);
+      clearTimeout(giveUp);
       window.removeEventListener("focus", check);
     };
   }, [next]);
