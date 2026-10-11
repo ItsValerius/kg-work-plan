@@ -1,4 +1,5 @@
 import { SignInForm } from "@/components/features/auth/SignInForm";
+import { oauthResumeUrl } from "@/lib/auth/oauth-resume";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
@@ -9,15 +10,35 @@ export const metadata: Metadata = {
   title: "Anmelden",
 };
 
-type SearchParams = Promise<{ callbackUrl?: string; email?: string }>;
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 const DEFAULT_BACK = { href: "/veranstaltungen", label: "Alle Veranstaltungen" };
 const DEFAULT_INTRO =
   "Melde dich an, um dich für Aufgaben einzutragen und deine Einsätze zu sehen.";
 
-/** What the URL changes on this page: a sign-up link brings the helper back to its task. */
+/**
+ * What the URL changes on this page: a sign-up link brings the helper back to its task,
+ * and an AI assistant's OAuth request continues to its consent page.
+ */
 async function readOrigin(searchParams: SearchParams) {
-  const { callbackUrl, email } = await searchParams;
+  const params = await searchParams;
+  const search = new URLSearchParams(
+    Object.entries(params).flatMap(([key, value]) =>
+      (Array.isArray(value) ? value : [value ?? ""]).map((v) => [key, v]),
+    ),
+  );
+  const resume = oauthResumeUrl(search);
+  if (resume) {
+    return {
+      callbackUrl: undefined,
+      oauthResume: resume,
+      email: undefined,
+      back: DEFAULT_BACK,
+      intro: "Melde dich an, um deinen KI-Assistenten mit dem Arbeitsplan zu verbinden.",
+    };
+  }
+  const callbackUrl = search.get("callbackUrl") ?? undefined;
+  const email = search.get("email") ?? undefined;
   const comesFromSignUp = callbackUrl?.includes("#aufgabe-") ?? false;
   // Only same-site paths are valid targets for the back link.
   // Resolve it like a browser would, so "//host" and "/\host" count as external.
@@ -57,8 +78,8 @@ async function OriginIntro({ searchParams }: { searchParams: SearchParams }) {
 }
 
 async function OriginForm({ searchParams }: { searchParams: SearchParams }) {
-  const { callbackUrl, email } = await readOrigin(searchParams);
-  return <SignInForm callbackUrl={callbackUrl} initialEmail={email} />;
+  const { callbackUrl, oauthResume, email } = await readOrigin(searchParams);
+  return <SignInForm callbackUrl={callbackUrl} oauthResume={oauthResume} initialEmail={email} />;
 }
 
 /**

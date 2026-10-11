@@ -20,7 +20,7 @@ import {
 import { requireAdminUserId } from "@/lib/auth/utils";
 import { formatShortDate } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, ArrowUpRight, Pencil, Plus, Users } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Bot, Pencil, Plus, Users } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -75,6 +75,13 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
           >
             <Users aria-hidden="true" />
             Alle Helfer
+          </Link>
+          <Link
+            href="/organisation/ki-assistenten"
+            className={buttonVariants({ variant: "outline" })}
+          >
+            <Bot aria-hidden="true" />
+            KI-Assistenten
           </Link>
           <Link href="/organisation/veranstaltungen/neu" className={buttonVariants()}>
             <Plus aria-hidden="true" />

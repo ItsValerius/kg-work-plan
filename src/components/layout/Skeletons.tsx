@@ -442,3 +442,43 @@ export function ParticipantsTableSkeleton() {
     </Status>
   );
 }
+
+/** The consent page's request line and its two buttons. */
+export function ConsentSkeleton() {
+  return (
+    <Status label="Anfrage wird geladen">
+      <Line className="mt-6 h-[25.5px]" bar="h-4 w-72" />
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <Bar className="h-11 rounded-lg sm:flex-1" />
+        <Bar className="h-11 rounded-lg sm:flex-1" />
+      </div>
+    </Status>
+  );
+}
+
+/** "KI-Assistenten": back link, fixed title and intro, two connection rows. */
+export function AssistantsSkeleton() {
+  return (
+    <Busy label="Verbindungen werden geladen">
+      <div className="mx-auto max-w-2xl">
+        <Line className="h-11" bar="h-4 w-48" />
+        <h1 className="mt-4 text-[44px] md:text-[56px]">KI-Assistenten</h1>
+        <Line className="mt-2 h-[25.5px]" bar="h-4 w-full" />
+        <Line className="h-[25.5px]" bar="h-4 w-4/5" />
+        <Line className="h-[25.5px]" bar="h-4 w-2/3" />
+        <h2 className="mt-10 text-[32px]">Deine Verbindungen</h2>
+        <ul className="mt-3 border-t">
+          {[0, 1].map((row) => (
+            <li key={row} className="flex items-center justify-between gap-4 border-b py-4">
+              <span className="flex flex-col">
+                <Line className="h-[25.5px]" bar="h-4 w-32" />
+                <Line className="h-[22.5px]" bar="h-3.5 w-52" />
+              </span>
+              <Bar className="h-9 w-20 rounded-lg" />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </Busy>
+  );
+}

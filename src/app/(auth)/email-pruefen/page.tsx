@@ -1,3 +1,5 @@
+import { ContinueWhenSignedIn } from "@/components/features/auth/ContinueWhenSignedIn";
+import { isOAuthResumeUrl } from "@/lib/auth/oauth-resume";
 import { Mail } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -8,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 interface VerifyRequestPageProps {
-  searchParams: Promise<{ email?: string }>;
+  searchParams: Promise<{ email?: string; weiter?: string }>;
 }
 
 const steps = [
@@ -38,6 +40,12 @@ async function RetryLink({ searchParams }: VerifyRequestPageProps) {
   );
 }
 
+/** While an AI assistant connects, this window waits for the sign-in and then continues. */
+async function AssistantContinue({ searchParams }: VerifyRequestPageProps) {
+  const { weiter } = await searchParams;
+  return isOAuthResumeUrl(weiter) ? <ContinueWhenSignedIn next={weiter} /> : null;
+}
+
 function RetryAnchor({ href }: { href: string }) {
   return (
     <Link href={href} className="font-semibold text-primary underline">
@@ -58,6 +66,10 @@ const VerifyRequestPage = (props: VerifyRequestPageProps) => {
             <SentTo searchParams={props.searchParams} />
           </Suspense>
         </p>
+
+        <Suspense>
+          <AssistantContinue searchParams={props.searchParams} />
+        </Suspense>
 
         <ol className="mt-8 grid gap-4">
           {steps.map((step, index) => (
