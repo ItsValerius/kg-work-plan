@@ -16,8 +16,9 @@ const EditTaskPage = async (props: {
   params: Promise<{ eventId: string; shiftId: string; taskId: string }>;
 }) => {
   const params = await props.params;
-  const [userId, event, shift, task] = await Promise.all([
-    requireAdminUserId(),
+  // Sign-in first: it waits for the request, so the queries never run while prerendering.
+  const userId = await requireAdminUserId();
+  const [event, shift, task] = await Promise.all([
     getEventById(params.eventId),
     getShiftById(params.shiftId),
     getTaskById(params.taskId),

@@ -12,8 +12,9 @@ export const metadata: Metadata = {
 
 const NewTaskPage = async (props: { params: Promise<{ eventId: string; shiftId: string }> }) => {
   const params = await props.params;
-  const [userId, event, shift] = await Promise.all([
-    requireAdminUserId(),
+  // Sign-in first: it waits for the request, so the queries never run while prerendering.
+  const userId = await requireAdminUserId();
+  const [event, shift] = await Promise.all([
     getEventById(params.eventId),
     getShiftById(params.shiftId),
   ]);

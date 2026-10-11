@@ -1,30 +1,22 @@
 import { EventForm } from "@/components/features/events/EventForm";
 import { FormPageShell } from "@/components/layout/FormPageShell";
 import { getEventById } from "@/domains/events/queries";
-import { getAuthenticatedUser, isAdmin } from "@/lib/auth/utils";
+import { requireAdminUserId } from "@/lib/auth/utils";
 import { organisationBackLink } from "@/lib/edit-origin";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-interface EditEventPageProps {
-  params: Promise<{ eventId: string }>;
-}
+export const metadata: Metadata = {
+  title: "Veranstaltung bearbeiten",
+};
 
-export async function generateMetadata(props: EditEventPageProps): Promise<Metadata> {
+const EditEventPage = async (props: { params: Promise<{ eventId: string }> }) => {
   const params = await props.params;
+  // Sign-in first: it waits for the request, so the queries never run while prerendering.
+  const userId = await requireAdminUserId();
   const event = await getEventById(params.eventId);
-  return { title: event ? `${event.name} bearbeiten` : "Veranstaltung bearbeiten" };
-}
 
-const EditEventPage = async (props: EditEventPageProps) => {
-  const params = await props.params;
-  const [user, event, userIsAdmin] = await Promise.all([
-    getAuthenticatedUser(),
-    getEventById(params.eventId),
-    isAdmin(),
-  ]);
-
-  if (!event || !userIsAdmin) {
+  if (!event) {
     notFound();
   }
 
@@ -36,7 +28,7 @@ const EditEventPage = async (props: EditEventPageProps) => {
       backHref={back.href}
       backLabel={back.label}
     >
-      <EventForm userId={user.id} event={event} returnTo={back.href} />
+      <EventForm userId={userId} event={event} returnTo={back.href} />
     </FormPageShell>
   );
 };

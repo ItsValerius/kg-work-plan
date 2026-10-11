@@ -13,10 +13,11 @@ export const metadata: Metadata = {
 
 const EditShiftPage = async (props: { params: Promise<{ eventId: string; shiftId: string }> }) => {
   const params = await props.params;
-  const [event, shift, userId] = await Promise.all([
+  // Sign-in first: it waits for the request, so the queries never run while prerendering.
+  const userId = await requireAdminUserId();
+  const [event, shift] = await Promise.all([
     getEventById(params.eventId),
     getShiftByIdWithEvent(params.eventId, params.shiftId),
-    requireAdminUserId(),
   ]);
 
   if (!event || !shift) {
