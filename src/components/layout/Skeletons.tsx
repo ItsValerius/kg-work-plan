@@ -98,7 +98,6 @@ export function EventPlanSkeleton() {
         <div className="flex min-w-0 flex-col">
           <span className="mb-3 flex h-[60px] items-center gap-3 md:hidden">
             <DateBlockBar />
-            <Bar className="h-6 w-32" />
           </span>
           <Line className="h-[45px] md:h-[75px]" bar="h-9 w-72 md:h-16 md:w-[26rem]" />
           <Line className="mt-3 hidden h-[25.5px] md:flex" bar="h-4 w-60" />

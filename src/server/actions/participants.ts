@@ -8,21 +8,16 @@ import {
   updateGroupSchema,
   type UpdateGroupData,
 } from "@/domains/participants/types";
-import { firstIssueMessage, idListSchema, parseOrThrow } from "@/lib/validation";
+import { type ActionResult, firstIssueMessage, idListSchema, parseOrThrow } from "@/lib/validation";
 import { updateTag } from "next/cache";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
 
-export type SignUpResult = { ok: true } | { ok: false; error: string };
-
-/**
- * Sign-up from the event sheet. Returns the reason instead of throwing, because
- * production builds hide thrown server-action messages from the browser.
- */
+/** Sign-up from the event sheet. */
 export async function signUpForTask(raw: {
   taskId: string;
   groupName?: string;
   groupSize?: number;
-}): Promise<SignUpResult> {
+}): Promise<ActionResult> {
   let userId: string;
   try {
     userId = await getAuthenticatedUserId();
@@ -60,10 +55,8 @@ export async function signUpForTask(raw: {
   return { ok: true };
 }
 
-export type UpdateGroupResult = { ok: true } | { ok: false; error: string };
-
-/** A helper changes their group; returns the reason on failure, like signUpForTask. */
-export async function updateGroup(data: UpdateGroupData): Promise<UpdateGroupResult> {
+/** A helper changes their group. */
+export async function updateGroup(data: UpdateGroupData): Promise<ActionResult> {
   let userId: string;
   try {
     userId = await getAuthenticatedUserId();

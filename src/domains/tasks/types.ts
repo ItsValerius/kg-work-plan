@@ -40,20 +40,3 @@ export const quickAddTaskSchema = z.object({
   startTime: z.coerce.date<Date>({ error: "Bitte gib eine gültige Uhrzeit an." }),
   requiredParticipants: requiredParticipantsSchema,
 });
-
-export interface UserTask {
-  id: string;
-  name: string;
-  description: string | null;
-  shifts: string;
-  startTime: Date | null;
-  shiftDate: Date | null;
-  shiftName: string;
-  shiftEndTime: Date;
-  eventId: string;
-  eventName: string;
-  participantId: string;
-  groupName: string | null;
-  groupSize: number | null;
-  requiredParticipants: number;
-}

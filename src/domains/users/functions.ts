@@ -20,12 +20,8 @@ export async function removeUserFromTask(taskId: string, userId: string) {
   }
 }
 
-export async function updateUserProfile(userId: string, name: string, authenticatedUserId: string) {
+export async function updateUserProfile(userId: string, name: string) {
   try {
-    if (authenticatedUserId !== userId) {
-      throw new Error("Unauthorized");
-    }
-
     const updatedUser = await db
       .update(users)
       .set({ name: name || null })

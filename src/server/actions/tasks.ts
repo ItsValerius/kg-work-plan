@@ -3,23 +3,18 @@
 import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 import * as domainActions from "@/domains/tasks/functions";
 import { quickAddTaskSchema, taskSchema, type TaskInput } from "@/domains/tasks/types";
-import { firstIssueMessage } from "@/lib/validation";
+import { type ActionResult, firstIssueMessage } from "@/lib/validation";
 import { updateTag } from "next/cache";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
 import type { SaveResult } from "./events";
 
-export type QuickAddTaskResult = { ok: true } | { ok: false; error: string };
-
-/**
- * Adds a task straight from the event's work plan. Validation problems come back as
- * data, because production builds hide thrown server-action messages.
- */
+/** Adds a task straight from the event's work plan. */
 export async function quickAddTask(raw: {
   shiftId: string;
   name: string;
   startTime: Date;
   requiredParticipants: number;
-}): Promise<QuickAddTaskResult> {
+}): Promise<ActionResult> {
   let userId: string;
   try {
     userId = await getAuthenticatedAdminUserId();
@@ -56,10 +51,7 @@ export async function quickAddTask(raw: {
   return { ok: true };
 }
 
-/**
- * Saves the task form (create or edit). Returns the reason instead of throwing, because
- * production builds hide thrown server-action messages from the browser.
- */
+/** Saves the task form (create or edit). */
 export async function saveTask(raw: TaskInput): Promise<SaveResult> {
   let userId: string;
   try {

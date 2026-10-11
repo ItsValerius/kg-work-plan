@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
-import { berlinToday, fromBerlin } from "@/lib/datetime";
+import { berlinDaysBetween, berlinToday, fromBerlin, moveByBerlinDays } from "@/lib/datetime";
 import { events } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventSchema } from "@/domains/events/types";
@@ -123,11 +123,12 @@ export function EventForm({
                   value={field.value}
                   min={new Date()}
                   onChange={(date) => {
+                    // A moved start takes the end along, so the event keeps its length.
+                    const days = berlinDaysBetween(field.value, date);
+                    form.setValue("endDate", moveByBerlinDays(form.getValues("endDate"), days), {
+                      shouldValidate: true,
+                    });
                     field.onChange(date);
-                    // The end follows a start moved past it instead of turning into an error.
-                    if (form.getValues("endDate") < date) {
-                      form.setValue("endDate", date, { shouldValidate: true });
-                    }
                   }}
                 />
               </FormControl>

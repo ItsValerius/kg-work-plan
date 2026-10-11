@@ -53,11 +53,6 @@ export default async function EventPage(props: EventPageProps) {
         <div className="min-w-0">
           <div className="mb-3 flex items-center gap-3 md:hidden">
             <DateBlock date={event.startDate} />
-            {!multiDay && (
-              <span className="tabular font-display text-[26px] leading-none font-bold text-muted-foreground">
-                {formatTime(event.startDate)} – {formatTime(event.endDate)}
-              </span>
-            )}
           </div>
           <h1 className="text-[44px] wrap-break-word md:text-[clamp(56px,5.7vw,80px)]">
             {event.name}
@@ -71,7 +66,7 @@ export default async function EventPage(props: EventPageProps) {
           >
             {multiDay
               ? `${formatShortDate(event.startDate)} bis ${formatShortDate(event.endDate)}`
-              : `${formatShortDate(event.startDate)}, ${formatTime(event.startDate)} – ${formatTime(event.endDate)} Uhr`}
+              : formatShortDate(event.startDate)}
           </p>
           {event.description && (
             <p className="mt-2 max-w-[65ch] text-[17px] leading-relaxed wrap-break-word md:mt-3">

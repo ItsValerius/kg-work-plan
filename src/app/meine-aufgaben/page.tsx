@@ -4,8 +4,7 @@ import { MyTasksSkeleton } from "@/components/layout/Skeletons";
 import RemoveUserFromTaskButton from "@/components/shared/buttons/RemoveUserFromTaskButton";
 import { EditGroupDialog } from "@/components/shared/dialogs/EditGroupDialog";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { getUserTasks } from "@/domains/tasks/queries";
-import type { UserTask } from "@/domains/tasks/types";
+import { getUserTasks, type UserTask } from "@/domains/tasks/queries";
 import { getAuthenticatedUser } from "@/lib/auth/utils";
 import { formatShortDate, formatTime } from "@/lib/datetime";
 import { isUpcomingTask } from "@/domains/tasks/upcoming";
@@ -19,21 +18,17 @@ export const metadata: Metadata = {
   title: "Meine Aufgaben",
 };
 
-function taskDate(task: UserTask): Date {
-  return task.startTime ?? task.shiftDate ?? new Date(0);
-}
-
 function TaskMeta({ task, showStart = true }: { task: UserTask; showStart?: boolean }) {
   return (
     <>
       <p className="mt-1 text-[15px] text-muted-foreground">
-        {showStart && `ab ${formatTime(taskDate(task))} Uhr · `}Schicht {task.shiftName} (
-        {formatTime(task.shiftDate ?? taskDate(task))}–{formatTime(task.shiftEndTime)} Uhr)
+        {showStart && `ab ${formatTime(task.startTime)} Uhr · `}Schicht {task.shiftName} (
+        {formatTime(task.shiftDate)}–{formatTime(task.shiftEndTime)} Uhr)
       </p>
-      {(task.groupName || (task.groupSize ?? 1) > 1) && (
+      {(task.groupName || task.groupSize > 1) && (
         <p className="mt-1 text-[15px] text-muted-foreground">
           {task.groupName ? `Gruppe „${task.groupName}“` : "Gruppe"}
-          {(task.groupSize ?? 1) > 1 && ` · ${task.groupSize} Personen`}
+          {task.groupSize > 1 && ` · ${task.groupSize} Personen`}
         </p>
       )}
     </>
@@ -52,10 +47,10 @@ function TaskActions({ task }: { task: UserTask }) {
       <EditGroupDialog
         participantId={task.participantId}
         currentGroupName={task.groupName}
-        currentGroupSize={task.groupSize ?? 1}
+        currentGroupSize={task.groupSize}
         trigger={
           <Button variant="ghost" className="px-3">
-            {task.groupName || (task.groupSize ?? 1) > 1 ? "Gruppe ändern" : "Gruppe angeben"}
+            {task.groupName || task.groupSize > 1 ? "Gruppe ändern" : "Gruppe angeben"}
           </Button>
         }
       />
@@ -80,7 +75,7 @@ async function MyTasks() {
   const userTasks = await getUserTasks(user.id);
 
   const isUpcoming = (task: UserTask) =>
-    isUpcomingTask({ start: taskDate(task), shiftEndTime: task.shiftEndTime });
+    isUpcomingTask({ start: task.startTime, shiftEndTime: task.shiftEndTime });
   const upcoming = userTasks.filter(isUpcoming);
   const past = userTasks.filter((task) => !isUpcoming(task)).reverse();
   const [next, ...later] = upcoming;
@@ -102,16 +97,16 @@ async function MyTasks() {
             Dein nächster Einsatz
           </h2>
           <div className="mt-5 grid gap-x-8 gap-y-4 md:grid-cols-[auto_1fr]">
-            <DateBlock date={taskDate(next)} size="lg" />
+            <DateBlock date={next.startTime} size="lg" />
             <div className="min-w-0">
               <p className="tabular font-display text-[34px] leading-none font-bold text-primary md:text-[40px]">
-                {formatTime(taskDate(next))} Uhr
+                {formatTime(next.startTime)} Uhr
               </p>
               <h3 className="mt-2 text-[22px] leading-snug font-semibold md:text-2xl">
                 {next.name}
               </h3>
               <p className="mt-1 text-[17px]">
-                {next.eventName} · {formatShortDate(taskDate(next))}
+                {next.eventName} · {formatShortDate(next.startTime)}
               </p>
               <TaskMeta task={next} showStart={false} />
               {next.description && next.description.trim() !== "" && (
@@ -175,7 +170,7 @@ async function MyTasks() {
 function TaskRow({ task, isPast = false }: { task: UserTask; isPast?: boolean }) {
   return (
     <li className="grid grid-cols-[88px_1fr] gap-x-4 border-b py-5 md:grid-cols-[120px_1fr_auto] md:items-center md:gap-x-8">
-      <DateBlock date={taskDate(task)} muted={isPast} className="pl-1 md:pl-3" />
+      <DateBlock date={task.startTime} muted={isPast} className="pl-1 md:pl-3" />
       <div className="min-w-0">
         <h3
           className={cn(

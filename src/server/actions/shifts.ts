@@ -4,23 +4,18 @@ import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 import * as domainActions from "@/domains/shifts/functions";
 import { SHIFT_OUTSIDE_EVENT } from "@/domains/shifts/days";
 import { quickAddShiftSchema, shiftSchema, type ShiftInput } from "@/domains/shifts/types";
-import { firstIssueMessage } from "@/lib/validation";
+import { type ActionResult, firstIssueMessage } from "@/lib/validation";
 import { updateTag } from "next/cache";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
 import type { SaveResult } from "./events";
 
-export type QuickAddShiftResult = { ok: true } | { ok: false; error: string };
-
-/**
- * Adds a shift from the organizer's planning view. Validation problems come back as
- * data, because production builds hide thrown server-action messages.
- */
+/** Adds a shift from the organizer's planning view. */
 export async function quickAddShift(raw: {
   eventId: string;
   name: string;
   startTime: Date;
   endTime: Date;
-}): Promise<QuickAddShiftResult> {
+}): Promise<ActionResult> {
   let userId: string;
   try {
     userId = await getAuthenticatedAdminUserId();
@@ -59,10 +54,7 @@ export async function quickAddShift(raw: {
   return { ok: true };
 }
 
-/**
- * Saves the shift form (create or edit). Returns the reason instead of throwing, because
- * production builds hide thrown server-action messages from the browser.
- */
+/** Saves the shift form (create or edit). */
 export async function saveShift(raw: ShiftInput): Promise<SaveResult> {
   let userId: string;
   try {

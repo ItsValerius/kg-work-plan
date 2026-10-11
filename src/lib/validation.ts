@@ -25,3 +25,10 @@ export function parseOrThrow<T>(schema: z.ZodType<T>, input: unknown): T {
 export function firstIssueMessage(error: z.ZodError): string {
   return error.issues[0]?.message ?? INVALID_INPUT;
 }
+
+/**
+ * What server actions return when the user must see why they failed: production builds
+ * replace thrown messages with a generic one, so expected errors are return values
+ * (Next.js docs: Getting Started → Error Handling → "Handling expected errors").
+ */
+export type ActionResult = { ok: true } | { ok: false; error: string };

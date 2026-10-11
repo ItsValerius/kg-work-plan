@@ -3,9 +3,8 @@ import { events, shifts, taskParticipants, tasks } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
-import type { UserTask } from "./types";
 
-export async function getUserTasks(userId: string): Promise<UserTask[]> {
+export async function getUserTasks(userId: string) {
   "use cache";
   cacheLife("workplan");
   cacheTag(WORKPLAN_TAG);
@@ -37,6 +36,8 @@ export async function getUserTasks(userId: string): Promise<UserTask[]> {
       .orderBy(tasks.startTime)
   );
 }
+
+export type UserTask = Awaited<ReturnType<typeof getUserTasks>>[number];
 
 export async function getTaskById(taskId: string) {
   return db.query.tasks.findFirst({

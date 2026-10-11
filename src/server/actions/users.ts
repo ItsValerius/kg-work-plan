@@ -3,18 +3,13 @@
 import { getAuthenticatedUserId } from "@/lib/auth/utils";
 import * as domainActions from "@/domains/users/functions";
 import { SHIFT_OVER } from "@/domains/participants/functions";
-import { firstIssueMessage, idSchema } from "@/lib/validation";
+import { type ActionResult, firstIssueMessage, idSchema } from "@/lib/validation";
 import { userUpdateSchema, type UserUpdateInput } from "@/domains/users/types";
 import { updateTag } from "next/cache";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
 
-export type RemoveUserFromTaskResult = { ok: true } | { ok: false; error: string };
-
-/**
- * A helper signs themselves off a task. Returns the reason instead of throwing, because
- * production builds hide thrown server-action messages from the browser.
- */
-export async function removeUserFromTask(taskId: string): Promise<RemoveUserFromTaskResult> {
+/** A helper signs themselves off a task. */
+export async function removeUserFromTask(taskId: string): Promise<ActionResult> {
   let userId: string;
   try {
     userId = await getAuthenticatedUserId();
@@ -39,10 +34,8 @@ export async function removeUserFromTask(taskId: string): Promise<RemoveUserFrom
   return { ok: true };
 }
 
-export type UpdateProfileResult = { ok: true } | { ok: false; error: string };
-
 /** Saves the visitor's own display name; an empty name hides it ("Ohne Namen"). */
-export async function updateProfile(raw: UserUpdateInput): Promise<UpdateProfileResult> {
+export async function updateProfile(raw: UserUpdateInput): Promise<ActionResult> {
   let userId: string;
   try {
     userId = await getAuthenticatedUserId();
@@ -58,7 +51,7 @@ export async function updateProfile(raw: UserUpdateInput): Promise<UpdateProfile
   }
 
   try {
-    await domainActions.updateUserProfile(userId, parsed.data.name, userId);
+    await domainActions.updateUserProfile(userId, parsed.data.name);
   } catch {
     return {
       ok: false,

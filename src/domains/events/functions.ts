@@ -3,6 +3,7 @@ import { events, shifts, tasks } from "@/db/schema";
 import { logger } from "@/lib/logger";
 import { eq } from "drizzle-orm";
 import { berlinDaysBetween, moveByBerlinDays } from "@/lib/datetime";
+import { assertShiftsDuringEvent, SHIFTS_OUTSIDE_EVENT } from "@/domains/shifts/days";
 import { getEventByIdWithShiftsAndTasks } from "./queries";
 import type { EventInput } from "./types";
 
@@ -39,6 +40,11 @@ export async function createOrUpdateEvent(data: EventInput, userId: string) {
 
       // A new date moves the whole plan by the same number of days, keeping clock times.
       const days = previous ? berlinDaysBetween(previous.startDate, saved.startDate) : 0;
+      // A shorter event must not leave shifts behind that then can't be edited.
+      assertShiftsDuringEvent(
+        saved,
+        (previous?.shifts ?? []).map((shift) => moveByBerlinDays(shift.startTime, days)),
+      );
       if (previous && days !== 0) {
         // ponytail: one update per row; fine for a club event's few dozen shifts and tasks.
         for (const shift of previous.shifts) {
@@ -63,6 +69,7 @@ export async function createOrUpdateEvent(data: EventInput, userId: string) {
     logger.info("Event created/updated", { eventId: savedEvent.id, userId });
     return savedEvent;
   } catch (error) {
+    if (error instanceof Error && error.message === SHIFTS_OUTSIDE_EVENT) throw error;
     logger.error("Failed to create/update event", error);
     throw new Error("Failed to create/update event");
   }
@@ -99,6 +106,10 @@ export async function duplicateEvent(
     // The copy keeps every clock time, moved by the days between the two event starts.
     const days = berlinDaysBetween(originalEvent.startDate, newStartDate);
     const shiftTime = (time: Date) => moveByBerlinDays(time, days);
+    assertShiftsDuringEvent(
+      { startDate: newStartDate, endDate },
+      originalEvent.shifts.map((shift) => shiftTime(shift.startTime)),
+    );
 
     // All or nothing: a dropped connection must not leave a half-copied event.
     const newEvent = await db.transaction(async (tx) => {
@@ -155,6 +166,7 @@ export async function duplicateEvent(
 
     return newEvent.id;
   } catch (error) {
+    if (error instanceof Error && error.message === SHIFTS_OUTSIDE_EVENT) throw error;
     logger.error("Failed to duplicate event", error, { eventId });
     throw new Error("Failed to duplicate event");
   }

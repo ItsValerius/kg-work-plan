@@ -21,7 +21,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
-import { fromBerlin, toBerlinInputParts } from "@/lib/datetime";
+import {
+  berlinDaysBetween,
+  fromBerlin,
+  moveByBerlinDays,
+  toBerlinInputParts,
+} from "@/lib/datetime";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -91,29 +96,21 @@ export function DuplicateEventDialog({
 
   async function onSubmit(values: DuplicateFormValues) {
     setLoading(true);
-    try {
-      const newEventId = await duplicateEvent(
-        eventId,
-        values.name,
-        values.startDate,
-        values.endDate,
-      );
-      toast.success("Veranstaltung wurde erfolgreich dupliziert");
-      setOpen(false);
-      // Open the copy, which usually needs adjusting next.
-      router.push(`/organisation?event=${newEventId}&ansicht=planen`);
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === "Unauthorized") {
-          toast.error("Du hast keine Berechtigung, Veranstaltungen zu duplizieren");
-        } else {
-          toast.error(error.message || "Fehler beim Duplizieren der Veranstaltung");
-        }
-      } else {
-        toast.error("Fehler beim Duplizieren der Veranstaltung");
-      }
+    const result = await duplicateEvent(
+      eventId,
+      values.name,
+      values.startDate,
+      values.endDate,
+    ).catch(() => ({ ok: false as const, error: "Fehler beim Duplizieren der Veranstaltung" }));
+    if (!result.ok) {
+      toast.error(result.error);
       setLoading(false);
+      return;
     }
+    toast.success("Veranstaltung wurde erfolgreich dupliziert");
+    setOpen(false);
+    // Open the copy, which usually needs adjusting next.
+    router.push(`/organisation?event=${result.id}&ansicht=planen`);
   }
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -161,10 +158,16 @@ export function DuplicateEventDialog({
                     <DatePicker
                       value={field.value}
                       onChange={(date) => {
+                        // A moved start takes the end along, so the event keeps its length.
+                        const days = berlinDaysBetween(field.value, date);
+                        form.setValue(
+                          "endDate",
+                          moveByBerlinDays(form.getValues("endDate"), days),
+                          {
+                            shouldValidate: true,
+                          },
+                        );
                         field.onChange(date);
-                        if (form.getValues("endDate") < date) {
-                          form.setValue("endDate", date, { shouldValidate: true });
-                        }
                       }}
                     />
                   </FormControl>

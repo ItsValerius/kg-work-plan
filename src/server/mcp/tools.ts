@@ -10,7 +10,7 @@ import {
   getPastEvents,
 } from "@/domains/events/queries";
 import { duplicateEventSchema, eventSchema } from "@/domains/events/types";
-import { SHIFT_OUTSIDE_EVENT } from "@/domains/shifts/days";
+import { SHIFT_OUTSIDE_EVENT, SHIFTS_OUTSIDE_EVENT } from "@/domains/shifts/days";
 import { createOrUpdateShift } from "@/domains/shifts/functions";
 import { getShiftById } from "@/domains/shifts/queries";
 import { shiftSchema } from "@/domains/shifts/types";
@@ -74,8 +74,8 @@ async function save<T>(
     revalidateTag(WORKPLAN_TAG, { expire: 0 });
     return ok(done(saved));
   } catch (error) {
-    if (error instanceof Error && error.message === SHIFT_OUTSIDE_EVENT)
-      return fail(SHIFT_OUTSIDE_EVENT);
+    const message = error instanceof Error ? error.message : "";
+    if (message === SHIFT_OUTSIDE_EVENT || message === SHIFTS_OUTSIDE_EVENT) return fail(message);
     logger.error("MCP write failed", error, { tool });
     return fail("Das Speichern hat nicht geklappt. Bitte versuche es noch einmal.");
   }

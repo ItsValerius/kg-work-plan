@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { startsDuringEvent } from "@/domains/shifts/days";
+import {
+  assertShiftsDuringEvent,
+  SHIFTS_OUTSIDE_EVENT,
+  startsDuringEvent,
+} from "@/domains/shifts/days";
 import { fromBerlin } from "@/lib/datetime";
 
 // A two-day event, 11.–12.11. (Berlin).
@@ -15,5 +19,14 @@ describe("shifts within the event's days", () => {
   it("refuse starts before or after them", () => {
     expect(startsDuringEvent(event, fromBerlin("2026-11-10", "23:30"))).toBe(false);
     expect(startsDuringEvent(event, fromBerlin("2026-11-13", "00:30"))).toBe(false);
+  });
+});
+
+describe("an event's new days", () => {
+  it("refuse to leave a shift outside them", () => {
+    const shortened = { ...event, endDate: event.startDate };
+    const sundayShift = fromBerlin("2026-11-12", "18:00");
+    expect(() => assertShiftsDuringEvent(event, [sundayShift])).not.toThrow();
+    expect(() => assertShiftsDuringEvent(shortened, [sundayShift])).toThrow(SHIFTS_OUTSIDE_EVENT);
   });
 });
