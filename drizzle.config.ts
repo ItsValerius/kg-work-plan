@@ -1,5 +1,7 @@
 import type { Config } from "drizzle-kit";
 import * as dotenv from "dotenv";
+// Local setup keeps its URL in .env.local (like scripts/make-admin.ts); CI and Vercel set it directly.
+dotenv.config({ path: ".env.local", quiet: true });
 dotenv.config({ quiet: true });
 
 // Use connection URL in production, otherwise use individual env vars

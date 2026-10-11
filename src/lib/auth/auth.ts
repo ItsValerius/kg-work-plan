@@ -1,15 +1,43 @@
 import { betterAuth } from "better-auth";
+import { createAuthMiddleware } from "better-auth/api";
 import { magicLink } from "better-auth/plugins/magic-link";
+import { jwt } from "better-auth/plugins";
+import { mcp } from "@better-auth/mcp";
+import { cimd } from "@better-auth/cimd";
+import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import db from "@/db/index";
-import { accounts, rateLimit, sessions, users, verification } from "../../db/schema/index";
+import {
+  accounts,
+  jwks,
+  oauthAccessToken,
+  oauthClient,
+  oauthClientAssertion,
+  oauthClientResource,
+  oauthConsent,
+  oauthRefreshToken,
+  oauthResource,
+  rateLimit,
+  sessions,
+  users,
+  verification,
+} from "../../db/schema/index";
 import { renderMagicLinkEmail } from "./magic-link-email";
 
 const MAGIC_LINK_MINUTES = 15;
 
+/** What AI assistants connect to; access tokens are bound to exactly this URL. */
+// new URL() so a trailing slash in BETTER_AUTH_URL can't produce "//api/mcp".
+export const MCP_RESOURCE = new URL(
+  "/api/mcp",
+  process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+).href;
+
 // Better Auth configuration with magic link (passwordless email) authentication
 // See: https://www.better-auth.com/docs/plugins/magic-link
 export const auth = betterAuth({
+  // The jwt plugin's session-JWT endpoint isn't used; only OAuth access tokens reach /api/mcp.
+  disabledPaths: ["/token"],
   database: drizzleAdapter(db, {
     provider: "pg", // PostgreSQL provider
     schema: {
@@ -18,9 +46,31 @@ export const auth = betterAuth({
       account: accounts,
       verification: verification,
       rateLimit: rateLimit,
+      jwks,
+      oauthClient,
+      oauthResource,
+      oauthClientResource,
+      oauthRefreshToken,
+      oauthAccessToken,
+      oauthConsent,
+      oauthClientAssertion,
     },
   }),
   plugins: [
+    // Signs the access tokens that /api/mcp verifies.
+    jwt(),
+    // Lets admins connect ChatGPT, Claude & co. to /api/mcp via OAuth; tools check the role.
+    mcp({
+      loginPage: "/anmelden",
+      consentPage: "/zugriff-erlauben",
+      resource: MCP_RESOURCE,
+      // No `email`: assistants request every advertised OIDC scope.
+      scopes: ["openid", "profile", "offline_access"],
+      // Fallback for clients without CIMD; registering alone grants nothing.
+      allowDynamicClientRegistration: true,
+      allowUnauthenticatedClientRegistration: true,
+    }),
+    cimd({ fetchClientMetadataResource, metadataProfile: "mcp-2026-07-28" }),
     magicLink({
       // Long enough for someone who checks their mail a little later; the link works once.
       expiresIn: MAGIC_LINK_MINUTES * 60,
@@ -57,6 +107,17 @@ export const auth = betterAuth({
       },
     }),
   ],
+  hooks: {
+    // CLI agents (Claude Code, Codex) register http://localhost callbacks without an
+    // application_type; the "web" default rejects those, "native" allows loopback http.
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== "/oauth2/register" || ctx.body?.application_type) return;
+      const uris: unknown = ctx.body?.redirect_uris;
+      if (Array.isArray(uris) && uris.some((uri) => String(uri).startsWith("http://"))) {
+        return { context: { body: { ...ctx.body, application_type: "native" } } };
+      }
+    }),
+  },
   user: {
     // Returned with every session; input: false keeps sign-up from setting it.
     additionalFields: {
@@ -64,7 +125,11 @@ export const auth = betterAuth({
     },
   },
   // Shared counters, so the magic-link limit holds across server instances.
-  rateLimit: { storage: "database" },
+  rateLimit: {
+    storage: "database",
+    // Client registration needs no sign-in and adds a row each time.
+    customRules: { "/oauth2/register": { window: 60, max: 5 } },
+  },
   socialProviders: {
     google: {
       clientId: process.env.AUTH_GOOGLE_ID!,

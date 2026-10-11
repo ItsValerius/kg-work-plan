@@ -13,6 +13,8 @@ import { AlertCircle } from "lucide-react";
 
 interface SignInFormProps {
   callbackUrl?: string;
+  /** Set while an AI assistant connects: the magic link must not finish the flow itself. */
+  oauthResume?: string;
   initialEmail?: string;
 }
 
@@ -58,7 +60,7 @@ function isValidEmail(email: string): boolean {
   return emailRegex.test(email.trim());
 }
 
-export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
+export function SignInForm({ callbackUrl, oauthResume, initialEmail }: SignInFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +92,8 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
       // Use magic link for passwordless email authentication
       const result = await authClient.signIn.magicLink({
         email: email.trim(),
-        callbackURL: callbackUrl || "/",
+        // The link opens in a new tab; the assistant's window continues on /email-pruefen.
+        callbackURL: oauthResume ? "/angemeldet" : callbackUrl || "/",
       });
 
       if (result.error) {
@@ -103,7 +106,8 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
         }
       } else {
         // Email sent successfully - redirect to verification page with email as query param
-        router.push(`/email-pruefen?email=${encodeURIComponent(email.trim())}`);
+        const resume = oauthResume ? `&weiter=${encodeURIComponent(oauthResume)}` : "";
+        router.push(`/email-pruefen?email=${encodeURIComponent(email.trim())}${resume}`);
       }
     } catch (error) {
       const errorMessage = parseErrorMessage(error);
@@ -122,7 +126,8 @@ export function SignInForm({ callbackUrl, initialEmail }: SignInFormProps) {
     try {
       const result = await authClient.signIn.social({
         provider: "google",
-        callbackURL: callbackUrl || "/",
+        // Google signs in within this window, so it can go straight back to the assistant.
+        callbackURL: oauthResume ?? (callbackUrl || "/"),
       });
 
       if (result.error) {
