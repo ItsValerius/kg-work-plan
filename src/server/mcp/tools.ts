@@ -17,6 +17,7 @@ import { shiftSchema } from "@/domains/shifts/types";
 import { createOrUpdateTask } from "@/domains/tasks/functions";
 import { getTaskById } from "@/domains/tasks/queries";
 import { taskSchema } from "@/domains/tasks/types";
+import { getUserName } from "@/domains/users/queries";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
 import {
   berlinDaysBetween,
@@ -84,6 +85,34 @@ export function buildMcpServer(userId: string) {
   const server = new McpServer(
     { name: "kg-arbeitsplan", version: "1.0.0" },
     { instructions: INSTRUCTIONS },
+  );
+
+  // ChatGPT labels a connected account with this ("Primary" without it). Name only: no
+  // email, as the privacy notice promises.
+  server.registerTool(
+    "get_profile",
+    {
+      title: "Profil",
+      description:
+        "Return the profile of the signed-in organizer. The opaque id is unique within this app and stays the same across token refresh, reconnection and name changes.",
+      inputSchema: z.object({}).strict(),
+      outputSchema: z
+        .object({
+          id: z.string().min(1).regex(/\S/),
+          name: z.string().optional(),
+          nickname: z.string().optional(),
+        })
+        .strict(),
+      annotations: { ...readOnly, destructiveHint: false },
+      _meta: { ..._meta, "openai/profile": true },
+    },
+    async () => {
+      const name = (await getUserName(userId))?.trim();
+      return ok({
+        id: userId,
+        ...(name ? { name, nickname: `${name} · KG Arbeitsplan` } : {}),
+      });
+    },
   );
 
   server.registerTool(
