@@ -2,6 +2,7 @@
 
 import { getAuthenticatedAdminUserId } from "@/lib/auth/utils";
 import * as domainActions from "@/domains/shifts/functions";
+import { SHIFT_OUTSIDE_EVENT } from "@/domains/shifts/days";
 import { quickAddShiftSchema, shiftSchema, type ShiftInput } from "@/domains/shifts/types";
 import { firstIssueMessage } from "@/lib/validation";
 import { updateTag } from "next/cache";
@@ -44,7 +45,10 @@ export async function quickAddShift(raw: {
       },
       userId,
     );
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message === SHIFT_OUTSIDE_EVENT) {
+      return { ok: false, error: SHIFT_OUTSIDE_EVENT };
+    }
     return {
       ok: false,
       error: "Die Schicht konnte nicht gespeichert werden. Bitte versuche es noch einmal.",
@@ -74,7 +78,10 @@ export async function saveShift(raw: ShiftInput): Promise<SaveResult> {
   let id: string;
   try {
     id = (await domainActions.createOrUpdateShift(parsed.data, userId)).id;
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message === SHIFT_OUTSIDE_EVENT) {
+      return { ok: false, error: SHIFT_OUTSIDE_EVENT };
+    }
     return {
       ok: false,
       error: "Die Schicht konnte nicht gespeichert werden. Bitte versuch es noch einmal.",

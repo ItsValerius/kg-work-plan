@@ -10,21 +10,24 @@ import { formatLongDate, fromBerlin, toBerlinInputParts } from "@/lib/datetime";
 
 /**
  * A Berlin calendar day as a button with a calendar popover. `onChange` gets midnight
- * Berlin time of the picked day; days before `min` can't be picked.
+ * Berlin time of the picked day; days before `min` or after `max` can't be picked.
  */
 export function DatePicker({
   value,
   onChange,
   min,
+  max,
   className,
   ...props
 }: Omit<React.ComponentProps<typeof Button>, "value" | "onChange"> & {
   value: Date | undefined;
   onChange: (date: Date) => void;
   min?: Date;
+  max?: Date;
 }) {
   const [open, setOpen] = useState(false);
   const minDay = min && toBerlinInputParts(min).day;
+  const maxDay = max && toBerlinInputParts(max).day;
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
@@ -53,7 +56,14 @@ export function DatePicker({
             onChange(fromBerlin(toBerlinInputParts(date).day));
             setOpen(false);
           }}
-          disabled={minDay ? (date) => toBerlinInputParts(date).day < minDay : undefined}
+          disabled={
+            minDay || maxDay
+              ? (date) => {
+                  const day = toBerlinInputParts(date).day;
+                  return (!!minDay && day < minDay) || (!!maxDay && day > maxDay);
+                }
+              : undefined
+          }
           autoFocus
         />
       </PopoverContent>

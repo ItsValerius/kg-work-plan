@@ -30,6 +30,7 @@ export function ShiftForm({
   userId,
   eventId,
   eventStart,
+  eventEnd,
   shift,
   returnTo,
 }: {
@@ -37,6 +38,8 @@ export function ShiftForm({
   eventId: string;
   /** New shifts start on the event's first day. */
   eventStart: Date;
+  /** Shifts must start on one of the event's days (see startsDuringEvent). */
+  eventEnd: Date;
   shift: typeof shifts.$inferSelect | null | undefined;
   /** Where to go after saving an edit; defaults to the event's work plan. */
   returnTo?: string;
@@ -118,6 +121,8 @@ export function ShiftForm({
                   <FormControl>
                     <DatePicker
                       value={field.value}
+                      min={eventStart}
+                      max={eventEnd}
                       onChange={(date) => setStart(fromBerlin(toBerlinInputParts(date).day, time))}
                     />
                   </FormControl>

@@ -1,13 +1,22 @@
 import db from "@/db";
-import { shifts, tasks } from "@/db/schema";
+import { events, shifts, tasks } from "@/db/schema";
 import { logger } from "@/lib/logger";
 import { berlinDaysBetween, moveByBerlinDays } from "@/lib/datetime";
 import { eq } from "drizzle-orm";
+import { SHIFT_OUTSIDE_EVENT, startsDuringEvent } from "./days";
 import type { ShiftInput } from "./types";
 
 export async function createOrUpdateShift(data: ShiftInput, userId: string) {
   try {
     const newShift = await db.transaction(async (tx) => {
+      // Every caller (form, quick-add, AI assistant) passes through here.
+      const event = await tx.query.events.findFirst({
+        where: eq(events.id, data.eventId),
+        columns: { startDate: true, endDate: true },
+      });
+      if (event && !startsDuringEvent(event, new Date(data.startTime))) {
+        throw new Error(SHIFT_OUTSIDE_EVENT);
+      }
       const previous = data.id
         ? await tx.query.shifts.findFirst({
             where: eq(shifts.id, data.id),
@@ -56,6 +65,7 @@ export async function createOrUpdateShift(data: ShiftInput, userId: string) {
     });
     return newShift;
   } catch (error) {
+    if (error instanceof Error && error.message === SHIFT_OUTSIDE_EVENT) throw error;
     logger.error("Failed to create/update shift", error, { eventId: data.eventId });
     throw new Error("Failed to create/update shift");
   }

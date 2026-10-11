@@ -35,6 +35,7 @@ const EditShiftPage = async (props: { params: Promise<{ eventId: string; shiftId
         userId={userId}
         eventId={event.id}
         eventStart={event.startDate}
+        eventEnd={event.endDate}
         shift={shift}
         returnTo={back.href}
       />
