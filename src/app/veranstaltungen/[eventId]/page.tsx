@@ -101,7 +101,10 @@ export default async function EventPage(props: EventPageProps) {
                   {formatTime(shift.startTime)}
                   <span className="text-muted-foreground"> – {formatTime(shift.endTime)}</span>
                 </p>
-                <h2 id={`schicht-${shift.id}`} className="mt-2 text-[30px] md:text-[34px]">
+                <h2
+                  id={`schicht-${shift.id}`}
+                  className="mt-2 text-[30px] wrap-break-word hyphens-auto md:text-[34px]"
+                >
                   {shift.name}
                 </h2>
                 {multiDay && (
