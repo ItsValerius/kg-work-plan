@@ -4,7 +4,7 @@ Sign-up app for the volunteer helpers at the carnival events of KG Knallköpp Go
 Organizers plan each event as shifts and tasks with the number of helpers needed; helpers
 sign in with an email link (or Google) and claim a spot, alone or as a group.
 
-Live: https://kg-work-plan.vercel.app
+Live: https://arbeitsplan.knallkoepp-golkrath.de
 
 ## Stack
 
