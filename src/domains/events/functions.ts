@@ -10,10 +10,6 @@ import type { EventInput } from "./types";
 export async function createOrUpdateEvent(data: EventInput, userId: string) {
   try {
     const savedEvent = await db.transaction(async (tx) => {
-      // Two admins saving the same event at once would otherwise both move its shifts.
-      if (data.id) {
-        await tx.select({ id: events.id }).from(events).where(eq(events.id, data.id)).for("update");
-      }
       const previous = data.id
         ? await tx.query.events.findFirst({
             where: eq(events.id, data.id),

@@ -7,7 +7,7 @@ import { cimd } from "@better-auth/cimd";
 import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import db from "@/db/index";
-import { and, count, gt, sql } from "drizzle-orm";
+import { and, count, gt, ilike } from "drizzle-orm";
 import {
   accounts,
   jwks,
@@ -38,7 +38,8 @@ async function recentMagicLinks(email: string) {
     .from(verification)
     .where(
       and(
-        sql`${verification.value} like ${pattern}`,
+        // Mailboxes ignore case, so QA@… and qa@… count as one address.
+        ilike(verification.value, pattern),
         gt(verification.createdAt, new Date(Date.now() - 60_000)),
       ),
     );
