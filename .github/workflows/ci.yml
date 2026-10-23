@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: kg_work_plan_dev
+        ports: ["54320:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+      # The app's Neon driver talks WebSockets; this proxy is what it uses locally too.
+      pg_proxy:
+        image: ghcr.io/neondatabase/wsproxy:latest
+        env:
+          APPEND_PORT: "postgres:5432"
+          ALLOW_ADDR_REGEX: ".*"
+        ports: ["54330:80"]
+    env:
+      VERCEL_ENV: development
+      POSTGRES_URL: postgres://postgres:postgres@localhost:54320/kg_work_plan_dev
+      BETTER_AUTH_SECRET: ci-only-not-a-secret-ci-only-not-a-secret
+      BETTER_AUTH_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm exec tsc --noEmit
+      - run: pnpm drizzle-kit migrate
+      - run: pnpm test
+      - run: pnpm test:db
+      - run: pnpm build

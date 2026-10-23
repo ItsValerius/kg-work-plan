@@ -25,9 +25,10 @@ pnpm db:seed             # load a demo season (dates relative to today); rerun t
 pnpm drizzle-kit generate   # generate a migration from src/db/schema into src/db/migrations
 pnpm drizzle-kit migrate    # apply migrations (needs POSTGRES_URL or DATABASE_URL); production builds run this via `vercel-build`
 pnpm test                # Vitest unit tests in tests/ (pnpm test:watch while working)
+pnpm test:db             # Vitest against the docker-compose database (tests/db); CI runs both
 ```
 
-`pnpm test` runs Vitest (`vitest.config.mts`) on `tests/**/*.test.ts`, which mirrors `src/` (`tests/lib`, `tests/domains`) and imports through `@/`. Tests run with `TZ=America/New_York` so date code can't rely on the machine's zone. Add a small test there for any new rule (capacity, spots, CSV, dates).
+`pnpm test` runs Vitest (`vitest.config.mts`) on `tests/**/*.test.ts`, which mirrors `src/` (`tests/lib`, `tests/domains`) and imports through `@/`. Tests run with `TZ=America/New_York` so date code can't rely on the machine's zone. Add a small test there for any new rule (capacity, spots, CSV, dates). Behaviour that depends on Postgres itself (locks, constraints, concurrent writes) goes in `tests/db/`, which talks to the real database through the app's driver; `.github/workflows/ci.yml` starts Postgres and the wsproxy as services for it.
 
 ### Local setup
 

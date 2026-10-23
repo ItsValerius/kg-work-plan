@@ -12,7 +12,8 @@
     "db:seed": "tsx scripts/seed.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run",
+    "test": "vitest run --project unit",
+    "test:db": "vitest run --project db",
     "test:watch": "vitest"
   },
   "dependencies": {
