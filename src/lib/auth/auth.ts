@@ -7,6 +7,7 @@ import { cimd } from "@better-auth/cimd";
 import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import db from "@/db/index";
+import { and, count, gt, sql } from "drizzle-orm";
 import {
   accounts,
   jwks,
@@ -25,6 +26,24 @@ import {
 import { renderMagicLinkEmail } from "./magic-link-email";
 
 const MAGIC_LINK_MINUTES = 15;
+
+/**
+ * Magic-link requests for this address in the last minute, including the one just stored.
+ * The per-IP limit alone lets someone rotating IPs flood one inbox.
+ */
+async function recentMagicLinks(email: string) {
+  const pattern = `%"email":${JSON.stringify(email).replace(/[\\%_]/g, "\\$&")}%`;
+  const [{ recent }] = await db
+    .select({ recent: count() })
+    .from(verification)
+    .where(
+      and(
+        sql`${verification.value} like ${pattern}`,
+        gt(verification.createdAt, new Date(Date.now() - 60_000)),
+      ),
+    );
+  return recent;
+}
 
 /** What AI assistants connect to; access tokens are bound to exactly this URL. */
 // new URL() so a trailing slash in BETTER_AUTH_URL can't produce "//api/mcp".
@@ -77,6 +96,8 @@ export const auth = betterAuth({
       // Counted per IP; phones on mobile data often share one, so allow a burst of helpers.
       rateLimit: { window: 60, max: 20 },
       sendMagicLink: async ({ email, url }) => {
+        // Silently skip: the previous link still works and the response stays the same.
+        if ((await recentMagicLinks(email)) > 1) return;
         const { createTransport } = await import("nodemailer");
         const transport = createTransport({
           host: process.env.EMAIL_SERVER_HOST,
@@ -130,12 +151,16 @@ export const auth = betterAuth({
     // Client registration needs no sign-in and adds a row each time.
     customRules: { "/oauth2/register": { window: 60, max: 5 } },
   },
-  socialProviders: {
-    google: {
-      clientId: process.env.AUTH_GOOGLE_ID!,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
-    },
-  },
+  // Only offered when configured; without credentials the provider would fail at sign-in.
+  socialProviders:
+    process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
+      ? {
+          google: {
+            clientId: process.env.AUTH_GOOGLE_ID,
+            clientSecret: process.env.AUTH_GOOGLE_SECRET,
+          },
+        }
+      : {},
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day
@@ -145,7 +170,7 @@ export const auth = betterAuth({
     cookieCache: { enabled: true, maxAge: 5 * 60 },
   },
   trustedOrigins: [
-    "http://localhost:3000",
+    ...(process.env.NODE_ENV === "production" ? [] : ["http://localhost:3000"]),
     ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
   ],
 });

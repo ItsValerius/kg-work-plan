@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { berlinDaysBetween, berlinToday, fromBerlin, moveByBerlinDays } from "@/lib/datetime";
-import { events } from "@/db/schema";
+import type { events } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventSchema } from "@/domains/events/types";
 import { AlertCircle, Loader2 } from "lucide-react";

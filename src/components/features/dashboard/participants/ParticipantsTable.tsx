@@ -3,8 +3,8 @@
 import { DataTable } from "./DataTable";
 import { columns } from "./columns";
 import { removeUserFromTaskAction } from "@/server/actions/participants";
-import { events } from "@/db/schema";
 import type {
+  FilterOption,
   ParticipantsUserTask,
   ShiftFilterOption,
   TaskFilterOption,
@@ -12,7 +12,7 @@ import type {
 
 interface ParticipantsTableProps {
   userTasks: ParticipantsUserTask[];
-  allEvents: (typeof events.$inferSelect)[];
+  allEvents: FilterOption[];
   shiftsForFilter: ShiftFilterOption[];
   tasksForFilter: TaskFilterOption[];
 }

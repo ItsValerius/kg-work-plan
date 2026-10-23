@@ -4,7 +4,14 @@ import { HelperListActions, type CsvRow } from "./HelperListActions";
 import { RemoveHelperButton } from "./RemoveHelperButton";
 import { taskSpots } from "@/domains/tasks/spots";
 
-export function HelperList({ event }: { event: EventWorkPlan }) {
+export function HelperList({
+  event,
+  emails,
+}: {
+  event: EventWorkPlan;
+  emails: Record<string, string>;
+}) {
+  const emailOf = (p: { userId: string | null }) => (p.userId ? emails[p.userId] : undefined);
   const rows: CsvRow[] = event.shifts.flatMap((shift) =>
     shift.tasks.flatMap((task) =>
       task.participants.map((p) => ({
@@ -14,7 +21,7 @@ export function HelperList({ event }: { event: EventWorkPlan }) {
         name: p.user?.name ?? "",
         group: p.groupName ?? "",
         people: p.groupSize,
-        email: p.user?.email ?? "",
+        email: emailOf(p) ?? "",
       })),
     ),
   );
@@ -78,6 +85,7 @@ export function HelperList({ event }: { event: EventWorkPlan }) {
                 <ul className="mt-2 text-[15px]">
                   {task.participants.map((p) => {
                     const name = p.user?.name || "Ohne Namen";
+                    const email = emailOf(p);
                     const group =
                       p.groupName || p.groupSize > 1
                         ? `${p.groupName ? `„${p.groupName}“ · ` : ""}${p.groupSize} Pers.`
@@ -92,14 +100,14 @@ export function HelperList({ event }: { event: EventWorkPlan }) {
                           <span className="block text-sm text-muted-foreground sm:hidden">
                             {group}
                             {/* Emails show on screen only, never on the printout. */}
-                            {p.user?.email && (
+                            {email && (
                               <span className="print:hidden">
                                 {" · "}
                                 <a
-                                  href={`mailto:${p.user.email}`}
+                                  href={`mailto:${email}`}
                                   className="text-primary underline-offset-4 hover:underline"
                                 >
-                                  {p.user.email}
+                                  {email}
                                 </a>
                               </span>
                             )}
@@ -109,12 +117,12 @@ export function HelperList({ event }: { event: EventWorkPlan }) {
                           {group}
                         </span>
                         <span className="hidden truncate sm:block print:hidden">
-                          {p.user?.email && (
+                          {email && (
                             <a
-                              href={`mailto:${p.user.email}`}
+                              href={`mailto:${email}`}
                               className="text-primary underline-offset-4 hover:underline print:text-foreground"
                             >
-                              {p.user.email}
+                              {email}
                             </a>
                           )}
                         </span>

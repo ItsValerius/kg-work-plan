@@ -18,7 +18,11 @@ const previous = {
   ],
 };
 const updates: unknown[] = [];
+const locks: string[] = [];
 const tx = {
+  select: () => ({
+    from: () => ({ where: () => ({ for: async (mode: string) => locks.push(mode) }) }),
+  }),
   query: { events: { findFirst: async () => previous } },
   insert: () => ({
     values: (row: object) => ({
@@ -49,6 +53,7 @@ const save = (startDay: string, endDay: string) =>
 describe("createOrUpdateEvent", () => {
   beforeEach(() => {
     updates.length = 0;
+    locks.length = 0;
   });
 
   it("refuses a shorter event that would leave a shift outside", async () => {
@@ -65,5 +70,7 @@ describe("createOrUpdateEvent", () => {
       },
       { startTime: fromBerlin("2026-11-22", "18:30") },
     ]);
+    // Concurrent saves of the same event wait for each other instead of both moving shifts.
+    expect(locks).toEqual(["update"]);
   });
 });

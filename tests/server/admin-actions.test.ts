@@ -25,10 +25,14 @@ const domain = {
 vi.mock("@/domains/events/functions", () => domain);
 vi.mock("@/domains/shifts/functions", () => domain);
 vi.mock("@/domains/tasks/functions", () => domain);
+const CapacityError = vi.hoisted(() => class CapacityError extends Error {});
+const helperDomain = { createParticipant: vi.fn(), updateGroup: vi.fn() };
 vi.mock("@/domains/participants/functions", () => ({
   ...domain,
+  ...helperDomain,
   ALREADY_SIGNED_UP: "",
   SHIFT_OVER: "",
+  CapacityError,
 }));
 
 const events = await import("@/server/actions/events");
@@ -70,5 +74,32 @@ describe("admin-only server actions", () => {
     isAdmin.mockReturnValue(true);
     await run();
     expect(reachedDomain()).toBe(true);
+  });
+});
+
+describe("helper actions report a full task", () => {
+  const full = "Die neue Gruppengröße würde die maximale Teilnehmeranzahl von 2 überschreiten.";
+
+  it("on sign-up, by error type rather than message text", async () => {
+    helperDomain.createParticipant.mockRejectedValueOnce(new CapacityError("anything"));
+    expect(await participants.signUpForTask({ taskId: "task-1", groupSize: 3 })).toEqual({
+      ok: false,
+      error: "So viele Plätze sind nicht mehr frei. Wähle eine kleinere Gruppe.",
+    });
+  });
+
+  it("on a group change, with the domain's message", async () => {
+    helperDomain.updateGroup.mockRejectedValueOnce(new CapacityError(full));
+    expect(await participants.updateGroup({ participantId: "p-1", groupSize: 3 })).toEqual({
+      ok: false,
+      error: full,
+    });
+  });
+
+  it("other errors stay generic", async () => {
+    helperDomain.updateGroup.mockRejectedValueOnce(new Error(full));
+    const result = await participants.updateGroup({ participantId: "p-1", groupSize: 3 });
+    expect(result).toMatchObject({ ok: false });
+    expect(result).not.toEqual({ ok: false, error: full });
   });
 });

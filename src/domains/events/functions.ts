@@ -10,6 +10,10 @@ import type { EventInput } from "./types";
 export async function createOrUpdateEvent(data: EventInput, userId: string) {
   try {
     const savedEvent = await db.transaction(async (tx) => {
+      // Two admins saving the same event at once would otherwise both move its shifts.
+      if (data.id) {
+        await tx.select({ id: events.id }).from(events).where(eq(events.id, data.id)).for("update");
+      }
       const previous = data.id
         ? await tx.query.events.findFirst({
             where: eq(events.id, data.id),
@@ -75,11 +79,12 @@ export async function createOrUpdateEvent(data: EventInput, userId: string) {
   }
 }
 
-export async function deleteEvent(eventId: string) {
+// Deletes cascade to every sign-up, so the log records who did it.
+export async function deleteEvent(eventId: string, userId: string) {
   try {
     await db.delete(events).where(eq(events.id, eventId));
 
-    logger.info("Event deleted", { eventId });
+    logger.info("Event deleted", { eventId, userId });
     return;
   } catch (error) {
     logger.error("Failed to delete event", error, { eventId });
@@ -172,9 +177,10 @@ export async function duplicateEvent(
   }
 }
 
-export async function deleteTask(taskId: string) {
+export async function deleteTask(taskId: string, userId: string) {
   try {
     await db.delete(tasks).where(eq(tasks.id, taskId));
+    logger.info("Task deleted", { taskId, userId });
 
     return;
   } catch (error) {
@@ -183,9 +189,10 @@ export async function deleteTask(taskId: string) {
   }
 }
 
-export async function deleteShift(shiftId: string) {
+export async function deleteShift(shiftId: string, userId: string) {
   try {
     const deletedShift = await db.delete(shifts).where(eq(shifts.id, shiftId)).returning();
+    logger.info("Shift deleted", { shiftId, userId });
 
     return deletedShift[0];
   } catch (error) {

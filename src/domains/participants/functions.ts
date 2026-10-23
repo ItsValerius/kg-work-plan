@@ -3,11 +3,13 @@ import { shifts, taskParticipants, tasks } from "@/db/schema";
 import { logger } from "@/lib/logger";
 import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { fitsCapacity } from "./capacity";
-import { getParticipantById } from "./queries";
 import type { UpdateGroupData, UpdateGroupPayload, ParticipantInput } from "./types";
 
 export const ALREADY_SIGNED_UP = "Benutzer bereits zur Aufgabe eingetragen.";
 export const SHIFT_OVER = "Diese Schicht ist schon vorbei.";
+
+/** The group does not fit into the free places of the task; the message is user-facing. */
+export class CapacityError extends Error {}
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -62,7 +64,7 @@ export async function createParticipant(data: ParticipantInput, userId: string) 
       await assertShiftNotOver(data.taskId, tx);
 
       if (!fitsCapacity(locked.task.requiredParticipants, locked.taken, data.groupSize ?? 1)) {
-        throw new Error("Die Mitgliederanzahl der Gruppe ist zu groß für diese Aufgabe.");
+        throw new CapacityError("Die Mitgliederanzahl der Gruppe ist zu groß für diese Aufgabe.");
       }
 
       // The unique (task, user) constraint rejects a second sign-up by the same person.
@@ -100,20 +102,6 @@ export async function createParticipant(data: ParticipantInput, userId: string) 
 
 export async function updateGroup(data: UpdateGroupData, userId: string) {
   try {
-    // Get the current participant
-    const participant = await getParticipantById(data.participantId);
-
-    if (!participant) {
-      throw new Error("Participant not found");
-    }
-
-    // Verify the participant belongs to the current user
-    if (participant.userId !== userId) {
-      throw new Error("Unauthorized");
-    }
-    await assertShiftNotOver(participant.taskId);
-
-    // Update the participant
     const updateData: UpdateGroupPayload = {};
 
     if (data.groupName !== undefined) {
@@ -126,23 +114,42 @@ export async function updateGroup(data: UpdateGroupData, userId: string) {
     }
 
     await db.transaction(async (tx) => {
+      const [participant] = await tx
+        .select({
+          id: taskParticipants.id,
+          taskId: taskParticipants.taskId,
+          userId: taskParticipants.userId,
+        })
+        .from(taskParticipants)
+        .where(eq(taskParticipants.id, data.participantId));
+
+      if (!participant) {
+        throw new Error("Participant not found");
+      }
+      // Verify the participant belongs to the current user
+      if (participant.userId !== userId) {
+        throw new Error("Unauthorized");
+      }
+
+      // Lock first, so the shift check and the capacity count see the same state as the update.
+      const locked = await lockTaskAndCount(tx, participant.taskId, participant.id);
+      await assertShiftNotOver(participant.taskId, tx);
+
       // A bigger group must still fit next to everyone else on the task.
-      if (data.groupSize !== undefined) {
-        const locked = await lockTaskAndCount(tx, participant.taskId, participant.id);
-        if (
-          locked &&
-          !fitsCapacity(locked.task.requiredParticipants, locked.taken, data.groupSize)
-        ) {
-          throw new Error(
-            `Die neue Gruppengröße würde die maximale Teilnehmeranzahl von ${locked.task.requiredParticipants} überschreiten.`,
-          );
-        }
+      if (
+        data.groupSize !== undefined &&
+        locked &&
+        !fitsCapacity(locked.task.requiredParticipants, locked.taken, data.groupSize)
+      ) {
+        throw new CapacityError(
+          `Die neue Gruppengröße würde die maximale Teilnehmeranzahl von ${locked.task.requiredParticipants} überschreiten.`,
+        );
       }
 
       await tx
         .update(taskParticipants)
         .set(updateData)
-        .where(eq(taskParticipants.id, data.participantId));
+        .where(and(eq(taskParticipants.id, participant.id), eq(taskParticipants.userId, userId)));
     });
 
     return { success: true };

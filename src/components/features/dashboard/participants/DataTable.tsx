@@ -28,8 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { events } from "@/db/schema";
-import type { ShiftFilterOption, TaskFilterOption } from "@/domains/dashboard/types";
+import type { FilterOption, ShiftFilterOption, TaskFilterOption } from "@/domains/dashboard/types";
 import { changePlanFilter } from "@/domains/dashboard/filters";
 import React from "react";
 import { toast } from "sonner";
@@ -52,7 +51,7 @@ import { berlinToday, formatDateTime } from "@/lib/datetime";
 interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<ParticipantsTableFeatures, TData>[];
   data: TData[];
-  events: (typeof events.$inferSelect)[];
+  events: FilterOption[];
   shifts?: ShiftFilterOption[];
   tasks?: TaskFilterOption[];
   onDeleteRows?: (selectedRowIds: string[]) => void | Promise<void>;
