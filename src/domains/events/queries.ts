@@ -1,5 +1,5 @@
 import db from "@/db";
-import { events, shifts, tasks, taskParticipants } from "@/db/schema";
+import { events, shifts, tasks, taskParticipants, users } from "@/db/schema";
 import { berlinToday, toBerlinInputParts } from "@/lib/datetime";
 import { WORKPLAN_TAG } from "@/lib/cache-tags";
 import { asc, eq, inArray } from "drizzle-orm";
@@ -66,7 +66,8 @@ export async function getEventWorkPlan(eventId: string) {
             with: {
               participants: {
                 orderBy: taskParticipants.createdAt,
-                with: { user: { columns: { name: true, email: true } } },
+                // No email here: this query also feeds the public sign-up sheet.
+                with: { user: { columns: { name: true } } },
               },
             },
           },
@@ -74,6 +75,21 @@ export async function getEventWorkPlan(eventId: string) {
       },
     },
   });
+}
+
+/** Organizer-only: the email of everyone signed up for the event, by user id. */
+export async function getHelperEmails(eventId: string): Promise<Record<string, string>> {
+  "use cache";
+  cacheLife("workplan");
+  cacheTag(WORKPLAN_TAG);
+  const rows = await db
+    .selectDistinct({ id: users.id, email: users.email })
+    .from(taskParticipants)
+    .innerJoin(users, eq(taskParticipants.userId, users.id))
+    .innerJoin(tasks, eq(taskParticipants.taskId, tasks.id))
+    .innerJoin(shifts, eq(tasks.shiftId, shifts.id))
+    .where(eq(shifts.eventId, eventId));
+  return Object.fromEntries(rows.map((row) => [row.id, row.email]));
 }
 
 export type EventWorkPlan = NonNullable<Awaited<ReturnType<typeof getEventWorkPlan>>>;

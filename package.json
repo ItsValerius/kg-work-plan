@@ -3,16 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
-    "vercel-build": "[ \"$VERCEL_ENV\" = production ] && drizzle-kit migrate; next build",
+    "vercel-build": "if [ \"$VERCEL_ENV\" = production ]; then drizzle-kit migrate && next build; else next build; fi",
     "start": "next start",
     "lint": "eslint .",
     "make-admin": "tsx scripts/make-admin.ts",
     "db:seed": "tsx scripts/seed.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run",
+    "test": "vitest run --project unit",
+    "test:db": "vitest run --project db",
     "test:watch": "vitest"
   },
   "dependencies": {

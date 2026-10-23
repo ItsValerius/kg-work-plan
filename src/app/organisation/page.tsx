@@ -13,6 +13,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { buttonVariants } from "@/components/ui/button";
 import {
   getEventWorkPlan,
+  getHelperEmails,
   getFutureEvents,
   getMissingUsersPerEvents,
   getPastEvents,
@@ -201,7 +202,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
 
                 <div className="mt-6">
                   {view === "helfer" ? (
-                    <HelperList event={event} />
+                    <HelperList event={event} emails={await getHelperEmails(event.id)} />
                   ) : view === "planen" ? (
                     <PlanView event={event} />
                   ) : (
