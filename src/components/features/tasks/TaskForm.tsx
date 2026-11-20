@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { berlinTimeFrom, toBerlinInputParts } from "@/lib/datetime";
-import { tasks } from "@/db/schema";
+import type { tasks } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { taskSchema } from "@/domains/tasks/types";
 import { AlertCircle, Loader2 } from "lucide-react";

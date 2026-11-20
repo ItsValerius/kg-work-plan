@@ -1,3 +1,6 @@
+// Legal pages must stay fully static; the build fails if request-time work sneaks in.
+export const ensureStatic = "navigation";
+
 export default function MdxLayout({ children }: { children: React.ReactNode }) {
   // Create any shared layout or styles here
   return (

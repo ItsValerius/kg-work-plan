@@ -40,8 +40,8 @@ export async function saveEvent(raw: EventInput): Promise<SaveResult> {
 }
 
 export async function deleteEvent(eventId: string) {
-  await getAuthenticatedAdminUserId();
-  await domainActions.deleteEvent(parseOrThrow(idSchema, eventId));
+  const userId = await getAuthenticatedAdminUserId();
+  await domainActions.deleteEvent(parseOrThrow(idSchema, eventId), userId);
   updateTag(WORKPLAN_TAG);
 }
 
@@ -84,13 +84,13 @@ export async function duplicateEvent(
 }
 
 export async function deleteTask(taskId: string) {
-  await getAuthenticatedAdminUserId();
-  await domainActions.deleteTask(parseOrThrow(idSchema, taskId));
+  const userId = await getAuthenticatedAdminUserId();
+  await domainActions.deleteTask(parseOrThrow(idSchema, taskId), userId);
   updateTag(WORKPLAN_TAG);
 }
 
 export async function deleteShift(shiftId: string) {
-  await getAuthenticatedAdminUserId();
-  await domainActions.deleteShift(parseOrThrow(idSchema, shiftId));
+  const userId = await getAuthenticatedAdminUserId();
+  await domainActions.deleteShift(parseOrThrow(idSchema, shiftId), userId);
   updateTag(WORKPLAN_TAG);
 }

@@ -25,22 +25,23 @@ export async function getParticipantsData(): Promise<ParticipantsData> {
     orderBy: desc(taskParticipants.createdAt),
   });
 
-  const allEvents = await db.query.events.findMany();
-
-  const allShifts = await db.query.shifts.findMany({
-    with: {
-      event: { columns: { name: true } },
-    },
-  });
-
-  const allTasks = await db.query.tasks.findMany({
-    with: {
-      shift: {
-        with: { event: { columns: { id: true, name: true } } },
-        columns: { id: true, name: true },
+  // Only what the filters show.
+  const [allEvents, allShifts, allTasks] = await Promise.all([
+    db.query.events.findMany({ columns: { id: true, name: true } }),
+    db.query.shifts.findMany({
+      columns: { id: true, name: true, eventId: true },
+      with: { event: { columns: { name: true } } },
+    }),
+    db.query.tasks.findMany({
+      columns: { id: true, name: true },
+      with: {
+        shift: {
+          with: { event: { columns: { id: true, name: true } } },
+          columns: { id: true, name: true },
+        },
       },
-    },
-  });
+    }),
+  ]);
 
   const shiftsForFilter: ShiftFilterOption[] = allShifts.map((shift) => ({
     id: shift.id,

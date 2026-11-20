@@ -6,6 +6,5 @@ src/db/migrations
 .agents
 .claude
 .impeccable
-.migration
 *.md
 *.mdx

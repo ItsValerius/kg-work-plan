@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { shifts } from "@/db/schema";
+import type { shifts } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { shiftSchema } from "@/domains/shifts/types";
 import { AlertCircle, Loader2 } from "lucide-react";

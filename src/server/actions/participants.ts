@@ -2,7 +2,7 @@
 
 import { getAuthenticatedAdminUserId, getAuthenticatedUserId } from "@/lib/auth/utils";
 import * as domainActions from "@/domains/participants/functions";
-import { ALREADY_SIGNED_UP, SHIFT_OVER } from "@/domains/participants/functions";
+import { ALREADY_SIGNED_UP, CapacityError, SHIFT_OVER } from "@/domains/participants/functions";
 import {
   signUpSchema,
   updateGroupSchema,
@@ -42,7 +42,7 @@ export async function signUpForTask(raw: {
     if (error instanceof Error && error.message === SHIFT_OVER) {
       return { ok: false, error: SHIFT_OVER };
     }
-    if (error instanceof Error && error.message.startsWith("Die Mitgliederanzahl")) {
+    if (error instanceof CapacityError) {
       return {
         ok: false,
         error: "So viele Plätze sind nicht mehr frei. Wähle eine kleinere Gruppe.",
@@ -75,7 +75,7 @@ export async function updateGroup(data: UpdateGroupData): Promise<ActionResult> 
     if (message === SHIFT_OVER) {
       return { ok: false, error: `${SHIFT_OVER} Wende dich an die Organisation.` };
     }
-    if (message.startsWith("Die neue Gruppengröße")) {
+    if (error instanceof CapacityError) {
       return { ok: false, error: message };
     }
     return {
