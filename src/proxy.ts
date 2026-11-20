@@ -1,5 +1,4 @@
-import { auth } from "@/lib/auth/auth";
-import { parseSetCookieHeader } from "better-auth/cookies";
+import { getSessionCookie, parseSetCookieHeader } from "better-auth/cookies";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
@@ -8,6 +7,15 @@ import { NextResponse, type NextRequest } from "next/server";
  * the database. Not an auth check: pages, actions and routes still check for themselves.
  */
 export async function proxy(request: NextRequest) {
+  // Runs before the static shell is sent, so only touch auth (and the database) when there's
+  // a session whose cookie cache has expired; the browser drops that cookie after its max-age.
+  if (!getSessionCookie(request)) return NextResponse.next();
+  // includes(), not getSessionCookie: a large cache cookie is split into session_data.0, .1, …
+  const cookieNames = request.cookies.getAll().map((c) => c.name);
+  if (cookieNames.some((n) => n.includes("better-auth.session_data"))) return NextResponse.next();
+
+  // Imported here so a cold start for anonymous visitors doesn't load Better Auth and the driver.
+  const { auth } = await import("@/lib/auth/auth");
   let setCookies: string[];
   try {
     const { headers } = await auth.api.getSession({

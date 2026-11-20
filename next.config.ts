@@ -18,44 +18,49 @@ const nextConfig: NextConfig = {
   async redirects() {
     const e = "/veranstaltungen/:eventId";
     const o = "/organisation/veranstaltungen";
-    return [
-      // Creating moved into the organizer area.
-      { source: "/events/new", destination: `${o}/neu` },
-      { source: "/events/:eventId/shifts/new", destination: `${o}/:eventId/schichten/neu` },
-      {
-        source: "/events/:eventId/shifts/:shiftId/tasks/new",
-        destination: `${o}/:eventId/schichten/:shiftId/aufgaben/neu`,
-      },
-      // The old single-task page; tasks now live on the event's work plan.
-      {
-        source: "/events/:eventId/shifts/:shiftId/tasks/:taskId",
-        destination: `${e}#aufgabe-:taskId`,
-      },
-      {
-        source: "/events/:eventId/shifts/:shiftId/tasks/:taskId/edit",
-        destination: `${e}/schichten/:shiftId/aufgaben/:taskId/bearbeiten`,
-      },
-      {
-        source: "/events/:eventId/shifts/:shiftId/edit",
-        destination: `${e}/schichten/:shiftId/bearbeiten`,
-      },
-      { source: "/events/:eventId/edit", destination: `${e}/bearbeiten` },
-      { source: "/events/:eventId", destination: e },
-      { source: "/events", destination: "/veranstaltungen" },
-      { source: "/dashboard/events/new", destination: `${o}/neu` },
-      {
-        source: "/dashboard/events/:eventId/shifts/new",
-        destination: `${o}/:eventId/schichten/neu`,
-      },
-      {
-        source: "/dashboard/events/:eventId/shifts/:shiftId/tasks/new",
-        destination: `${o}/:eventId/schichten/:shiftId/aufgaben/neu`,
-      },
-      { source: "/dashboard", destination: "/organisation" },
-      { source: "/profile", destination: "/profil" },
-      { source: "/signin", destination: "/anmelden" },
-      { source: "/verify-request", destination: "/email-pruefen" },
-    ].map((r) => ({ ...r, permanent: true }));
+    return (
+      [
+        // Creating moved into the organizer area.
+        { source: "/events/new", destination: `${o}/neu` },
+        { source: "/events/:eventId/shifts/new", destination: `${o}/:eventId/schichten/neu` },
+        {
+          source: "/events/:eventId/shifts/:shiftId/tasks/new",
+          destination: `${o}/:eventId/schichten/:shiftId/aufgaben/neu`,
+        },
+        // The old single-task page; tasks now live on the event's work plan.
+        {
+          source: "/events/:eventId/shifts/:shiftId/tasks/:taskId",
+          destination: `${e}#aufgabe-:taskId`,
+        },
+        {
+          source: "/events/:eventId/shifts/:shiftId/tasks/:taskId/edit",
+          destination: `${e}/schichten/:shiftId/aufgaben/:taskId/bearbeiten`,
+        },
+        {
+          source: "/events/:eventId/shifts/:shiftId/edit",
+          destination: `${e}/schichten/:shiftId/bearbeiten`,
+        },
+        { source: "/events/:eventId/edit", destination: `${e}/bearbeiten` },
+        { source: "/events/:eventId", destination: e },
+        { source: "/events", destination: "/veranstaltungen" },
+        { source: "/dashboard/events/new", destination: `${o}/neu` },
+        {
+          source: "/dashboard/events/:eventId/shifts/new",
+          destination: `${o}/:eventId/schichten/neu`,
+        },
+        {
+          source: "/dashboard/events/:eventId/shifts/:shiftId/tasks/new",
+          destination: `${o}/:eventId/schichten/:shiftId/aufgaben/neu`,
+        },
+        { source: "/dashboard", destination: "/organisation" },
+        { source: "/profile", destination: "/profil" },
+        { source: "/signin", destination: "/anmelden" },
+        { source: "/verify-request", destination: "/email-pruefen" },
+      ]
+        .map((r) => ({ ...r, permanent: true }))
+        // Answered by the router before proxy or render; not permanent, so the home page can change.
+        .concat({ source: "/", destination: "/veranstaltungen", permanent: false })
+    );
   },
 };
 

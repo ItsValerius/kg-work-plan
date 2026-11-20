@@ -6,10 +6,9 @@ vi.mock("@/lib/auth/auth", () => ({ auth: { api: { getSession } } }));
 
 const { proxy } = await import("@/proxy");
 
-function request() {
-  return new NextRequest("http://localhost/meine-aufgaben", {
-    headers: { cookie: "better-auth.session_token=tok; better-auth.session_data=old" },
-  });
+// Default: signed in, cookie cache expired (the browser already dropped session_data).
+function request(cookie = "better-auth.session_token=tok") {
+  return new NextRequest("http://localhost/meine-aufgaben", { headers: { cookie } });
 }
 
 function answer(...setCookies: string[]) {
@@ -23,7 +22,18 @@ describe("proxy", () => {
     getSession.mockReset();
   });
 
-  it("passes through when the cache is still valid", async () => {
+  it("skips the session lookup for anonymous visitors", async () => {
+    const response = await proxy(request(""));
+    expect(getSession).not.toHaveBeenCalled();
+    expect(response.headers.get("x-middleware-override-headers")).toBeNull();
+  });
+
+  it("skips the session lookup while the cache cookie is still there", async () => {
+    await proxy(request("better-auth.session_token=tok; better-auth.session_data=old"));
+    expect(getSession).not.toHaveBeenCalled();
+  });
+
+  it("passes through when Better Auth sets no cookies", async () => {
     answer();
     const response = await proxy(request());
     expect(response.headers.getSetCookie()).toEqual([]);
@@ -42,11 +52,9 @@ describe("proxy", () => {
   });
 
   it("drops cookies Better Auth expires", async () => {
-    answer("better-auth.session_data=; Max-Age=0; Path=/");
+    answer("better-auth.session_token=; Max-Age=0; Path=/");
     const response = await proxy(request());
-    expect(response.headers.get("x-middleware-request-cookie")).toBe(
-      "better-auth.session_token=tok",
-    );
+    expect(response.headers.get("x-middleware-request-cookie")).toBe("");
   });
 
   it("lets the page decide when the session lookup fails", async () => {
